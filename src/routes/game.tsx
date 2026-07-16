@@ -6732,7 +6732,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
 
   // Subtle wall cracks along the mid-cave.
   ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-  const wallCrackOff = -Math.floor(camX * 0.85);
+  const wallCrackOff = -Math.floor(camXf * 0.85);
   for (let x = ((wallCrackOff % 200) + 200) % 200 - 200; x < VW + 200; x += 200) {
     ctx.fillRect(x + 60, 70, 1, 24);
     ctx.fillRect(x + 61, 94, 1, 18);
