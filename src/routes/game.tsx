@@ -3564,8 +3564,8 @@ function GamePage() {
                 }
               }
             } else if (_heldPixels) {
-              let ax = HELD_ANCHOR.x;
-              let ay = HELD_ANCHOR.y;
+              let ax: number = HELD_ANCHOR.x;
+              let ay: number = HELD_ANCHOR.y;
               let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
               for (const k of Object.keys(_heldPixels)) {
                 const [px, py] = k.split(",").map(Number);
