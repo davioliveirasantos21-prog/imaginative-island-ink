@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { usePlayerSession } from "@/hooks/use-player-session";
+import { flushPlayerSaveSync, waitForPlayerSaveReady } from "@/lib/player-sync";
 import {
   loadSlots,
   saveSlots,
@@ -71,8 +72,15 @@ function CharactersPage() {
   }, [sessionLoading, playerSession, navigate]);
 
   useEffect(() => {
-    setSlots(loadSlots());
-    setReady(true);
+    let mounted = true;
+    void waitForPlayerSaveReady().then(() => {
+      if (!mounted) return;
+      setSlots(loadSlots());
+      setReady(true);
+    });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleEnter = (index: number) => {
@@ -80,7 +88,7 @@ function CharactersPage() {
     navigate({ to: "/game" });
   };
 
-  const handleCreate = (
+  const handleCreate = async (
     index: number,
     name: string,
     appearance: Appearance,
@@ -94,10 +102,11 @@ function CharactersPage() {
     };
     setSlots(next);
     saveSlots(next);
+    await flushPlayerSaveSync();
     setCreating(null);
   };
 
-  const handleDelete = (index: number) => {
+  const handleDelete = async (index: number) => {
     const next = [...slots];
     next[index] = null;
     setSlots(next);
@@ -108,6 +117,7 @@ function CharactersPage() {
     } catch {
       /* ignore */
     }
+    await flushPlayerSaveSync();
   };
 
 
@@ -135,7 +145,11 @@ function CharactersPage() {
         </p>
 
         <div className="mt-10 grid flex-1 grid-cols-1 items-start gap-6 md:grid-cols-3 short:mt-4 short:grid-cols-3 short:gap-3">
-          {ready &&
+          {!ready ? (
+            <div className="col-span-full flex min-h-[260px] items-center justify-center text-center text-[10px] tracking-widest text-[#f4e9c1]/70">
+              Carregando seu save da nuvem...
+            </div>
+          ) : (
             slots.map((slot, i) => (
               <SlotCard
                 key={i}
@@ -145,7 +159,8 @@ function CharactersPage() {
                 onEnter={() => handleEnter(i)}
                 onDelete={() => handleDelete(i)}
               />
-            ))}
+            ))
+          )}
 
         </div>
       </div>
