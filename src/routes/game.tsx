@@ -2681,7 +2681,7 @@ function GamePage() {
           }
           if (dirty) saveWorld();
         }
-        drawCaveScene(ctx, camX, now / 1000);
+        drawCaveScene(ctx, camX, now / 1000, camXf);
         // ----- Cave ores (only unbroken ones) -----
         for (const ore of caveOresRef.current) {
           if (minedOresRef.current.has(ore.id)) continue;
