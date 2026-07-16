@@ -103,6 +103,27 @@ function blobUpdatedAt(blob: Record<string, string>): number {
   }
 }
 
+function saveSlotCreatedAt(blob: Record<string, string>): number {
+  try {
+    const raw = blob["pixel-realms.slots"];
+    if (!raw) return 0;
+    const slots = JSON.parse(raw) as unknown[];
+    if (!Array.isArray(slots)) return 0;
+    let newest = 0;
+    for (const slot of slots) {
+      if (slot && typeof slot === "object") {
+        const createdAt = (slot as { createdAt?: unknown }).createdAt;
+        if (typeof createdAt === "number" && Number.isFinite(createdAt)) {
+          newest = Math.max(newest, createdAt);
+        }
+      }
+    }
+    return newest;
+  } catch {
+    return 0;
+  }
+}
+
 function touchSaveMeta(origSet: (k: string, v: string) => void) {
   try {
     origSet(SAVE_META_KEY, JSON.stringify({ updatedAt: Date.now() }));
@@ -198,7 +219,8 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
     // is especially important for deletions: a local `[null, ...]` slot state is
     // a real save, not an empty cache.
     const localOwner = localStorage.getItem(SAVE_OWNER_KEY);
-    const localUpdatedAt = blobUpdatedAt(localBlob);
+    const localUpdatedAt = blobUpdatedAt(localBlob) || saveSlotCreatedAt(localBlob);
+    const cloudUpdatedAt = blobUpdatedAt(cloudBlob) || saveSlotCreatedAt(cloudBlob);
     const sameBrowserAccount = localOwner === userId || (!localOwner && localUpdatedAt > 0);
     const localIsNewerOrSame = localUpdatedAt >= blobUpdatedAt(cloudBlob);
     if (!cloudEmpty && localNonEmpty && localBlob["pixel-realms.slots"] && !sameBlob(localBlob, cloudBlob) && sameBrowserAccount && localIsNewerOrSame) {
