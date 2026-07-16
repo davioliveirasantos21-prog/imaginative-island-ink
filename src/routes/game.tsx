@@ -574,8 +574,9 @@ function GamePage() {
         (cx >= BEACH_START && cx <= OCEAN_START) ||
         (cx >= OCEAN_LEFT_END && cx <= BEACH_LEFT_END)
       );
-      walkLoop.setVolume(walking && !onSand ? vol * 0.6 : 0);
+      walkLoop.setVolume(walking && !onSand && !inCave ? vol * 0.6 : 0);
       walkSandLoop.setVolume(walking && onSand ? vol * 0.45 : 0);
+      walkCaveLoop.setVolume(walking && inCave ? vol * 0.55 : 0);
       // Worm movement loop — distance-based volume from nearest active centipede.
       let wormVol = 0;
       if (modeRef.current === "cave2" && s) {
