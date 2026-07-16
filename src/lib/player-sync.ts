@@ -195,8 +195,9 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
     // the player's newest intent and do not resurrect an older cloud copy. This
     // is especially important for deletions: a local `[null, ...]` slot state is
     // a real save, not an empty cache.
+    const sameBrowserAccount = localStorage.getItem(SAVE_OWNER_KEY) === userId;
     const localIsNewerOrSame = blobUpdatedAt(localBlob) >= blobUpdatedAt(cloudBlob);
-    if (!cloudEmpty && localNonEmpty && localBlob["pixel-realms.slots"] && !sameBlob(localBlob, cloudBlob) && localIsNewerOrSame) {
+    if (!cloudEmpty && localNonEmpty && localBlob["pixel-realms.slots"] && !sameBlob(localBlob, cloudBlob) && sameBrowserAccount && localIsNewerOrSame) {
       await supabase
         .from("player_saves")
         .upsert({ user_id: userId, data: localBlob }, { onConflict: "user_id" });
@@ -217,7 +218,10 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
         if (localBlob[k] !== cloudBlob[k]) { changed = true; break; }
       }
     }
-    if (!changed) return;
+    if (!changed) {
+      localStorage.setItem(SAVE_OWNER_KEY, userId);
+      return;
+    }
     clearAllLocal(origRemove);
     for (const [k, v] of Object.entries(cloudBlob)) {
       if (typeof v === "string") origSet(k, v);
