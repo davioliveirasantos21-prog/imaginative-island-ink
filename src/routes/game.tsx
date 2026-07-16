@@ -1755,7 +1755,7 @@ function GamePage() {
           if (keys.has("jump") && s.grounded) {
             s.vy = JUMP_VELOCITY;
             s.grounded = false;
-            playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.6);
+            playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
           }
           s.vy += GRAVITY * dt;
           s.x += s.vx * dt;
@@ -2086,7 +2086,7 @@ function GamePage() {
               // Jump on land only when clearly not over water.
               s.vy = JUMP_VELOCITY;
               s.grounded = false;
-              playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.6);
+              playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
             } else if (fullyOnWater && s.grounded && !holdingUp) {
               // Released up while standing fully on water → sink in.
               s.y = GROUND_Y + 6 - SPRITE_H + FOOT_OFFSET;
@@ -2308,7 +2308,7 @@ function GamePage() {
           if (keys.has("jump") && s.grounded) {
             s.vy = JUMP_VELOCITY;
             s.grounded = false;
-            playOneShot(jumpSfxAsset.url, (ambientVolume / 100) * 0.6);
+            playOneShot(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
           }
           s.vy += GRAVITY * dt;
           s.x += s.vx * dt;
