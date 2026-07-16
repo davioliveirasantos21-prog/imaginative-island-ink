@@ -236,7 +236,6 @@ export async function playerSignUp(email: string, password: string, username?: s
       email: email.trim().toLowerCase(),
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
         data: username ? { username } : undefined,
       },
     });
@@ -276,21 +275,6 @@ export async function playerSignUp(email: string, password: string, username?: s
   }
 }
 
-export async function playerResetPassword(email: string) {
-  try {
-    // Bypass Supabase's built-in email hook — send via our own Resend function.
-    const { data, error } = await supabase.functions.invoke("send-password-reset", {
-      body: {
-        email: email.trim().toLowerCase(),
-        redirectTo: `${window.location.origin}/reset-password`,
-      },
-    });
-    if (error) return { data: null, error };
-    return { data, error: null };
-  } catch (e: any) {
-    return { data: null, error: e };
-  }
-}
 
 export async function playerSignOut() {
   if (typeof window !== "undefined") {
