@@ -6656,9 +6656,9 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
   }
 
   // Falling water drops (deterministic per column, animated).
-  const dropOff = -Math.floor(camX * 0.6);
+  const dropOff = -Math.floor(camXf * 0.6);
   for (let x = ((dropOff % 180) + 180) % 180 - 180; x < VW + 180; x += 180) {
-    const worldCol = Math.round(x + camX * 0.6);
+    const worldCol = Math.round(x + camXf * 0.6);
     const seed = ((worldCol * 928371) & 0xffff) / 0xffff;
     const period = 1.6 + seed * 1.4;
     const phase = (time + seed * 5) % period;
