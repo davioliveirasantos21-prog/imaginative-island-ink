@@ -601,6 +601,7 @@ function GamePage() {
       waterLoop.dispose();
       walkLoop.dispose();
       walkSandLoop.dispose();
+      walkCaveLoop.dispose();
       wormLoop.dispose();
       islandAmbientLoop.dispose();
     };
