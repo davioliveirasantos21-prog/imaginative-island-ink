@@ -20,10 +20,13 @@ import { supabase } from "@/integrations/supabase/client";
 const EXACT_KEYS = new Set<string>([
   "pixel-realms.slots",
   "pixel-realms.active-slot",
+  "pixel-realms.save-meta",
   "cave-wall-restore-v1",
   "cave2-reset-v1",
 ]);
 const PREFIXES = ["pixel-realms.world.", "pixel-realms.worldseed."];
+const SAVE_META_KEY = "pixel-realms.save-meta";
+const SAVE_OWNER_KEY = "pixel-realms.save-owner";
 
 function isSyncedKey(k: string): boolean {
   if (EXACT_KEYS.has(k)) return true;
@@ -54,8 +57,86 @@ function clearAllLocal(origRemove: (k: string) => void) {
 let currentUserId: string | null = null;
 let pushTimer: ReturnType<typeof setTimeout> | null = null;
 let inited = false;
+let localChangeVersion = 0;
+let playerSaveReady = false;
+const readyWaiters = new Set<() => void>();
+let storageSet: ((k: string, v: string) => void) | null = null;
+let storageRemove: ((k: string) => void) | null = null;
+
+export function isPlayerSaveReady(): boolean {
+  return playerSaveReady;
+}
+
+export function waitForPlayerSaveReady(): Promise<void> {
+  if (playerSaveReady) return Promise.resolve();
+  return new Promise((resolve) => readyWaiters.add(resolve));
+}
+
+function markPlayerSavePending() {
+  playerSaveReady = false;
+}
+
+function markPlayerSaveReady() {
+  playerSaveReady = true;
+  for (const resolve of readyWaiters) resolve();
+  readyWaiters.clear();
+}
+
+function sameBlob(a: Record<string, string>, b: Record<string, string>): boolean {
+  const ak = Object.keys(a);
+  const bk = Object.keys(b);
+  if (ak.length !== bk.length) return false;
+  for (const k of ak) if (a[k] !== b[k]) return false;
+  return true;
+}
+
+function blobUpdatedAt(blob: Record<string, string>): number {
+  try {
+    const raw = blob[SAVE_META_KEY];
+    if (!raw) return 0;
+    const parsed = JSON.parse(raw) as { updatedAt?: unknown };
+    return typeof parsed.updatedAt === "number" && Number.isFinite(parsed.updatedAt)
+      ? parsed.updatedAt
+      : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function saveSlotCreatedAt(blob: Record<string, string>): number {
+  try {
+    const raw = blob["pixel-realms.slots"];
+    if (!raw) return 0;
+    const slots = JSON.parse(raw) as unknown[];
+    if (!Array.isArray(slots)) return 0;
+    let newest = 0;
+    for (const slot of slots) {
+      if (slot && typeof slot === "object") {
+        const createdAt = (slot as { createdAt?: unknown }).createdAt;
+        if (typeof createdAt === "number" && Number.isFinite(createdAt)) {
+          newest = Math.max(newest, createdAt);
+        }
+      }
+    }
+    return newest;
+  } catch {
+    return 0;
+  }
+}
+
+function touchSaveMeta(origSet: (k: string, v: string) => void) {
+  try {
+    origSet(SAVE_META_KEY, JSON.stringify({ updatedAt: Date.now() }));
+  } catch {
+    /* ignore */
+  }
+}
 
 async function pushNow() {
+  if (pushTimer) {
+    clearTimeout(pushTimer);
+    pushTimer = null;
+  }
   pushTimer = null;
   if (!currentUserId || currentUserId.startsWith("local-")) return;
   try {
@@ -65,21 +146,41 @@ async function pushNow() {
       .upsert({ user_id: currentUserId, data }, { onConflict: "user_id" });
     if (error && import.meta.env.DEV) {
       console.debug("[player-sync] push failed:", error.message);
+    } else if (!error) {
+      try {
+        localStorage.setItem(SAVE_OWNER_KEY, currentUserId);
+      } catch {
+        /* ignore */
+      }
     }
   } catch (e) {
     if (import.meta.env.DEV) console.debug("[player-sync] push threw:", e);
   }
 }
 
+export async function flushPlayerSaveSync(): Promise<void> {
+  await pushNow();
+}
+
 function schedulePush() {
   if (!currentUserId) return;
   if (pushTimer) clearTimeout(pushTimer);
-  pushTimer = setTimeout(() => void pushNow(), 800);
+  pushTimer = setTimeout(() => void pushNow(), 150);
 }
 
 async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) => void, origRemove: (k: string) => void) {
-  if (userId.startsWith("local-")) return;
+  if (userId.startsWith("local-")) {
+    markPlayerSaveReady();
+    return;
+  }
+  markPlayerSavePending();
+  const hydrationStartVersion = localChangeVersion;
   try {
+    const owner = localStorage.getItem(SAVE_OWNER_KEY);
+    if (owner && owner !== userId) {
+      clearAllLocal(origRemove);
+    }
+
     const { data, error } = await supabase
       .from("player_saves")
       .select("data")
@@ -89,6 +190,16 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
       console.warn("[player-sync] fetch failed:", error.message);
       return;
     }
+
+    // If the player changed/deleted/created a character while the cloud row was
+    // still loading, never overwrite that fresh local action with stale cloud
+    // data. Push the latest local state instead.
+    if (localChangeVersion !== hydrationStartVersion) {
+      currentUserId = userId;
+      await pushNow();
+      return;
+    }
+
     const cloudBlob = (data?.data as Record<string, string> | undefined) ?? {};
     const localBlob = readAllLocal();
     const cloudEmpty = Object.keys(cloudBlob).length === 0;
@@ -99,6 +210,24 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
       await supabase
         .from("player_saves")
         .upsert({ user_id: userId, data: localBlob }, { onConflict: "user_id" });
+      localStorage.setItem(SAVE_OWNER_KEY, userId);
+      return;
+    }
+
+    // If this browser already has an explicit character-slot save, treat it as
+    // the player's newest intent and do not resurrect an older cloud copy. This
+    // is especially important for deletions: a local `[null, ...]` slot state is
+    // a real save, not an empty cache.
+    const localOwner = localStorage.getItem(SAVE_OWNER_KEY);
+    const localUpdatedAt = blobUpdatedAt(localBlob) || saveSlotCreatedAt(localBlob);
+    const cloudUpdatedAt = blobUpdatedAt(cloudBlob) || saveSlotCreatedAt(cloudBlob);
+    const sameBrowserAccount = localOwner === userId || (!localOwner && localUpdatedAt > 0);
+    const localIsNewerOrSame = localUpdatedAt >= cloudUpdatedAt;
+    if (!cloudEmpty && localNonEmpty && localBlob["pixel-realms.slots"] && !sameBlob(localBlob, cloudBlob) && sameBrowserAccount && localIsNewerOrSame) {
+      await supabase
+        .from("player_saves")
+        .upsert({ user_id: userId, data: localBlob }, { onConflict: "user_id" });
+      localStorage.setItem(SAVE_OWNER_KEY, userId);
       return;
     }
 
@@ -115,33 +244,46 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
         if (localBlob[k] !== cloudBlob[k]) { changed = true; break; }
       }
     }
-    if (!changed) return;
+    if (!changed) {
+      localStorage.setItem(SAVE_OWNER_KEY, userId);
+      return;
+    }
     clearAllLocal(origRemove);
     for (const [k, v] of Object.entries(cloudBlob)) {
       if (typeof v === "string") origSet(k, v);
     }
+    localStorage.setItem(SAVE_OWNER_KEY, userId);
     // Reload so in-memory caches read the freshly hydrated data.
     window.location.reload();
   } catch (e) {
     console.warn("[player-sync] hydrate failed:", e);
+  } finally {
+    markPlayerSaveReady();
   }
 }
 
 export function initPlayerSync() {
   if (inited || typeof window === "undefined") return;
   inited = true;
+  markPlayerSavePending();
 
   // Wrap the (possibly already-patched by cloud-sync) localStorage methods so
   // writes to player keys also enqueue a cloud push.
   const origSet = window.localStorage.setItem.bind(window.localStorage);
   const origRemove = window.localStorage.removeItem.bind(window.localStorage);
+  storageSet = origSet;
+  storageRemove = origRemove;
   try {
     Object.defineProperty(window.localStorage, "setItem", {
       configurable: true,
       writable: true,
       value: (k: string, v: string) => {
         origSet(k, v);
-        if (isSyncedKey(k)) schedulePush();
+        if (isSyncedKey(k)) {
+          if (k !== SAVE_META_KEY) touchSaveMeta(origSet);
+          localChangeVersion++;
+          schedulePush();
+        }
       },
     });
     Object.defineProperty(window.localStorage, "removeItem", {
@@ -149,7 +291,11 @@ export function initPlayerSync() {
       writable: true,
       value: (k: string) => {
         origRemove(k);
-        if (isSyncedKey(k)) schedulePush();
+        if (isSyncedKey(k)) {
+          if (k !== SAVE_META_KEY) touchSaveMeta(origSet);
+          localChangeVersion++;
+          schedulePush();
+        }
       },
     });
   } catch (e) {
@@ -162,6 +308,7 @@ export function initPlayerSync() {
     try {
       const u = JSON.parse(localUserRaw);
       currentUserId = u.id;
+      if (currentUserId?.startsWith("local-")) markPlayerSaveReady();
     } catch {}
   }
 
@@ -172,6 +319,8 @@ export function initPlayerSync() {
     if (uid) {
       currentUserId = uid;
       void hydrateFromCloud(uid, origSet, origRemove);
+    } else {
+      markPlayerSaveReady();
     }
   });
 
@@ -179,16 +328,28 @@ export function initPlayerSync() {
     if (currentUserId && currentUserId.startsWith("local-")) return;
     const uid = session?.user?.id ?? null;
     if (event === "SIGNED_IN" && uid && uid !== currentUserId) {
+      markPlayerSavePending();
       currentUserId = uid;
       void hydrateFromCloud(uid, origSet, origRemove);
     } else if (event === "SIGNED_OUT") {
       currentUserId = null;
       clearAllLocal(origRemove);
+      localStorage.removeItem(SAVE_OWNER_KEY);
+      markPlayerSaveReady();
       // Reload back to the main menu with a clean guest state.
       if (window.location.pathname !== "/") {
         window.location.href = "/";
       }
     }
+  });
+
+  const flushOnLeave = () => {
+    void pushNow();
+  };
+  window.addEventListener("pagehide", flushOnLeave);
+  window.addEventListener("beforeunload", flushOnLeave);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushOnLeave();
   });
 }
 
@@ -199,9 +360,17 @@ if (typeof window !== "undefined") {
 // -------------------- Player auth helpers --------------------
 
 export async function playerSignIn(email: string, password: string) {
+  markPlayerSavePending();
   try {
     const res = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
     if (res.error) throw res.error;
+    const userId = res.data.user?.id;
+    if (userId && storageSet && storageRemove) {
+      currentUserId = userId;
+      void hydrateFromCloud(userId, storageSet, storageRemove);
+    } else {
+      markPlayerSaveReady();
+    }
     return res;
   } catch (e: any) {
     const isNetworkError =
@@ -218,19 +387,23 @@ export async function playerSignIn(email: string, password: string) {
       if (user) {
         localStorage.setItem("pixel-islands.current-user", JSON.stringify(user));
         currentUserId = user.id;
+        markPlayerSaveReady();
         // Trigger page refresh/redirect
         setTimeout(() => {
           window.location.href = "/characters";
         }, 100);
         return { data: { user: { id: user.id, email: user.email } }, error: null };
       }
+      markPlayerSaveReady();
       return { data: null, error: new Error("Usuário ou senha incorretos (Modo Offline).") };
     }
+    markPlayerSaveReady();
     return { data: null, error: e };
   }
 }
 
 export async function playerSignUp(email: string, password: string, username?: string) {
+  markPlayerSavePending();
   try {
     const res = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
@@ -240,6 +413,13 @@ export async function playerSignUp(email: string, password: string, username?: s
       },
     });
     if (res.error) throw res.error;
+    const userId = res.data.user?.id;
+    if (userId && storageSet && storageRemove) {
+      currentUserId = userId;
+      void hydrateFromCloud(userId, storageSet, storageRemove);
+    } else {
+      markPlayerSaveReady();
+    }
     return res;
   } catch (e: any) {
     const isNetworkError =
@@ -266,17 +446,20 @@ export async function playerSignUp(email: string, password: string, username?: s
       localStorage.setItem("pixel-islands.local-users", JSON.stringify(localUsers));
       localStorage.setItem("pixel-islands.current-user", JSON.stringify(newUser));
       currentUserId = newUser.id;
+      markPlayerSaveReady();
       setTimeout(() => {
         window.location.href = "/characters";
       }, 100);
       return { data: { session: {} }, error: null };
     }
+    markPlayerSaveReady();
     return { data: null, error: e };
   }
 }
 
 
 export async function playerSignOut() {
+  await pushNow();
   if (typeof window !== "undefined") {
     localStorage.removeItem("pixel-islands.current-user");
   }
