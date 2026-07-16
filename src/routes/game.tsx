@@ -3039,6 +3039,7 @@ function GamePage() {
           planted: plantedRef.current,
           now: Date.now(),
         },
+        camXf,
       );
 
       // ----- Cave entrance overlay: rocky mountain with an arched cave mouth -----
