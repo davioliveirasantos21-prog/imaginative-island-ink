@@ -6604,7 +6604,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
   }
   // Ceiling cracks — jagged darker lines.
   ctx.fillStyle = "#0d0e10";
-  for (let x = ((-camX * 0.5) % 90 + 90) % 90 - 90; x < VW + 90; x += 90) {
+  for (let x = ((-camXf * 0.5) % 90 + 90) % 90 - 90; x < VW + 90; x += 90) {
     ctx.fillRect(x + 10, 4, 1, 6);
     ctx.fillRect(x + 11, 8, 1, 5);
     ctx.fillRect(x + 12, 12, 1, 6);
