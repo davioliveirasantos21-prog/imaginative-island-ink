@@ -1,0 +1,1 @@
+GRANT INSERT, UPDATE, DELETE ON public.game_content TO authenticated;

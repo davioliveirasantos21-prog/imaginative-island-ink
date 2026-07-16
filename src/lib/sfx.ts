@@ -1,0 +1,150 @@
+// Simple SFX helpers for one-shot and looping sounds.
+// Volume is scaled by the user's ambient volume (0-100) already applied by callers.
+
+const oneShotPool: Record<string, HTMLAudioElement[]> = {};
+
+export function playOneShot(url: string, volume = 1) {
+  if (typeof window === "undefined") return;
+  try {
+    let pool = oneShotPool[url];
+    if (!pool) {
+      pool = [];
+      oneShotPool[url] = pool;
+    }
+    // Find a free (ended/paused) node, else create up to 4.
+    let node = pool.find((a) => a.paused || a.ended);
+    if (!node) {
+      if (pool.length >= 4) node = pool[0];
+      else {
+        node = new Audio(url);
+        pool.push(node);
+      }
+    }
+    node.volume = Math.max(0, Math.min(1, volume));
+    try { node.currentTime = 0; } catch { /* ignore */ }
+    node.play().catch(() => {});
+  } catch { /* ignore */ }
+}
+
+// ------------------ Reverb (WebAudio) ------------------
+// Lazily-created shared AudioContext + convolver with a synthesized
+// "cave" impulse response. Used by playOneShotReverb.
+let audioCtx: AudioContext | null = null;
+let convolver: ConvolverNode | null = null;
+let wetGain: GainNode | null = null;
+let dryGain: GainNode | null = null;
+const bufferCache: Record<string, AudioBuffer | Promise<AudioBuffer>> = {};
+
+function getCtx(): AudioContext | null {
+  if (typeof window === "undefined") return null;
+  if (audioCtx) return audioCtx;
+  try {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    audioCtx = new AC();
+  } catch { return null; }
+  return audioCtx;
+}
+
+function buildImpulse(ctx: AudioContext, seconds = 2.4, decay = 2.6): AudioBuffer {
+  const rate = ctx.sampleRate;
+  const length = Math.max(1, Math.floor(rate * seconds));
+  const ir = ctx.createBuffer(2, length, rate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = ir.getChannelData(ch);
+    for (let i = 0; i < length; i++) {
+      const t = i / length;
+      // Noise * exponential decay — classic cave-ish reverb tail.
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, decay);
+    }
+  }
+  return ir;
+}
+
+function ensureReverb(): { ctx: AudioContext; dry: GainNode; wet: GainNode } | null {
+  const ctx = getCtx();
+  if (!ctx) return null;
+  if (!convolver) {
+    convolver = ctx.createConvolver();
+    convolver.buffer = buildImpulse(ctx, 2.4, 2.6);
+    wetGain = ctx.createGain();
+    dryGain = ctx.createGain();
+    wetGain.gain.value = 0.85; // strong reverb tail
+    dryGain.gain.value = 1.0;
+    convolver.connect(wetGain);
+    wetGain.connect(ctx.destination);
+    dryGain.connect(ctx.destination);
+  }
+  if (ctx.state === "suspended") ctx.resume().catch(() => {});
+  return { ctx, dry: dryGain!, wet: wetGain! };
+}
+
+async function loadBuffer(ctx: AudioContext, url: string): Promise<AudioBuffer> {
+  const hit = bufferCache[url];
+  if (hit) return hit as Promise<AudioBuffer>;
+  const p = fetch(url)
+    .then((r) => r.arrayBuffer())
+    .then((ab) => ctx.decodeAudioData(ab))
+    .then((buf) => { bufferCache[url] = buf; return buf; });
+  bufferCache[url] = p;
+  return p;
+}
+
+export function playOneShotReverb(url: string, volume = 1, startOffset = 0) {
+  const r = ensureReverb();
+  if (!r) { playOneShot(url, volume); return; }
+  const { ctx, dry, wet } = r;
+  loadBuffer(ctx, url).then((buf) => {
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const g = ctx.createGain();
+    g.gain.value = Math.max(0, Math.min(1, volume));
+    src.connect(g);
+    g.connect(dry);
+    g.connect(convolver!);
+    const off = Math.max(0, Math.min(buf.duration - 0.01, startOffset));
+    src.start(0, off);
+  }).catch(() => { playOneShot(url, volume); });
+}
+
+
+export type SfxLoop = {
+  setVolume: (v: number) => void;
+  play: () => void;
+  pause: () => void;
+  dispose: () => void;
+};
+
+export function createLoop(url: string, opts?: { playbackRate?: number }): SfxLoop {
+  const audio = new Audio(url);
+  audio.loop = true;
+  audio.volume = 0;
+  if (opts?.playbackRate) {
+    audio.playbackRate = Math.max(0.25, Math.min(4, opts.playbackRate));
+  }
+  let started = false;
+  const tryPlay = () => {
+    if (started) return;
+    audio.play().then(() => { started = true; }).catch(() => {});
+  };
+  const onInteract = () => {
+    tryPlay();
+    if (started) {
+      window.removeEventListener("pointerdown", onInteract);
+      window.removeEventListener("keydown", onInteract);
+    }
+  };
+  window.addEventListener("pointerdown", onInteract);
+  window.addEventListener("keydown", onInteract);
+  tryPlay();
+  return {
+    setVolume: (v: number) => { audio.volume = Math.max(0, Math.min(1, v)); },
+    play: () => tryPlay(),
+    pause: () => { audio.pause(); },
+    dispose: () => {
+      audio.pause();
+      audio.src = "";
+      window.removeEventListener("pointerdown", onInteract);
+      window.removeEventListener("keydown", onInteract);
+    },
+  };
+}

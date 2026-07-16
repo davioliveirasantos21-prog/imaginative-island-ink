@@ -7,10 +7,16 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { I18nProvider } from "../lib/i18n";
+// Side-effect import: initializes the shared game-content sync in the browser.
+import "../lib/cloud-sync";
+// Side-effect import: initializes per-player cloud save sync (must load AFTER cloud-sync
+// so its localStorage wrapper composes on top).
+import "../lib/player-sync";
 
 function NotFoundComponent() {
   return (
@@ -77,22 +83,40 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Pixel Islands — 2D Pixel Art MMO" },
+      { name: "description", content: "Enter Pixel Islands, a cozy 2D pixel art multiplayer world. Create your hero and explore." },
+      { name: "author", content: "Pixel Islands" },
+      { property: "og:title", content: "Pixel Islands — 2D Pixel Art MMO" },
+      { property: "og:description", content: "Enter Pixel Islands, a cozy 2D pixel art multiplayer world. Create your hero and explore." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Pixel Islands — 2D Pixel Art MMO" },
+      { name: "twitter:description", content: "Enter Pixel Islands, a cozy 2D pixel art multiplayer world. Create your hero and explore." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a50323ef-dc7b-4960-a3df-e371ad07ed66/id-preview-e8a961bc--16491379-6ddb-4241-8e69-6576adf8a1cb.lovable.app-1783726740824.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a50323ef-dc7b-4960-a3df-e371ad07ed66/id-preview-e8a961bc--16491379-6ddb-4241-8e69-6576adf8a1cb.lovable.app-1783726740824.png" },
+      { name: "theme-color", content: "#0d1b2a" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Pixel Islands" },
+      { name: "mobile-web-app-capable", content: "yes" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap",
+      },
     ],
+
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -116,11 +140,47 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [cloudReady, setCloudReady] = useCloudSyncBoot();
+
+  useEffect(() => {
+    void import("../lib/register-sw").then(({ registerServiceWorker }) => registerServiceWorker());
+  }, []);
+
+
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <I18nProvider>
+        {cloudReady ? (
+          /* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */
+          <Outlet />
+        ) : (
+          <div className="flex min-h-screen items-center justify-center bg-[#0d1b2a] text-[#f4e9c1] font-pixel text-xs tracking-widest">
+            Loading...
+          </div>
+        )}
+        {/* keep the setter to satisfy React fast-refresh */}
+        <span hidden aria-hidden onClick={() => setCloudReady(true)} />
+      </I18nProvider>
     </QueryClientProvider>
   );
+}
+
+function useCloudSyncBoot(): [boolean, (v: boolean) => void] {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void import("../lib/cloud-sync").then(({ cloudReady }) => {
+      // initCloudSync auto-runs on import in the browser.
+      cloudReady().then(() => {
+        if (alive) setReady(true);
+      });
+    });
+    const t = setTimeout(() => alive && setReady(true), 3000);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, []);
+  return [ready, setReady];
 }

@@ -1,0 +1,7 @@
+project_id = "mbxdnbuquzgqyliezcrr"
+
+[functions.send-auth-email]
+verify_jwt = false
+
+[functions.send-password-reset]
+verify_jwt = false
