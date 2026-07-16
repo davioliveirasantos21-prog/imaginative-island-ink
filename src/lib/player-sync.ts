@@ -222,7 +222,7 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
     const localUpdatedAt = blobUpdatedAt(localBlob) || saveSlotCreatedAt(localBlob);
     const cloudUpdatedAt = blobUpdatedAt(cloudBlob) || saveSlotCreatedAt(cloudBlob);
     const sameBrowserAccount = localOwner === userId || (!localOwner && localUpdatedAt > 0);
-    const localIsNewerOrSame = localUpdatedAt >= blobUpdatedAt(cloudBlob);
+    const localIsNewerOrSame = localUpdatedAt >= cloudUpdatedAt;
     if (!cloudEmpty && localNonEmpty && localBlob["pixel-realms.slots"] && !sameBlob(localBlob, cloudBlob) && sameBrowserAccount && localIsNewerOrSame) {
       await supabase
         .from("player_saves")
