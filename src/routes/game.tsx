@@ -2578,7 +2578,12 @@ function GamePage() {
       const inCave = modeRef.current === "cave";
       const inCave2 = modeRef.current === "cave2";
       const worldW = inCave2 ? CAVE2_W : inCave ? CAVE_W : WORLD_W;
-      let camX = Math.floor(s.x - VW / 2 + SPRITE_W / 2);
+      // Fractional camera position — used by slow parallax layers (mountains,
+      // clouds, horizon islands) so they don't stutter when the integer camX
+      // jumps 1–2px per frame with variable dt.
+      const camXfRaw = s.x - VW / 2 + SPRITE_W / 2;
+      const camXf = Math.max(0, Math.min(worldW - VW, camXfRaw));
+      let camX = Math.floor(camXf);
       if (camX < 0) camX = 0;
       if (camX > worldW - VW) camX = worldW - VW;
       camXRef.current = camX;
