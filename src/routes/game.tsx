@@ -8399,12 +8399,7 @@ function drawIslandGround(
       ctx.fillRect(x, GROUND_Y + 3, 3, 1);
       ctx.fillRect(x + 6, GROUND_Y + 4, 4, 1);
     }
-    // Small pebbles poking out of the soil
-    ctx.fillStyle = "#8a7a6a";
-    for (let x = gA + (((-camX * 0.6) % 22) + 22) % 22; x < gB; x += 22) {
-      ctx.fillRect(x, GROUND_Y + 12, 2, 1);
-      ctx.fillRect(x + 11, GROUND_Y + 22, 2, 1);
-    }
+    // (Removed pebble specks — the parallax against the ground looked off.)
   }
 
   // Wet sand + submerged shelf + foam blending are handled entirely inside
