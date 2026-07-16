@@ -2578,7 +2578,12 @@ function GamePage() {
       const inCave = modeRef.current === "cave";
       const inCave2 = modeRef.current === "cave2";
       const worldW = inCave2 ? CAVE2_W : inCave ? CAVE_W : WORLD_W;
-      let camX = Math.floor(s.x - VW / 2 + SPRITE_W / 2);
+      // Fractional camera position — used by slow parallax layers (mountains,
+      // clouds, horizon islands) so they don't stutter when the integer camX
+      // jumps 1–2px per frame with variable dt.
+      const camXfRaw = s.x - VW / 2 + SPRITE_W / 2;
+      const camXf = Math.max(0, Math.min(worldW - VW, camXfRaw));
+      let camX = Math.floor(camXf);
       if (camX < 0) camX = 0;
       if (camX > worldW - VW) camX = worldW - VW;
       camXRef.current = camX;
@@ -2676,7 +2681,7 @@ function GamePage() {
           }
           if (dirty) saveWorld();
         }
-        drawCaveScene(ctx, camX, now / 1000);
+        drawCaveScene(ctx, camX, now / 1000, camXf);
         // ----- Cave ores (only unbroken ones) -----
         for (const ore of caveOresRef.current) {
           if (minedOresRef.current.has(ore.id)) continue;
@@ -3034,6 +3039,7 @@ function GamePage() {
           planted: plantedRef.current,
           now: Date.now(),
         },
+        camXf,
       );
 
       // ----- Cave entrance overlay: rocky mountain with an arched cave mouth -----
@@ -4463,12 +4469,18 @@ function GamePage() {
       // 1) Dropped tree logs: closest wins so a chopped tree can be
       // gathered piece by piece. When a pile is clicked the topmost
       // (most recently dropped) log comes off first.
+      // On desktop (mouse) tighten the hit-box a lot so a nearby tree
+      // trunk/canopy click doesn't get stolen by a log lying next to it.
+      const isMouse = e.pointerType === "mouse";
+      const logXTol = isMouse ? 6 : 12;
+      const logYTop = isMouse ? GROUND_Y - 6 : GROUND_Y - 20;
+      const logYBot = GROUND_Y + 8;
       let bestLog: GroundLog | null = null;
-      let bestLogD = 12;
+      let bestLogD = logXTol;
       for (const log of groundLogsRef.current) {
         if (!withinReach(log.x + 5)) continue;
         const d = Math.abs(log.x + 5 - worldX);
-        if (d < bestLogD && worldY > GROUND_Y - 20 && worldY < GROUND_Y + 8) {
+        if (d < bestLogD && worldY > logYTop && worldY < logYBot) {
           bestLogD = d;
           bestLog = log;
         }
@@ -6574,7 +6586,7 @@ type WorldRender = {
 };
 
 // ------------------- Cave interior scene -------------------
-function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number) {
+function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number, camXf: number = camX) {
   // Cooler, grayer palette for a stone cave feel (was brownish/red).
   const g = ctx.createLinearGradient(0, 0, 0, VH);
   g.addColorStop(0, "#0a0b0d");
@@ -6587,13 +6599,13 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
   ctx.fillStyle = "#2a2d32";
   ctx.fillRect(0, 0, VW, 44);
   ctx.fillStyle = "#1a1c20";
-  for (let x = -((camX * 0.5) % 16); x < VW; x += 16) {
+  for (let x = -((camXf * 0.5) % 16); x < VW; x += 16) {
     ctx.fillRect(x, 12, 8, 3);
     ctx.fillRect(x + 4, 28, 6, 3);
   }
   // Ceiling cracks — jagged darker lines.
   ctx.fillStyle = "#0d0e10";
-  for (let x = ((-camX * 0.5) % 90 + 90) % 90 - 90; x < VW + 90; x += 90) {
+  for (let x = ((-camXf * 0.5) % 90 + 90) % 90 - 90; x < VW + 90; x += 90) {
     ctx.fillRect(x + 10, 4, 1, 6);
     ctx.fillRect(x + 11, 8, 1, 5);
     ctx.fillRect(x + 12, 12, 1, 6);
@@ -6622,7 +6634,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
     }
     ctx.stroke();
   };
-  const webOff = -Math.floor(camX * 0.7);
+  const webOff = -Math.floor(camXf * 0.7);
   for (let x = ((webOff % 220) + 220) % 220 - 220; x < VW + 220; x += 220) {
     drawWeb(x + 20, 4, 22);
     drawWeb(x + 180, 6, 18);
@@ -6630,7 +6642,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
 
   // Stalactites hanging from the ceiling — parallax against camera.
   ctx.fillStyle = "#3a3d44";
-  const stalOff = -Math.floor(camX * 0.6);
+  const stalOff = -Math.floor(camXf * 0.6);
   for (let x = ((stalOff % 60) + 60) % 60 - 60; x < VW + 60; x += 60) {
     ctx.fillRect(x + 8, 44, 6, 12);
     ctx.fillRect(x + 9, 56, 4, 6);
@@ -6645,9 +6657,9 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
   }
 
   // Falling water drops (deterministic per column, animated).
-  const dropOff = -Math.floor(camX * 0.6);
+  const dropOff = -Math.floor(camXf * 0.6);
   for (let x = ((dropOff % 180) + 180) % 180 - 180; x < VW + 180; x += 180) {
-    const worldCol = Math.round(x + camX * 0.6);
+    const worldCol = Math.round(x + camXf * 0.6);
     const seed = ((worldCol * 928371) & 0xffff) / 0xffff;
     const period = 1.6 + seed * 1.4;
     const phase = (time + seed * 5) % period;
@@ -6721,7 +6733,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
 
   // Subtle wall cracks along the mid-cave.
   ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-  const wallCrackOff = -Math.floor(camX * 0.85);
+  const wallCrackOff = -Math.floor(camXf * 0.85);
   for (let x = ((wallCrackOff % 200) + 200) % 200 - 200; x < VW + 200; x += 200) {
     ctx.fillRect(x + 60, 70, 1, 24);
     ctx.fillRect(x + 61, 94, 1, 18);
@@ -6919,6 +6931,7 @@ function drawScene(
   _onBeach: boolean,
   beachBg: HTMLImageElement | null,
   world: WorldRender,
+  camXf: number = camX,
 ) {
 
 
@@ -6963,13 +6976,13 @@ function drawScene(
   // ----- Clouds: two parallax layers, both soft white -----
   ctx.save();
   ctx.globalAlpha = 1 - coastness * 0.7;
-  drawClouds(ctx, camX * 0.04 + time * 2, 18, "#ffffff", 5, 0);
-  drawClouds(ctx, camX * 0.08 + time * 3.5, 40, "#ffffff", 6, 1);
-  drawClouds(ctx, camX * 0.14 + time * 5 + 180, 72, "#f4f9fd", 5, 2);
+  drawClouds(ctx, camXf * 0.04 + time * 2, 18, "#ffffff", 5, 0);
+  drawClouds(ctx, camXf * 0.08 + time * 3.5, 40, "#ffffff", 6, 1);
+  drawClouds(ctx, camXf * 0.14 + time * 5 + 180, 72, "#f4f9fd", 5, 2);
   ctx.restore();
 
   // Distant birds
-  drawSeagulls(ctx, camX * 0.2 + time * 10, time);
+  drawSeagulls(ctx, camXf * 0.2 + time * 10, time);
 
   // ----- Distant mountain silhouettes (with biome-mixed color) -----
   if (coastness < 1) {
@@ -6977,14 +6990,14 @@ function drawScene(
     ctx.globalAlpha = 1 - coastness;
     drawMountains(
       ctx,
-      camX * 0.2,
+      camXf * 0.2,
       130,
       biomeColor("mountainBack", worldCenter),
       biomeColor("mountainFront", worldCenter),
     );
     drawHills(
       ctx,
-      camX * 0.45,
+      camXf * 0.45,
       190,
       biomeColor("hillBack", worldCenter),
       biomeColor("hillFront", worldCenter),
@@ -6995,7 +7008,7 @@ function drawScene(
   // ----- Procedural tropical horizon: distant animated ocean + pixel islands
   // (replaces the old baked backdrop image).
   if (coastness > 0) {
-    drawTropicalHorizon(ctx, camX, time, coastness);
+    drawTropicalHorizon(ctx, camXf, time, coastness);
   }
   void beachBg;
 
