@@ -148,3 +148,78 @@ export function createLoop(url: string, opts?: { playbackRate?: number }): SfxLo
     },
   };
 }
+
+// A looping SFX that runs through the shared reverb (cave-style tail).
+// Uses WebAudio's MediaElementAudioSource so we can split dry/wet like the
+// one-shot reverb helper. If WebAudio isn't available we fall back to a
+// plain looping <audio> so callers always get a working handle.
+export function createReverbLoop(
+  url: string,
+  opts?: { playbackRate?: number; wet?: number; dry?: number },
+): SfxLoop {
+  const audio = new Audio(url);
+  audio.loop = true;
+  audio.crossOrigin = "anonymous";
+  audio.volume = 1;
+  if (opts?.playbackRate) {
+    audio.playbackRate = Math.max(0.25, Math.min(4, opts.playbackRate));
+  }
+  const r = ensureReverb();
+  let gain: GainNode | null = null;
+  let wired = false;
+  const wire = () => {
+    if (wired || !r) return;
+    try {
+      const src = r.ctx.createMediaElementSource(audio);
+      gain = r.ctx.createGain();
+      gain.gain.value = 0;
+      const wetTap = r.ctx.createGain();
+      const dryTap = r.ctx.createGain();
+      wetTap.gain.value = opts?.wet ?? 0.9;
+      dryTap.gain.value = opts?.dry ?? 0.6;
+      src.connect(gain);
+      gain.connect(dryTap);
+      gain.connect(convolver!);
+      dryTap.connect(r.ctx.destination);
+      // wetTap unused (convolver already goes through wetGain), kept for clarity
+      wetTap.disconnect();
+      wired = true;
+    } catch { /* already wired or unsupported */ }
+  };
+  wire();
+
+  let started = false;
+  const tryPlay = () => {
+    if (started) return;
+    if (r && r.ctx.state === "suspended") r.ctx.resume().catch(() => {});
+    audio.play().then(() => { started = true; }).catch(() => {});
+  };
+  const onInteract = () => {
+    if (r && r.ctx.state === "suspended") r.ctx.resume().catch(() => {});
+    wire();
+    tryPlay();
+    if (started) {
+      window.removeEventListener("pointerdown", onInteract);
+      window.removeEventListener("keydown", onInteract);
+    }
+  };
+  window.addEventListener("pointerdown", onInteract);
+  window.addEventListener("keydown", onInteract);
+  tryPlay();
+
+  return {
+    setVolume: (v: number) => {
+      const c = Math.max(0, Math.min(1, v));
+      if (gain) gain.gain.value = c;
+      else audio.volume = c;
+    },
+    play: () => tryPlay(),
+    pause: () => { audio.pause(); },
+    dispose: () => {
+      audio.pause();
+      audio.src = "";
+      window.removeEventListener("pointerdown", onInteract);
+      window.removeEventListener("keydown", onInteract);
+    },
+  };
+}
