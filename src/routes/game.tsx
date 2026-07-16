@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getActiveSlot, loadSlots, updateSlotAppearance, type Character } from "@/lib/characters";
+import { flushPlayerSaveSync, waitForPlayerSaveReady } from "@/lib/player-sync";
 import {
   BEARD_STYLES,
   BOOT_COLORS,
