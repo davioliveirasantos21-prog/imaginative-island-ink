@@ -6641,7 +6641,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
 
   // Stalactites hanging from the ceiling — parallax against camera.
   ctx.fillStyle = "#3a3d44";
-  const stalOff = -Math.floor(camX * 0.6);
+  const stalOff = -Math.floor(camXf * 0.6);
   for (let x = ((stalOff % 60) + 60) % 60 - 60; x < VW + 60; x += 60) {
     ctx.fillRect(x + 8, 44, 6, 12);
     ctx.fillRect(x + 9, 56, 4, 6);
