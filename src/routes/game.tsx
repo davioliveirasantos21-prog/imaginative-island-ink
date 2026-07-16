@@ -4463,12 +4463,18 @@ function GamePage() {
       // 1) Dropped tree logs: closest wins so a chopped tree can be
       // gathered piece by piece. When a pile is clicked the topmost
       // (most recently dropped) log comes off first.
+      // On desktop (mouse) tighten the hit-box a lot so a nearby tree
+      // trunk/canopy click doesn't get stolen by a log lying next to it.
+      const isMouse = e.pointerType === "mouse";
+      const logXTol = isMouse ? 6 : 12;
+      const logYTop = isMouse ? GROUND_Y - 6 : GROUND_Y - 20;
+      const logYBot = GROUND_Y + 8;
       let bestLog: GroundLog | null = null;
-      let bestLogD = 12;
+      let bestLogD = logXTol;
       for (const log of groundLogsRef.current) {
         if (!withinReach(log.x + 5)) continue;
         const d = Math.abs(log.x + 5 - worldX);
-        if (d < bestLogD && worldY > GROUND_Y - 20 && worldY < GROUND_Y + 8) {
+        if (d < bestLogD && worldY > logYTop && worldY < logYBot) {
           bestLogD = d;
           bestLog = log;
         }
