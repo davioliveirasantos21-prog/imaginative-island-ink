@@ -121,7 +121,7 @@ import lacraiaDeathAsset from "@/assets/lacraia-death.mp3.asset.json";
 import jumpSfxAsset from "@/assets/jump.mp3.asset.json";
 import woodHitSfxAsset from "@/assets/wood-hit.mp3.asset.json";
 import waterSplashSfxAsset from "@/assets/water-splash.mp3.asset.json";
-import { createLoop, playOneShot, playOneShotReverb, type SfxLoop } from "@/lib/sfx";
+import { createLoop, createReverbLoop, playOneShot, playOneShotReverb, type SfxLoop } from "@/lib/sfx";
 
 
 
