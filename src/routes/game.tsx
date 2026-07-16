@@ -1625,35 +1625,49 @@ function GamePage() {
 
 
   useEffect(() => {
-    const slot = getActiveSlot();
-    if (slot == null) {
-      navigate({ to: "/characters" });
-      return;
-    }
-    const slots = loadSlots();
-    const c = slots[slot];
-    if (!c) {
-      navigate({ to: "/characters" });
-      return;
-    }
-    setCharacter(c);
-    appearanceRef.current = c.appearance ?? DEFAULT_APPEARANCE;
-    slotIdRef.current = slot;
-    loadWorld(slot);
-    // Persist position + world periodically and on exit so the player
-    // resumes exactly where they left off.
-    const tick = window.setInterval(() => saveWorld(), 3000);
-    const onLeave = () => saveWorld();
-    window.addEventListener("beforeunload", onLeave);
-    window.addEventListener("pagehide", onLeave);
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") saveWorld();
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+    void waitForPlayerSaveReady().then(() => {
+      if (cancelled) return;
+      const slot = getActiveSlot();
+      if (slot == null) {
+        navigate({ to: "/characters" });
+        return;
+      }
+      const slots = loadSlots();
+      const c = slots[slot];
+      if (!c) {
+        navigate({ to: "/characters" });
+        return;
+      }
+      setCharacter(c);
+      appearanceRef.current = c.appearance ?? DEFAULT_APPEARANCE;
+      slotIdRef.current = slot;
+      loadWorld(slot);
+      // Persist position + world periodically and on exit so the player
+      // resumes exactly where they left off.
+      const tick = window.setInterval(() => saveWorld(), 3000);
+      const saveAndFlush = () => {
+        saveWorld();
+        void flushPlayerSaveSync();
+      };
+      const onVisibilityChange = () => {
+        if (document.visibilityState === "hidden") saveAndFlush();
+      };
+      window.addEventListener("beforeunload", saveAndFlush);
+      window.addEventListener("pagehide", saveAndFlush);
+      document.addEventListener("visibilitychange", onVisibilityChange);
+      cleanup = () => {
+        window.clearInterval(tick);
+        window.removeEventListener("beforeunload", saveAndFlush);
+        window.removeEventListener("pagehide", saveAndFlush);
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+        saveAndFlush();
+      };
     });
     return () => {
-      window.clearInterval(tick);
-      window.removeEventListener("beforeunload", onLeave);
-      window.removeEventListener("pagehide", onLeave);
-      saveWorld();
+      cancelled = true;
+      cleanup?.();
     };
   }, [navigate]);
 
