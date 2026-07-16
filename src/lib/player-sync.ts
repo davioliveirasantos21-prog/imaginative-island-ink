@@ -60,6 +60,8 @@ let inited = false;
 let localChangeVersion = 0;
 let playerSaveReady = false;
 const readyWaiters = new Set<() => void>();
+let storageSet: ((k: string, v: string) => void) | null = null;
+let storageRemove: ((k: string) => void) | null = null;
 
 export function isPlayerSaveReady(): boolean {
   return playerSaveReady;
@@ -245,6 +247,8 @@ export function initPlayerSync() {
   // writes to player keys also enqueue a cloud push.
   const origSet = window.localStorage.setItem.bind(window.localStorage);
   const origRemove = window.localStorage.removeItem.bind(window.localStorage);
+  storageSet = origSet;
+  storageRemove = origRemove;
   try {
     Object.defineProperty(window.localStorage, "setItem", {
       configurable: true,
@@ -332,9 +336,17 @@ if (typeof window !== "undefined") {
 // -------------------- Player auth helpers --------------------
 
 export async function playerSignIn(email: string, password: string) {
+  markPlayerSavePending();
   try {
     const res = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
     if (res.error) throw res.error;
+    const userId = res.data.user?.id;
+    if (userId && storageSet && storageRemove) {
+      currentUserId = userId;
+      void hydrateFromCloud(userId, storageSet, storageRemove);
+    } else {
+      markPlayerSaveReady();
+    }
     return res;
   } catch (e: any) {
     const isNetworkError =
@@ -351,19 +363,23 @@ export async function playerSignIn(email: string, password: string) {
       if (user) {
         localStorage.setItem("pixel-islands.current-user", JSON.stringify(user));
         currentUserId = user.id;
+        markPlayerSaveReady();
         // Trigger page refresh/redirect
         setTimeout(() => {
           window.location.href = "/characters";
         }, 100);
         return { data: { user: { id: user.id, email: user.email } }, error: null };
       }
+      markPlayerSaveReady();
       return { data: null, error: new Error("Usuário ou senha incorretos (Modo Offline).") };
     }
+    markPlayerSaveReady();
     return { data: null, error: e };
   }
 }
 
 export async function playerSignUp(email: string, password: string, username?: string) {
+  markPlayerSavePending();
   try {
     const res = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
@@ -373,6 +389,13 @@ export async function playerSignUp(email: string, password: string, username?: s
       },
     });
     if (res.error) throw res.error;
+    const userId = res.data.user?.id;
+    if (userId && storageSet && storageRemove) {
+      currentUserId = userId;
+      void hydrateFromCloud(userId, storageSet, storageRemove);
+    } else {
+      markPlayerSaveReady();
+    }
     return res;
   } catch (e: any) {
     const isNetworkError =
@@ -399,17 +422,20 @@ export async function playerSignUp(email: string, password: string, username?: s
       localStorage.setItem("pixel-islands.local-users", JSON.stringify(localUsers));
       localStorage.setItem("pixel-islands.current-user", JSON.stringify(newUser));
       currentUserId = newUser.id;
+      markPlayerSaveReady();
       setTimeout(() => {
         window.location.href = "/characters";
       }, 100);
       return { data: { session: {} }, error: null };
     }
+    markPlayerSaveReady();
     return { data: null, error: e };
   }
 }
 
 
 export async function playerSignOut() {
+  await pushNow();
   if (typeof window !== "undefined") {
     localStorage.removeItem("pixel-islands.current-user");
   }
