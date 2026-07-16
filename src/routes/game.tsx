@@ -547,12 +547,17 @@ function GamePage() {
     const waterLoop: SfxLoop = createLoop(underwaterAmbientAsset.url);
     const walkLoop: SfxLoop = createLoop(footstepLoopUrl, { playbackRate: 1.0 });
     const walkSandLoop: SfxLoop = createLoop(walkSandSfxAsset.url, { playbackRate: 1.3 });
+    // Separate footstep loop that runs through the shared reverb — used only
+    // when the player is inside a cave so steps get the same wet tail as
+    // one-shot cave sounds.
+    const walkCaveLoop: SfxLoop = createReverbLoop(footstepLoopUrl, { playbackRate: 1.0, dry: 0.4, wet: 1.0 });
     const wormLoop: SfxLoop = createLoop(wormMoveAsset.url);
     const islandAmbientLoop: SfxLoop = createLoop(islandAmbientUrl);
     caveLoop.setVolume(0);
     waterLoop.setVolume(0);
     walkLoop.setVolume(0);
     walkSandLoop.setVolume(0);
+    walkCaveLoop.setVolume(0);
     wormLoop.setVolume(0);
     islandAmbientLoop.setVolume(0);
     const iv = window.setInterval(() => {
