@@ -275,9 +275,17 @@ export function loadCustomGarments(): CustomGarment[] {
         id: "built-in-vest",
         name: { pt: "Colete", en: "Vest", es: "Chaleco" },
         slot: "fullbody",
-        body: "both",
+        body: "fem",
         back: {},
         front: {"4,16":"dark","4,17":"dark","11,12":"dark","11,13":"dark","11,14":"dark","11,15":"dark","11,16":"dark","11,17":"dark","11,18":"dark","11,19":"dark","5,14":"mid","6,14":"mid","9,14":"mid","10,14":"mid","2,12":"mid","3,12":"mid","3,13":"mid","4,13":"mid","4,12":"mid","4,11":"mid","5,11":"mid","6,11":"mid","6,12":"mid","7,12":"mid","7,13":"mid","8,13":"mid","9,12":"mid","9,11":"mid","10,11":"mid","11,11":"mid","10,12":"mid","10,13":"mid","9,13":"mid","6,13":"mid","5,13":"mid","5,12":"mid","4,14":"mid","4,15":"mid","5,15":"dark","5,16":"mid","5,17":"mid","4,18":"mid","4,19":"mid","5,19":"mid","6,18":"mid","7,18":"mid","8,18":"mid","9,18":"mid","9,19":"mid","10,19":"mid","8,19":"mid","7,19":"mid","6,19":"mid","5,18":"mid","6,17":"mid","7,17":"mid","7,16":"mid","7,15":"mid","7,14":"mid","8,14":"mid","8,15":"mid","8,16":"mid","8,17":"mid","6,16":"mid","6,15":"dark","9,15":"dark","10,15":"dark","10,16":"mid","9,16":"mid","10,17":"mid","10,18":"mid","9,17":"mid","12,13":"mid","12,12":"mid","13,12":"mid","4,20":"mid","4,21":"dark","4,22":"dark","4,23":"mid","4,24":"mid","3,24":"mid","3,23":"dark","3,25":"mid","4,25":"dark","5,25":"dark","6,25":"mid","7,25":"mid","8,25":"mid","8,24":"mid","9,24":"mid","10,24":"mid","10,23":"mid","11,23":"mid","12,23":"mid","12,22":"mid","12,21":"mid","11,21":"mid","11,20":"mid","11,22":"mid","10,22":"dark","9,22":"dark","8,22":"mid","7,22":"mid","6,22":"mid","6,23":"mid","5,23":"mid","5,24":"mid","6,24":"dark","7,24":"dark","7,23":"mid","8,23":"dark","9,23":"dark","10,21":"dark","9,21":"mid","8,21":"mid","7,21":"mid","6,21":"mid","5,22":"mid","5,21":"mid","6,20":"mid","5,20":"mid","7,20":"mid","8,20":"mid","9,20":"mid","10,20":"mid","3,22":"dark"}
+      },
+      {
+        id: "built-in-farrapo",
+        name: { pt: "Farrapo", en: "Rag", es: "Harapo" },
+        slot: "fullbody",
+        body: "masc",
+        back: {},
+        front: {"4,19":"mid","4,20":"mid2","4,21":"dark2","4,22":"mid","4,23":"mid","4,24":"dark","4,25":"dark","5,18":"mid","5,19":"mid","5,20":"mid2","5,21":"dark2","5,22":"dark","5,23":"mid","5,24":"dark","6,17":"dark","6,18":"mid","6,19":"mid","6,20":"mid2","6,21":"dark2","6,22":"dark","6,23":"mid","7,15":"mid","7,16":"dark","7,17":"dark","7,18":"mid","7,19":"dark","7,20":"dark2","7,21":"dark2","7,22":"mid","7,23":"mid","8,14":"dark","8,15":"dark","8,16":"dark","8,17":"mid","8,18":"mid","8,19":"dark","8,20":"dark2","8,21":"dark2","8,22":"mid","8,23":"dark","9,13":"dark","9,14":"dark","9,15":"mid","9,16":"mid","9,17":"dark","9,18":"dark","9,19":"dark","9,20":"dark2","9,21":"mid","9,22":"mid","9,23":"mid","10,12":"mid","10,13":"dark","10,14":"mid","10,15":"mid","10,16":"dark","10,17":"dark","10,18":"mid","10,19":"dark","10,20":"dark2","10,21":"dark","10,22":"dark","11,11":"mid","11,12":"mid","11,13":"mid","11,14":"dark","11,15":"dark","11,16":"dark","11,17":"dark","11,18":"dark","11,19":"dark","11,20":"dark2","11,21":"mid","6,24":"mid"}
       }
     ];
     if (!raw) return defaultGarments;
@@ -290,8 +298,10 @@ export function loadCustomGarments(): CustomGarment[] {
           typeof g.id === "string" &&
           g.id !== "built-in-rag" &&
           g.id !== "built-in-vest" &&
+          g.id !== "built-in-farrapo" &&
           (g.slot === "shirt" || g.slot === "pants" || g.slot === "fullbody"),
       )
+
       .map((g) => ({
         id: g.id,
         name: sanitizeLocalizedName(g.name) ?? "Custom",
