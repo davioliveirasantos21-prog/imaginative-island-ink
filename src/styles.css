@@ -3,6 +3,23 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+/* Fires on any short viewport (mobile landscape, split screens, etc.),
+   independent of width — plain `landscape:` matches many small tablets/desktops. */
+@custom-variant short (@media (max-height: 520px));
+
+@theme inline {
+  --font-pixel: "Press Start 2P", ui-monospace, monospace;
+}
+
+@utility font-pixel {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.02em;
+}
+
+@utility pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 
 /*
  * Design system definition.
@@ -63,8 +80,8 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(0.18 0.03 260);
+  --foreground: oklch(0.96 0.02 90);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
@@ -142,3 +159,51 @@
     color: var(--color-foreground);
   }
 }
+
+/* Quantum Lovable - watermark removal */
+#lovable-badge {
+  display: none !important;
+}
+a[href*="lovable.dev"],
+iframe[src*="lovable.dev"],
+div[style*="Edit with Lovable"],
+.lovable-badge {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+}
+
+
+@keyframes shimmer {
+  0%, 100% { transform: translateY(0); opacity: 0.35; }
+  50%      { transform: translateY(-4px); opacity: 0.5; }
+}
+
+@keyframes wave-x {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(84px); }
+}
+@keyframes wave-x-rev {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-120px); }
+}
+@keyframes cloud-drift {
+  0%   { transform: translateX(-10%); }
+  100% { transform: translateX(110%); }
+}
+@keyframes cloud-drift-slow {
+  0%   { transform: translateX(-15%); }
+  100% { transform: translateX(115%); }
+}
+@keyframes island-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes sun-pulse {
+  0%, 100% { filter: drop-shadow(0 0 24px rgba(255,209,102,0.6)); }
+  50%      { filter: drop-shadow(0 0 40px rgba(255,209,102,0.9)); }
+}
+
