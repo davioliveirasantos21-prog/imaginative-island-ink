@@ -88,6 +88,19 @@ function sameBlob(a: Record<string, string>, b: Record<string, string>): boolean
   return true;
 }
 
+function blobUpdatedAt(blob: Record<string, string>): number {
+  try {
+    const raw = blob[SAVE_META_KEY];
+    if (!raw) return 0;
+    const parsed = JSON.parse(raw) as { updatedAt?: unknown };
+    return typeof parsed.updatedAt === "number" && Number.isFinite(parsed.updatedAt)
+      ? parsed.updatedAt
+      : 0;
+  } catch {
+    return 0;
+  }
+}
+
 function touchSaveMeta(origSet: (k: string, v: string) => void) {
   try {
     origSet(SAVE_META_KEY, JSON.stringify({ updatedAt: Date.now() }));
@@ -182,7 +195,8 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
     // the player's newest intent and do not resurrect an older cloud copy. This
     // is especially important for deletions: a local `[null, ...]` slot state is
     // a real save, not an empty cache.
-    if (!cloudEmpty && localNonEmpty && localBlob["pixel-realms.slots"] && !sameBlob(localBlob, cloudBlob)) {
+    const localIsNewerOrSame = blobUpdatedAt(localBlob) >= blobUpdatedAt(cloudBlob);
+    if (!cloudEmpty && localNonEmpty && localBlob["pixel-realms.slots"] && !sameBlob(localBlob, cloudBlob) && localIsNewerOrSame) {
       await supabase
         .from("player_saves")
         .upsert({ user_id: userId, data: localBlob }, { onConflict: "user_id" });
