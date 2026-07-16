@@ -6598,7 +6598,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
   ctx.fillStyle = "#2a2d32";
   ctx.fillRect(0, 0, VW, 44);
   ctx.fillStyle = "#1a1c20";
-  for (let x = -((camX * 0.5) % 16); x < VW; x += 16) {
+  for (let x = -((camXf * 0.5) % 16); x < VW; x += 16) {
     ctx.fillRect(x, 12, 8, 3);
     ctx.fillRect(x + 4, 28, 6, 3);
   }
