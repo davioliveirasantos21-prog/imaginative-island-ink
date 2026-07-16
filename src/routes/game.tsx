@@ -6585,7 +6585,7 @@ type WorldRender = {
 };
 
 // ------------------- Cave interior scene -------------------
-function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number) {
+function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number, camXf: number = camX) {
   // Cooler, grayer palette for a stone cave feel (was brownish/red).
   const g = ctx.createLinearGradient(0, 0, 0, VH);
   g.addColorStop(0, "#0a0b0d");
