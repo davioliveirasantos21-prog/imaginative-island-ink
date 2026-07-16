@@ -121,7 +121,7 @@ import lacraiaDeathAsset from "@/assets/lacraia-death.mp3.asset.json";
 import jumpSfxAsset from "@/assets/jump.mp3.asset.json";
 import woodHitSfxAsset from "@/assets/wood-hit.mp3.asset.json";
 import waterSplashSfxAsset from "@/assets/water-splash.mp3.asset.json";
-import { createLoop, playOneShot, playOneShotReverb, type SfxLoop } from "@/lib/sfx";
+import { createLoop, createReverbLoop, playOneShot, playOneShotReverb, type SfxLoop } from "@/lib/sfx";
 
 
 
@@ -547,12 +547,17 @@ function GamePage() {
     const waterLoop: SfxLoop = createLoop(underwaterAmbientAsset.url);
     const walkLoop: SfxLoop = createLoop(footstepLoopUrl, { playbackRate: 1.0 });
     const walkSandLoop: SfxLoop = createLoop(walkSandSfxAsset.url, { playbackRate: 1.3 });
+    // Separate footstep loop that runs through the shared reverb — used only
+    // when the player is inside a cave so steps get the same wet tail as
+    // one-shot cave sounds.
+    const walkCaveLoop: SfxLoop = createReverbLoop(footstepLoopUrl, { playbackRate: 1.0, dry: 0.4, wet: 1.0 });
     const wormLoop: SfxLoop = createLoop(wormMoveAsset.url);
     const islandAmbientLoop: SfxLoop = createLoop(islandAmbientUrl);
     caveLoop.setVolume(0);
     waterLoop.setVolume(0);
     walkLoop.setVolume(0);
     walkSandLoop.setVolume(0);
+    walkCaveLoop.setVolume(0);
     wormLoop.setVolume(0);
     islandAmbientLoop.setVolume(0);
     const iv = window.setInterval(() => {
@@ -569,8 +574,9 @@ function GamePage() {
         (cx >= BEACH_START && cx <= OCEAN_START) ||
         (cx >= OCEAN_LEFT_END && cx <= BEACH_LEFT_END)
       );
-      walkLoop.setVolume(walking && !onSand ? vol * 0.6 : 0);
+      walkLoop.setVolume(walking && !onSand && !inCave ? vol * 0.6 : 0);
       walkSandLoop.setVolume(walking && onSand ? vol * 0.45 : 0);
+      walkCaveLoop.setVolume(walking && inCave ? vol * 0.55 : 0);
       // Worm movement loop — distance-based volume from nearest active centipede.
       let wormVol = 0;
       if (modeRef.current === "cave2" && s) {
@@ -595,6 +601,7 @@ function GamePage() {
       waterLoop.dispose();
       walkLoop.dispose();
       walkSandLoop.dispose();
+      walkCaveLoop.dispose();
       wormLoop.dispose();
       islandAmbientLoop.dispose();
     };
@@ -1755,7 +1762,7 @@ function GamePage() {
           if (keys.has("jump") && s.grounded) {
             s.vy = JUMP_VELOCITY;
             s.grounded = false;
-            playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.6);
+            playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
           }
           s.vy += GRAVITY * dt;
           s.x += s.vx * dt;
@@ -2086,7 +2093,7 @@ function GamePage() {
               // Jump on land only when clearly not over water.
               s.vy = JUMP_VELOCITY;
               s.grounded = false;
-              playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.6);
+              playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
             } else if (fullyOnWater && s.grounded && !holdingUp) {
               // Released up while standing fully on water → sink in.
               s.y = GROUND_Y + 6 - SPRITE_H + FOOT_OFFSET;
@@ -2308,7 +2315,7 @@ function GamePage() {
           if (keys.has("jump") && s.grounded) {
             s.vy = JUMP_VELOCITY;
             s.grounded = false;
-            playOneShot(jumpSfxAsset.url, (ambientVolume / 100) * 0.6);
+            playOneShot(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
           }
           s.vy += GRAVITY * dt;
           s.x += s.vx * dt;
@@ -2583,7 +2590,11 @@ function GamePage() {
       // jumps 1–2px per frame with variable dt.
       const camXfRaw = s.x - VW / 2 + SPRITE_W / 2;
       const camXf = Math.max(0, Math.min(worldW - VW, camXfRaw));
-      let camX = Math.floor(camXf);
+      // Use the fractional camera value for ALL layers so world objects
+      // (player, trees, ores) and parallax backgrounds share a single
+      // reference frame. Rounding is done at each draw call, so mixing a
+      // floored camX with a float camXf was producing 1px wobble.
+      let camX = camXf;
       if (camX < 0) camX = 0;
       if (camX > worldW - VW) camX = worldW - VW;
       camXRef.current = camX;
@@ -3056,9 +3067,10 @@ function GamePage() {
             const scale = 0.45;
             const dw = img.naturalWidth * scale;
             const dh = img.naturalHeight * scale;
-            // Anchor at the bottom center of the painted cave mouth.
-            const anchorX = 243.5;
-            const anchorY = 257;
+            // Anchor at the bottom-center of the sprite's opaque area so the
+            // cave mouth sits flush with the ground line (no floating).
+            const anchorX = 184; // opaque center x in source pixels
+            const anchorY = 195; // sprite bottom in source pixels
             const dx = baseX - anchorX * scale;
             const dy = baseY - anchorY * scale;
             ctx.save();
