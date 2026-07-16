@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { playerSignIn, playerSignUp, playerResetPassword } from "@/lib/player-sync";
+import { playerSignIn, playerSignUp } from "@/lib/player-sync";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
