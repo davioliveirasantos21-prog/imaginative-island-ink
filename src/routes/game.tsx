@@ -6975,13 +6975,13 @@ function drawScene(
   // ----- Clouds: two parallax layers, both soft white -----
   ctx.save();
   ctx.globalAlpha = 1 - coastness * 0.7;
-  drawClouds(ctx, camX * 0.04 + time * 2, 18, "#ffffff", 5, 0);
-  drawClouds(ctx, camX * 0.08 + time * 3.5, 40, "#ffffff", 6, 1);
-  drawClouds(ctx, camX * 0.14 + time * 5 + 180, 72, "#f4f9fd", 5, 2);
+  drawClouds(ctx, camXf * 0.04 + time * 2, 18, "#ffffff", 5, 0);
+  drawClouds(ctx, camXf * 0.08 + time * 3.5, 40, "#ffffff", 6, 1);
+  drawClouds(ctx, camXf * 0.14 + time * 5 + 180, 72, "#f4f9fd", 5, 2);
   ctx.restore();
 
   // Distant birds
-  drawSeagulls(ctx, camX * 0.2 + time * 10, time);
+  drawSeagulls(ctx, camXf * 0.2 + time * 10, time);
 
   // ----- Distant mountain silhouettes (with biome-mixed color) -----
   if (coastness < 1) {
@@ -6989,14 +6989,14 @@ function drawScene(
     ctx.globalAlpha = 1 - coastness;
     drawMountains(
       ctx,
-      camX * 0.2,
+      camXf * 0.2,
       130,
       biomeColor("mountainBack", worldCenter),
       biomeColor("mountainFront", worldCenter),
     );
     drawHills(
       ctx,
-      camX * 0.45,
+      camXf * 0.45,
       190,
       biomeColor("hillBack", worldCenter),
       biomeColor("hillFront", worldCenter),
@@ -7007,7 +7007,7 @@ function drawScene(
   // ----- Procedural tropical horizon: distant animated ocean + pixel islands
   // (replaces the old baked backdrop image).
   if (coastness > 0) {
-    drawTropicalHorizon(ctx, camX, time, coastness);
+    drawTropicalHorizon(ctx, camXf, time, coastness);
   }
   void beachBg;
 
