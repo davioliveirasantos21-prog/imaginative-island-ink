@@ -198,8 +198,9 @@ async function hydrateFromCloud(userId: string, origSet: (k: string, v: string) 
     // is especially important for deletions: a local `[null, ...]` slot state is
     // a real save, not an empty cache.
     const localOwner = localStorage.getItem(SAVE_OWNER_KEY);
-    const sameBrowserAccount = !localOwner || localOwner === userId;
-    const localIsNewerOrSame = blobUpdatedAt(localBlob) >= blobUpdatedAt(cloudBlob);
+    const localUpdatedAt = blobUpdatedAt(localBlob);
+    const sameBrowserAccount = localOwner === userId || (!localOwner && localUpdatedAt > 0);
+    const localIsNewerOrSame = localUpdatedAt >= blobUpdatedAt(cloudBlob);
     if (!cloudEmpty && localNonEmpty && localBlob["pixel-realms.slots"] && !sameBlob(localBlob, cloudBlob) && sameBrowserAccount && localIsNewerOrSame) {
       await supabase
         .from("player_saves")
