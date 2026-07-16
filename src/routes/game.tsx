@@ -6633,7 +6633,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
     }
     ctx.stroke();
   };
-  const webOff = -Math.floor(camX * 0.7);
+  const webOff = -Math.floor(camXf * 0.7);
   for (let x = ((webOff % 220) + 220) % 220 - 220; x < VW + 220; x += 220) {
     drawWeb(x + 20, 4, 22);
     drawWeb(x + 180, 6, 18);
