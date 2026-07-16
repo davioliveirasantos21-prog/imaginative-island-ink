@@ -6930,6 +6930,7 @@ function drawScene(
   _onBeach: boolean,
   beachBg: HTMLImageElement | null,
   world: WorldRender,
+  camXf: number = camX,
 ) {
 
 
