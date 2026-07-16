@@ -2583,7 +2583,11 @@ function GamePage() {
       // jumps 1–2px per frame with variable dt.
       const camXfRaw = s.x - VW / 2 + SPRITE_W / 2;
       const camXf = Math.max(0, Math.min(worldW - VW, camXfRaw));
-      let camX = Math.floor(camXf);
+      // Use the fractional camera value for ALL layers so world objects
+      // (player, trees, ores) and parallax backgrounds share a single
+      // reference frame. Rounding is done at each draw call, so mixing a
+      // floored camX with a float camXf was producing 1px wobble.
+      let camX = camXf;
       if (camX < 0) camX = 0;
       if (camX > worldW - VW) camX = worldW - VW;
       camXRef.current = camX;
