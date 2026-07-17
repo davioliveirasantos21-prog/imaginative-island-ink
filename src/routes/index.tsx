@@ -110,7 +110,7 @@ function MainMenu() {
             imageRendering: "pixelated",
             filter:
               "drop-shadow(0 0 18px rgba(255,209,102,0.35)) drop-shadow(6px 6px 0 rgba(0,0,0,0.55))",
-            transform: "rotate(180deg)"
+            transform: "rotate(180deg) scale(1.5)"
           }}
           draggable={false}
         />
