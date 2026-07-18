@@ -2605,12 +2605,13 @@ function GamePage() {
       // jumps 1–2px per frame with variable dt.
       const camXfRaw = s.x - VW / 2 + SPRITE_W / 2;
       const camXf = Math.max(0, Math.min(worldW - VW, camXfRaw));
-      // Entities (player, trees, ores, mobs) draw against an integer camera
-      // so sprites always land on whole pixels — otherwise drawImage at
-      // subpixel offsets renders as a soft blur while walking/stopping,
-      // even with imageSmoothingEnabled=false. Parallax backgrounds keep
-      // using camXf for smoothness (passed explicitly to drawScene).
-      let camX = Math.round(camXf);
+      // Integer camera derived from the ROUNDED player position, not from
+      // rounding camXf. This way `roundedPlayerX - camX` is EXACTLY the
+      // constant `VW/2 - SPRITE_W/2` every frame, so the character stays
+      // pinned to the screen center with zero 1px tremor relative to the
+      // camera. All other entities snap to whole pixels as usual.
+      const playerRoundedX = Math.round(s.x);
+      let camX = playerRoundedX - Math.round(VW / 2 - SPRITE_W / 2);
       if (camX < 0) camX = 0;
       if (camX > worldW - VW) camX = worldW - VW;
       camXRef.current = camX;
@@ -2620,7 +2621,7 @@ function GamePage() {
       // clamp stops centering the player). Account for the manual vertical
       // camera offset so the zoom still tracks the player after the view
       // has been shifted up or down.
-      const playerScreenX = s.x - camX + SPRITE_W / 2;
+      const playerScreenX = playerRoundedX - camX + SPRITE_W / 2;
       const playerScreenY = s.y + SPRITE_H / 2 - camYRef.current;
       const originX = Math.max(0, Math.min(100, (playerScreenX / VW) * 100));
       const originY = Math.max(0, Math.min(100, (playerScreenY / VH) * 100));
@@ -2634,6 +2635,8 @@ function GamePage() {
       // player centered horizontally.
       ctx.save();
       ctx.translate(0, -camYRef.current);
+
+
 
       // Prune regen-eligible stones and compute per-frame visibility sets.
       const nowMs = now;
@@ -3351,14 +3354,14 @@ function GamePage() {
       if (s.submersion < 0.02) {
         const shadowY = (inCave || inCave2) ? GROUND_Y : GROUND_Y + beachSurfaceOffset(s.x + SPRITE_W / 2);
         ctx.fillStyle = "rgba(0,0,0,0.32)";
-        ctx.fillRect(Math.floor(s.x - camX) + 2, shadowY + 3, SPRITE_W - 4, 2);
-        ctx.fillRect(Math.floor(s.x - camX) + 3, shadowY + 5, SPRITE_W - 6, 1);
+        ctx.fillRect(playerRoundedX - camX + 2, shadowY + 3, SPRITE_W - 4, 2);
+        ctx.fillRect(playerRoundedX - camX + 3, shadowY + 5, SPRITE_W - 6, 1);
       }
 
       // Draw player (with water occlusion when wading)
       if (!s.dead || s.deathT < DEATH_ANIM) {
         const dyingT = s.dead ? Math.min(1, s.deathT / DEATH_ANIM) : 0;
-        const spriteX = Math.floor(s.x - camX);
+        const spriteX = playerRoundedX - camX;
         const spriteY = Math.floor(s.y);
         ctx.save();
         if (dyingT > 0) ctx.globalAlpha = 1 - dyingT * 0.7;
