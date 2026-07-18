@@ -92,7 +92,19 @@ function gridFor(kind: SceneryKind): { w: number; h: number } {
   return g ? { w: g.w, h: g.h } : { w: 16, h: 16 };
 }
 
-const DEFAULT_SCENERY_OVERRIDES: SceneryOverrides = {};
+import sceneryDefaultsRaw from "./scenery-defaults.json";
+
+const DEFAULT_SCENERY_OVERRIDES: SceneryOverrides = (() => {
+  const out: SceneryOverrides = {};
+  const src = sceneryDefaultsRaw as Record<string, Record<string, string>>;
+  for (const [k, v] of Object.entries(src)) {
+    if (!SCENERY_KINDS.includes(k as SceneryKind)) continue;
+    const g = gridFor(k as SceneryKind);
+    const px = sanitize(v, g.w, g.h);
+    if (Object.keys(px).length) out[k as SceneryKind] = px;
+  }
+  return out;
+})();
 
 export function loadSceneryOverrides(): SceneryOverrides {
   if (_cache) return _cache;
