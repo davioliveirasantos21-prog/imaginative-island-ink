@@ -118,29 +118,52 @@ export function createLoop(url: string, opts?: { playbackRate?: number }): SfxLo
   const audio = new Audio(url);
   audio.loop = true;
   audio.volume = 0;
+  audio.preload = "auto";
   if (opts?.playbackRate) {
     audio.playbackRate = Math.max(0.25, Math.min(4, opts.playbackRate));
   }
-  let started = false;
+  let disposed = false;
+  let desiredVolume = 0;
   const tryPlay = () => {
-    if (started) return;
-    audio.play().then(() => { started = true; }).catch(() => {});
+    if (disposed) return;
+    audio.play().catch(() => {});
   };
-  const onInteract = () => {
-    tryPlay();
-    if (started) {
-      window.removeEventListener("pointerdown", onInteract);
-      window.removeEventListener("keydown", onInteract);
-    }
-  };
+  const onInteract = () => { tryPlay(); };
   window.addEventListener("pointerdown", onInteract);
   window.addEventListener("keydown", onInteract);
+  // Watchdog: if the browser pauses/ends the loop for any reason (autoplay
+  // policy, tab focus, media session hiccup, decoder glitch), resume it as
+  // long as the caller still wants it audible.
+  const onPause = () => { if (!disposed && desiredVolume > 0) tryPlay(); };
+  const onEnded = () => {
+    if (disposed) return;
+    try { audio.currentTime = 0; } catch { /* ignore */ }
+    tryPlay();
+  };
+  const onVisible = () => { if (!disposed && desiredVolume > 0 && audio.paused) tryPlay(); };
+  audio.addEventListener("pause", onPause);
+  audio.addEventListener("ended", onEnded);
+  document.addEventListener("visibilitychange", onVisible);
+  const watchdog = window.setInterval(() => {
+    if (disposed) return;
+    if (desiredVolume > 0 && audio.paused) tryPlay();
+  }, 1500);
   tryPlay();
   return {
-    setVolume: (v: number) => { audio.volume = Math.max(0, Math.min(1, v)); },
+    setVolume: (v: number) => {
+      const c = Math.max(0, Math.min(1, v));
+      desiredVolume = c;
+      audio.volume = c;
+      if (c > 0 && audio.paused) tryPlay();
+    },
     play: () => tryPlay(),
     pause: () => { audio.pause(); },
     dispose: () => {
+      disposed = true;
+      window.clearInterval(watchdog);
+      audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("ended", onEnded);
+      document.removeEventListener("visibilitychange", onVisible);
       audio.pause();
       audio.src = "";
       window.removeEventListener("pointerdown", onInteract);
