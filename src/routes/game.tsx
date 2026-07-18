@@ -2405,15 +2405,15 @@ function GamePage() {
       }
     };
 
-    // Cap the render loop when hardware is likely to struggle. On mobile we
-    // aim for ~40 FPS; on very-high-refresh desktops we cap at ~60 FPS so we
-    // don't burn CPU redrawing pixel art faster than the eye can see it.
+    // Cap the render loop on mobile only. On desktop we let requestAnimationFrame
+    // pace naturally (typically 60 Hz) — an arbitrary min-ms cap here caused
+    // variable dt between frames (sometimes 15 ms, sometimes 33 ms), which made
+    // the world/parallax move by variable pixel amounts each frame and looked
+    // like an oscillating stutter even though the player was pinned smoothly.
     const MOBILE_FRAME_MIN_MS = 24; // ~40 FPS
-    const DESKTOP_FRAME_MIN_MS = 15; // ~60 FPS
 
     const loop = (now: number) => {
-      const minMs = isMobileRef.current ? MOBILE_FRAME_MIN_MS : DESKTOP_FRAME_MIN_MS;
-      if (now - last < minMs) {
+      if (isMobileRef.current && now - last < MOBILE_FRAME_MIN_MS) {
         raf = requestAnimationFrame(loop);
         return;
       }
