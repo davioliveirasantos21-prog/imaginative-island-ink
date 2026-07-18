@@ -2690,11 +2690,16 @@ function GamePage() {
           const kinds: OreKind[] = ["coal", "copper", "bronze"];
           for (const [id, t] of minedOresRef.current) {
             if (wallClockMs < t) continue;
-            // Pick a random empty spot away from every existing ore (≥42px).
+            // Pick a random empty spot away from every existing UNMINED ore
+            // (≥42px). Mined-but-still-in-array ores are ignored so the
+            // cave doesn't stay "crowded" with ghost slots forever.
             let nx: number | null = null;
             for (let tries = 0; tries < 60; tries++) {
               const cand = Math.round(lo + Math.random() * (hi - lo));
-              if (caveOresRef.current.every((o) => Math.abs(o.x - cand) >= 42)) {
+              const ok = caveOresRef.current.every(
+                (o) => o.id === id || minedOresRef.current.has(o.id) || Math.abs(o.x - cand) >= 42,
+              );
+              if (ok) {
                 nx = cand;
                 break;
               }
@@ -2707,7 +2712,13 @@ function GamePage() {
             }
             const nkind = kinds[Math.floor(Math.random() * kinds.length)];
             const nid = `${nkind}-r-${nx}-${wallClockMs}-${Math.floor(Math.random() * 1000)}`;
-            caveOresRef.current = [...caveOresRef.current, { id: nid, x: nx, kind: nkind }];
+            // Drop the old mined slot from the array and append the fresh
+            // ore. This keeps caveOresRef from growing unbounded across
+            // long play sessions.
+            caveOresRef.current = [
+              ...caveOresRef.current.filter((o) => o.id !== id),
+              { id: nid, x: nx, kind: nkind },
+            ];
             // Consume the mined entry so it doesn't keep spawning new ores every frame.
             minedOresRef.current.delete(id);
             dirty = true;
@@ -2871,7 +2882,10 @@ function GamePage() {
                 }
               }
               if (blocked) continue;
-              if (cave2OresRef.current.every((o) => Math.abs(o.x - cand) >= 42)) {
+              const ok = cave2OresRef.current.every(
+                (o) => o.id === id || cave2MinedOresRef.current.has(o.id) || Math.abs(o.x - cand) >= 42,
+              );
+              if (ok) {
                 nx = cand;
                 break;
               }
@@ -2882,7 +2896,10 @@ function GamePage() {
             }
             const nkind = kinds[Math.floor(Math.random() * kinds.length)];
             const nid = `c2-r-${nx}-${wallClockMs}-${Math.floor(Math.random() * 1000)}`;
-            cave2OresRef.current = [...cave2OresRef.current, { id: nid, x: nx, kind: nkind }];
+            cave2OresRef.current = [
+              ...cave2OresRef.current.filter((o) => o.id !== id),
+              { id: nid, x: nx, kind: nkind },
+            ];
             cave2MinedOresRef.current.delete(id);
             dirty = true;
           }
