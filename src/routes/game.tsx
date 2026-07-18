@@ -3354,14 +3354,14 @@ function GamePage() {
       if (s.submersion < 0.02) {
         const shadowY = (inCave || inCave2) ? GROUND_Y : GROUND_Y + beachSurfaceOffset(s.x + SPRITE_W / 2);
         ctx.fillStyle = "rgba(0,0,0,0.32)";
-        ctx.fillRect(Math.floor(s.x - camX) + 2, shadowY + 3, SPRITE_W - 4, 2);
-        ctx.fillRect(Math.floor(s.x - camX) + 3, shadowY + 5, SPRITE_W - 6, 1);
+        ctx.fillRect(playerRoundedX - camX + 2, shadowY + 3, SPRITE_W - 4, 2);
+        ctx.fillRect(playerRoundedX - camX + 3, shadowY + 5, SPRITE_W - 6, 1);
       }
 
       // Draw player (with water occlusion when wading)
       if (!s.dead || s.deathT < DEATH_ANIM) {
         const dyingT = s.dead ? Math.min(1, s.deathT / DEATH_ANIM) : 0;
-        const spriteX = Math.floor(s.x - camX);
+        const spriteX = playerRoundedX - camX;
         const spriteY = Math.floor(s.y);
         ctx.save();
         if (dyingT > 0) ctx.globalAlpha = 1 - dyingT * 0.7;
