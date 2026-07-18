@@ -154,31 +154,18 @@ export function initCloudSync() {
         .in("key", SYNCED_KEYS as unknown as string[]);
       if (error) throw error;
       const cloudKeys = new Set<string>();
-      const user = await getCurrentUser();
       for (const row of data ?? []) {
         cloudKeys.add(row.key);
-        const localValue = localBeforeFetch.get(row.key);
-        if (user?.isAdmin && localValue) {
-          try {
-            const localData = JSON.parse(localValue);
-            if (JSON.stringify(localData) !== JSON.stringify(row.data)) {
-              await pushKey(row.key, localValue);
-              continue;
-            }
-          } catch {
-            /* fall through to cloud copy */
-          }
-        }
+        // Cloud is the source of truth on boot. Never let stale localStorage
+        // (especially old admin-panel edits) overwrite shared content during
+        // hydration; only explicit admin saves after the app is ready push up.
         const serialized = JSON.stringify(row.data);
         origSet(row.key, serialized);
       }
-      // If this admin already has edits saved locally, publish any keys that
-      // are still missing in shared content so a new tab/player sees them too.
-      if (user?.isAdmin) {
-        for (const [key, value] of localBeforeFetch) {
-          if (!cloudKeys.has(key)) await pushKey(key, value);
-        }
+      for (const key of SYNCED_KEYS) {
+        if (!cloudKeys.has(key)) origRemove(key);
       }
+      void localBeforeFetch;
     } catch (e) {
       console.warn("[cloud-sync] initial fetch failed:", e);
     } finally {

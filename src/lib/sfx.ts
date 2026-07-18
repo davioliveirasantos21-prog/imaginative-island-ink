@@ -89,7 +89,12 @@ async function loadBuffer(ctx: AudioContext, url: string): Promise<AudioBuffer> 
   return p;
 }
 
-export function playOneShotReverb(url: string, volume = 1, startOffset = 0) {
+export function playOneShotReverb(
+  url: string,
+  volume = 1,
+  startOffset = 0,
+  mix: { dry?: number; wet?: number } = {},
+) {
   const r = ensureReverb();
   if (!r) { playOneShot(url, volume); return; }
   const { ctx, dry, wet } = r;
@@ -99,8 +104,14 @@ export function playOneShotReverb(url: string, volume = 1, startOffset = 0) {
     const g = ctx.createGain();
     g.gain.value = Math.max(0, Math.min(1, volume));
     src.connect(g);
-    g.connect(dry);
-    g.connect(convolver!);
+    const dryTap = ctx.createGain();
+    const wetTap = ctx.createGain();
+    dryTap.gain.value = mix.dry ?? 1;
+    wetTap.gain.value = mix.wet ?? 1;
+    g.connect(dryTap);
+    g.connect(wetTap);
+    dryTap.connect(dry);
+    wetTap.connect(convolver!);
     const off = Math.max(0, Math.min(buf.duration - 0.01, startOffset));
     src.start(0, off);
   }).catch(() => { playOneShot(url, volume); });

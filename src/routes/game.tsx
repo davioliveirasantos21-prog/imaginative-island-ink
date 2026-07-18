@@ -2462,7 +2462,10 @@ function GamePage() {
               ts.hasHit = true;
               const ore = bestOre;
               const prevHP = currentHP.get(ore.id) ?? ORE_MAX_HP;
-              playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
+              playOneShotReverb(pickSfxAsset.url, Math.min(1, (ambientVolume / 100) * 1.6), 0, {
+                dry: 2.2,
+                wet: 0.45,
+              });
               const nextHP = prevHP - 1;
               if (nextHP > 0) {
                 currentHP.set(ore.id, nextHP);
