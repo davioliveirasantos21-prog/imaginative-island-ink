@@ -2882,7 +2882,10 @@ function GamePage() {
                 }
               }
               if (blocked) continue;
-              if (cave2OresRef.current.every((o) => Math.abs(o.x - cand) >= 42)) {
+              const ok = cave2OresRef.current.every(
+                (o) => o.id === id || cave2MinedOresRef.current.has(o.id) || Math.abs(o.x - cand) >= 42,
+              );
+              if (ok) {
                 nx = cand;
                 break;
               }
@@ -2893,7 +2896,10 @@ function GamePage() {
             }
             const nkind = kinds[Math.floor(Math.random() * kinds.length)];
             const nid = `c2-r-${nx}-${wallClockMs}-${Math.floor(Math.random() * 1000)}`;
-            cave2OresRef.current = [...cave2OresRef.current, { id: nid, x: nx, kind: nkind }];
+            cave2OresRef.current = [
+              ...cave2OresRef.current.filter((o) => o.id !== id),
+              { id: nid, x: nx, kind: nkind },
+            ];
             cave2MinedOresRef.current.delete(id);
             dirty = true;
           }
