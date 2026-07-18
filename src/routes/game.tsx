@@ -2608,11 +2608,14 @@ function GamePage() {
       // Entities (player, trees, ores, mobs) draw against an integer camera
       // so sprites always land on whole pixels — otherwise drawImage at
       // subpixel offsets renders as a soft blur while walking/stopping,
-      // even with imageSmoothingEnabled=false. Parallax backgrounds keep
-      // using camXf for smoothness (passed explicitly to drawScene).
-      let camX = Math.round(camXf);
+      // even with imageSmoothingEnabled=false. The fractional remainder
+      // is applied as a canvas translate so the WHOLE scene shifts sub-
+      // pixel together with the player, keeping the character perfectly
+      // centered horizontally with no 1px camera-vs-player tremor.
+      let camX = Math.floor(camXf);
       if (camX < 0) camX = 0;
       if (camX > worldW - VW) camX = worldW - VW;
+      const camXFrac = camXf - camX;
       camXRef.current = camX;
 
       // Follow the player with the CSS zoom transform so zooming stays
@@ -2620,7 +2623,7 @@ function GamePage() {
       // clamp stops centering the player). Account for the manual vertical
       // camera offset so the zoom still tracks the player after the view
       // has been shifted up or down.
-      const playerScreenX = s.x - camX + SPRITE_W / 2;
+      const playerScreenX = s.x - camXf + SPRITE_W / 2;
       const playerScreenY = s.y + SPRITE_H / 2 - camYRef.current;
       const originX = Math.max(0, Math.min(100, (playerScreenX / VW) * 100));
       const originY = Math.max(0, Math.min(100, (playerScreenY / VH) * 100));
@@ -2631,9 +2634,11 @@ function GamePage() {
 
       // Apply the manual vertical camera offset to the canvas context so
       // the whole rendered frame shifts up or down while keeping the
-      // player centered horizontally.
+      // player centered horizontally. Also apply the fractional camera
+      // remainder in X so entities-vs-parallax stay perfectly locked.
       ctx.save();
-      ctx.translate(0, -camYRef.current);
+      ctx.translate(-camXFrac, -camYRef.current);
+
 
       // Prune regen-eligible stones and compute per-frame visibility sets.
       const nowMs = now;
