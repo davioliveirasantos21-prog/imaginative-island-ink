@@ -153,15 +153,18 @@ export function initCloudSync() {
         .select("key,data")
         .in("key", SYNCED_KEYS as unknown as string[]);
       if (error) throw error;
-      const user = await getCurrentUser();
+      const cloudKeys = new Set<string>();
       for (const row of data ?? []) {
+        cloudKeys.add(row.key);
         // Cloud is the source of truth on boot. Never let stale localStorage
         // (especially old admin-panel edits) overwrite shared content during
         // hydration; only explicit admin saves after the app is ready push up.
         const serialized = JSON.stringify(row.data);
         origSet(row.key, serialized);
       }
-      void user;
+      for (const key of SYNCED_KEYS) {
+        if (!cloudKeys.has(key)) origRemove(key);
+      }
       void localBeforeFetch;
     } catch (e) {
       console.warn("[cloud-sync] initial fetch failed:", e);
