@@ -4715,10 +4715,9 @@ function GamePage() {
             return;
           }
 
-          // Per-hit damage: axe deals a big chunk (~1/3 of tree HP) so 3 swings
-          // fell a tree; stone deals 1 and consumes a stone every TREE_MAX_HP
-          // swings.
-          const damage = usingAxe ? Math.ceil(TREE_MAX_HP / 3) : 1;
+          // Per-hit damage: axe deals 3 damage per swing; stone deals 1 and
+          // consumes a stone every TREE_MAX_HP swings.
+          const damage = usingAxe ? 3 : 1;
           if (!usingAxe) {
             // Stones wear out over TREE_MAX_HP swings. We consume the pebble
             // only on its FINAL swing (when charges hit 0) so the player sees
