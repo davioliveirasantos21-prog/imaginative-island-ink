@@ -175,10 +175,8 @@ function useCloudSyncBoot(): [boolean, (v: boolean) => void] {
         if (alive) setReady(true);
       });
     });
-    const t = setTimeout(() => alive && setReady(true), 3000);
     return () => {
       alive = false;
-      clearTimeout(t);
     };
   }, []);
   return [ready, setReady];
