@@ -1777,7 +1777,7 @@ function GamePage() {
           if (keys.has("jump") && s.grounded) {
             s.vy = JUMP_VELOCITY;
             s.grounded = false;
-            playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
+            playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.7);
           }
           s.vy += GRAVITY * dt;
           s.x += s.vx * dt;
@@ -1889,7 +1889,7 @@ function GamePage() {
                   }
                   if (hit) {
                     spearHitCooldownRef.current.set(c.id, nowMs);
-                    playOneShot(pickSfxAsset.url, (ambientVolume / 100) * 0.7);
+                    playOneShot(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
                     // Hit SFX (also plays on kill) — trim the silent head.
                     playOneShotReverb(lacraiaDeathAsset.url, Math.min(1, (ambientVolume / 100) * 0.9), 0.15);
                     c.hp -= 1;
@@ -2108,7 +2108,7 @@ function GamePage() {
               // Jump on land only when clearly not over water.
               s.vy = JUMP_VELOCITY;
               s.grounded = false;
-              playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
+              playOneShotReverb(jumpSfxAsset.url, (ambientVolume / 100) * 0.7);
             } else if (fullyOnWater && s.grounded && !holdingUp) {
               // Released up while standing fully on water → sink in.
               s.y = GROUND_Y + 6 - SPRITE_H + FOOT_OFFSET;
@@ -2330,7 +2330,7 @@ function GamePage() {
           if (keys.has("jump") && s.grounded) {
             s.vy = JUMP_VELOCITY;
             s.grounded = false;
-            playOneShot(jumpSfxAsset.url, (ambientVolume / 100) * 0.3);
+            playOneShot(jumpSfxAsset.url, (ambientVolume / 100) * 0.7);
           }
           s.vy += GRAVITY * dt;
           s.x += s.vx * dt;
@@ -2462,7 +2462,7 @@ function GamePage() {
               ts.hasHit = true;
               const ore = bestOre;
               const prevHP = currentHP.get(ore.id) ?? ORE_MAX_HP;
-              playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 0.7);
+              playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
               const nextHP = prevHP - 1;
               if (nextHP > 0) {
                 currentHP.set(ore.id, nextHP);
@@ -3885,7 +3885,7 @@ function GamePage() {
             // Pick deals 1 damage per hit; ore has ORE_MAX_HP.
             const ore = bestOre;
             const prevHP = caveOreHPRef.current.get(ore.id) ?? ORE_MAX_HP;
-            playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 0.7);
+            playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               caveOreHPRef.current.set(ore.id, nextHP);
@@ -4059,7 +4059,7 @@ function GamePage() {
             }
             const ore = bestOre;
             const prevHP = cave2OreHPRef.current.get(ore.id) ?? ORE_MAX_HP;
-            playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 0.7);
+            playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               cave2OreHPRef.current.set(ore.id, nextHP);
@@ -4908,7 +4908,7 @@ function GamePage() {
           const prevHP = rockHPRef.current.get(key) ?? ROCK_MAX_HP;
           const nextHP = prevHP - 1;
           // Pick sound plays each time the rock loses HP (world → no reverb).
-          playOneShot(pickSfxAsset.url, (ambientVolume / 100) * 0.7);
+          playOneShot(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
           if (nextHP > 0) {
             rockHPRef.current.set(key, nextHP);
             flashPickup(t("msg.rock", { n: nextHP, max: ROCK_MAX_HP }));
