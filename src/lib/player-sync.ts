@@ -302,19 +302,16 @@ export function initPlayerSync() {
     console.warn("[player-sync] could not patch localStorage:", e);
   }
 
-  // Load local user session if any
-  const localUserRaw = localStorage.getItem("pixel-islands.current-user");
-  if (localUserRaw) {
-    try {
-      const u = JSON.parse(localUserRaw);
-      currentUserId = u.id;
-      if (currentUserId?.startsWith("local-")) markPlayerSaveReady();
-    } catch {}
-  }
+  // Clean up any legacy insecure local-user records from previous versions.
+  try {
+    localStorage.removeItem("pixel-islands.current-user");
+    localStorage.removeItem("pixel-islands.local-users");
+  } catch {}
+
+
 
   // Track session state. On identity changes, hydrate or clear.
   void supabase.auth.getSession().then(({ data }) => {
-    if (currentUserId && currentUserId.startsWith("local-")) return;
     const uid = data.session?.user?.id ?? null;
     if (uid) {
       currentUserId = uid;
@@ -325,13 +322,13 @@ export function initPlayerSync() {
   });
 
   supabase.auth.onAuthStateChange((event, session) => {
-    if (currentUserId && currentUserId.startsWith("local-")) return;
     const uid = session?.user?.id ?? null;
     if (event === "SIGNED_IN" && uid && uid !== currentUserId) {
       markPlayerSavePending();
       currentUserId = uid;
       void hydrateFromCloud(uid, origSet, origRemove);
     } else if (event === "SIGNED_OUT") {
+
       currentUserId = null;
       clearAllLocal(origRemove);
       localStorage.removeItem(SAVE_OWNER_KEY);
@@ -373,32 +370,8 @@ export async function playerSignIn(email: string, password: string) {
     }
     return res;
   } catch (e: any) {
-    const isNetworkError =
-      e.message?.includes("Failed to fetch") ||
-      e.message?.includes("network") ||
-      e.message?.includes("NetworkError") ||
-      e.name === "TypeError";
-    if (isNetworkError) {
-      const localUsersRaw = localStorage.getItem("pixel-islands.local-users");
-      const localUsers = localUsersRaw ? JSON.parse(localUsersRaw) : [];
-      const user = localUsers.find(
-        (u: any) => u.email === email.trim().toLowerCase() && u.password === password
-      );
-      if (user) {
-        localStorage.setItem("pixel-islands.current-user", JSON.stringify(user));
-        currentUserId = user.id;
-        markPlayerSaveReady();
-        // Trigger page refresh/redirect
-        setTimeout(() => {
-          window.location.href = "/characters";
-        }, 100);
-        return { data: { user: { id: user.id, email: user.email } }, error: null };
-      }
-      markPlayerSaveReady();
-      return { data: null, error: new Error("Usuário ou senha incorretos (Modo Offline).") };
-    }
     markPlayerSaveReady();
-    return { data: null, error: e };
+    return { data: null, error: e instanceof Error ? e : new Error(String(e)) };
   }
 }
 
@@ -422,47 +395,14 @@ export async function playerSignUp(email: string, password: string, username?: s
     }
     return res;
   } catch (e: any) {
-    const isNetworkError =
-      e.message?.includes("Failed to fetch") ||
-      e.message?.includes("network") ||
-      e.message?.includes("NetworkError") ||
-      e.name === "TypeError";
-    if (isNetworkError) {
-      const localUsersRaw = localStorage.getItem("pixel-islands.local-users");
-      const localUsers = localUsersRaw ? JSON.parse(localUsersRaw) : [];
-      const exists = localUsers.some(
-        (u: any) => u.email === email.trim().toLowerCase()
-      );
-      if (exists) {
-        return { data: null, error: new Error("Usuário já existe (Modo Offline).") };
-      }
-      const newUser = {
-        id: "local-" + Math.random().toString(36).substring(2, 11),
-        username: username || email.split("@")[0],
-        email: email.trim().toLowerCase(),
-        password,
-      };
-      localUsers.push(newUser);
-      localStorage.setItem("pixel-islands.local-users", JSON.stringify(localUsers));
-      localStorage.setItem("pixel-islands.current-user", JSON.stringify(newUser));
-      currentUserId = newUser.id;
-      markPlayerSaveReady();
-      setTimeout(() => {
-        window.location.href = "/characters";
-      }, 100);
-      return { data: { session: {} }, error: null };
-    }
     markPlayerSaveReady();
-    return { data: null, error: e };
+    return { data: null, error: e instanceof Error ? e : new Error(String(e)) };
   }
 }
 
 
 export async function playerSignOut() {
   await pushNow();
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("pixel-islands.current-user");
-  }
   currentUserId = null;
   try {
     return await supabase.auth.signOut();
@@ -475,18 +415,9 @@ export async function playerSignOut() {
 }
 
 export async function getPlayerSession() {
-  if (typeof window !== "undefined") {
-    const localUserRaw = localStorage.getItem("pixel-islands.current-user");
-    if (localUserRaw) {
-      try {
-        const u = JSON.parse(localUserRaw);
-        return { id: u.id, username: u.username, email: u.email };
-      } catch {}
-    }
-  }
   try {
-    const { data } = await supabase.auth.getSession();
-    const u = data.session?.user;
+    const { data } = await supabase.auth.getUser();
+    const u = data.user;
     if (!u) return null;
     const email = u.email ?? "";
     const username = (u.user_metadata as { username?: string } | null)?.username ?? email.split("@")[0];
@@ -495,4 +426,5 @@ export async function getPlayerSession() {
     return null;
   }
 }
+
 
