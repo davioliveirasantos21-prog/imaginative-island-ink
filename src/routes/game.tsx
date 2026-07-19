@@ -4718,7 +4718,7 @@ function GamePage() {
           : null;
 
         if (chopTarget) {
-          // Chopping requires either the stone slot (10 hits, consumes stones)
+          // Chopping requires either the stone slot (9 hits, consumes stones)
           // or the improvised axe (3 hits, no cost) to be selected.
           const heldForChop =
             getSelectedHotbarKind();
