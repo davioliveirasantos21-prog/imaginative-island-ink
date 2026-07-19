@@ -302,15 +302,13 @@ export function initPlayerSync() {
     console.warn("[player-sync] could not patch localStorage:", e);
   }
 
-  // Load local user session if any
-  const localUserRaw = localStorage.getItem("pixel-islands.current-user");
-  if (localUserRaw) {
-    try {
-      const u = JSON.parse(localUserRaw);
-      currentUserId = u.id;
-      if (currentUserId?.startsWith("local-")) markPlayerSaveReady();
-    } catch {}
-  }
+  // Clean up any legacy insecure local-user records from previous versions.
+  try {
+    localStorage.removeItem("pixel-islands.current-user");
+    localStorage.removeItem("pixel-islands.local-users");
+  } catch {}
+
+
 
   // Track session state. On identity changes, hydrate or clear.
   void supabase.auth.getSession().then(({ data }) => {
