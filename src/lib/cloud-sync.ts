@@ -219,16 +219,9 @@ export type AuthUser = {
 };
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  if (typeof window !== "undefined") {
-    const localAdminRaw = localStorage.getItem("pixel-islands.current-admin");
-    if (localAdminRaw) {
-      try {
-        const u = JSON.parse(localAdminRaw);
-        return { id: u.id, email: u.email, isAdmin: true };
-      } catch {}
-    }
-  }
   try {
+    // Use getUser() (revalidates with Auth server) rather than getSession() —
+    // never trust a client-side flag for admin status.
     const { data } = await supabase.auth.getUser();
     const u = data.user;
     if (!u) return null;
@@ -256,22 +249,7 @@ export async function signInWithPassword(email: string, password: string) {
     if (res.error) throw res.error;
     return res;
   } catch (e: any) {
-    const isNetworkError =
-      e.message?.includes("Failed to fetch") ||
-      e.message?.includes("network") ||
-      e.message?.includes("NetworkError") ||
-      e.name === "TypeError";
-    if (isNetworkError) {
-      const derivedAdminEmail = "davi0011@admin.local";
-      const u = email.trim().toLowerCase();
-      if ((u === derivedAdminEmail || u === "davi0011") && password === "fb152221!") {
-        const adminUserObj = { id: "admin-local", email: derivedAdminEmail };
-        localStorage.setItem("pixel-islands.current-admin", JSON.stringify(adminUserObj));
-        return { data: { user: adminUserObj }, error: null };
-      }
-      return { data: null, error: new Error("Usuário ou senha incorretos (Modo Offline).") };
-    }
-    return { data: null, error: e };
+    return { data: null, error: e instanceof Error ? e : new Error(String(e)) };
   }
 }
 
@@ -279,31 +257,20 @@ export async function signUpWithPassword(email: string, password: string) {
   try {
     return await supabase.auth.signUp({ email, password });
   } catch (e: any) {
-    const isNetworkError =
-      e.message?.includes("Failed to fetch") ||
-      e.message?.includes("network") ||
-      e.message?.includes("NetworkError") ||
-      e.name === "TypeError";
-    if (isNetworkError) {
-      const derivedAdminEmail = "davi0011@admin.local";
-      const u = email.trim().toLowerCase();
-      if (u === derivedAdminEmail || u === "davi0011") {
-        const adminUserObj = { id: "admin-local", email: derivedAdminEmail };
-        localStorage.setItem("pixel-islands.current-admin", JSON.stringify(adminUserObj));
-        return { data: { user: adminUserObj }, error: null };
-      }
-    }
-    return { data: null, error: e };
+    return { data: null, error: e instanceof Error ? e : new Error(String(e)) };
   }
 }
 
 export async function signOut() {
+  // Clean up any legacy insecure admin flag from previous versions.
   if (typeof window !== "undefined") {
-    localStorage.removeItem("pixel-islands.current-admin");
+    try { localStorage.removeItem("pixel-islands.current-admin"); } catch {}
   }
   try {
     return await supabase.auth.signOut();
   } catch {
     return { error: null };
   }
+}
+
 }
