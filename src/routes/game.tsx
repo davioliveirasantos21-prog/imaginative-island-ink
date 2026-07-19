@@ -5367,6 +5367,14 @@ function GamePage() {
                     <circle cx="12" cy="17" r="0.6" fill={stroke} />
                   </svg>
                 );
+                const IconExit = (
+                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5" />
+                    <path d="M10 8l-4 4 4 4" />
+                    <path d="M6 12h10" />
+                  </svg>
+                );
+
                 type CornerBtn = {
                   key: string;
                   label: string;
