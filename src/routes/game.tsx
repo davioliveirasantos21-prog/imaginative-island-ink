@@ -4519,13 +4519,18 @@ function GamePage() {
       // trunk/canopy click doesn't get stolen by a log lying next to it.
       const isMouse = e.pointerType === "mouse";
       const logXTol = isMouse ? 6 : 12;
-      const logYTop = isMouse ? GROUND_Y - 6 : GROUND_Y - 20;
-      const logYBot = GROUND_Y + 8;
+      const logYTopBase = isMouse ? GROUND_Y - 6 : GROUND_Y - 20;
+      const logYBotBase = GROUND_Y + 8;
       let bestLog: GroundLog | null = null;
       let bestLogD = logXTol;
       for (const log of groundLogsRef.current) {
         if (!withinReach(log.x + 5)) continue;
         const d = Math.abs(log.x + 5 - worldX);
+        // Adjust the vertical pickup band so it follows the sand slope —
+        // otherwise palm logs on the beach render below the flat Y check.
+        const slope = beachSurfaceOffset(log.x);
+        const logYTop = logYTopBase + slope;
+        const logYBot = logYBotBase + slope;
         if (d < bestLogD && worldY > logYTop && worldY < logYBot) {
           bestLogD = d;
           bestLog = log;
