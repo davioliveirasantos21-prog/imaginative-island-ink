@@ -5499,10 +5499,14 @@ function GamePage() {
             <div
               className="pointer-events-auto flex items-center gap-1 sm:gap-2 border-2 border-[#f4e9c1]/60 bg-[#0d1b2a]/85 px-1.5 py-1 sm:px-2 sm:py-1.5"
               title={t("game.inv")}
-              onMouseEnter={() => { lastActivityRef.current = Date.now(); setHotbarIdle(false); }}
+              onMouseEnter={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
+              onMouseMove={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
+              onMouseLeave={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
+              onClick={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
+              onTouchStart={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
               style={{
                 boxShadow: "0 3px 0 #0a141f",
-                opacity: hotbarIdle ? 0.18 : 1,
+                opacity: inventoryVisible ? 1 : 0.18,
                 transition: "opacity 600ms ease",
               }}
             >
