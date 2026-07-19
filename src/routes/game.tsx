@@ -1015,6 +1015,38 @@ function GamePage() {
     }, 250);
     return () => window.clearInterval(id);
   }, [smeltJob?.endsAt]);
+
+  // ----- Hotbar idle fade -----
+  // After a few seconds without any player input the hotbar fades to near
+  // transparent so it stops covering the game. Any keypress / pointer move /
+  // touch snaps it back to full opacity.
+  const [hotbarIdle, setHotbarIdle] = useState(false);
+  const lastActivityRef = useRef(Date.now());
+  useEffect(() => {
+    const HOTBAR_IDLE_MS = 4000;
+    const bump = () => {
+      lastActivityRef.current = Date.now();
+      setHotbarIdle((v) => (v ? false : v));
+    };
+    window.addEventListener("keydown", bump, { passive: true });
+    window.addEventListener("pointermove", bump, { passive: true });
+    window.addEventListener("pointerdown", bump, { passive: true });
+    window.addEventListener("wheel", bump, { passive: true });
+    window.addEventListener("touchstart", bump, { passive: true });
+    const iv = window.setInterval(() => {
+      if (Date.now() - lastActivityRef.current > HOTBAR_IDLE_MS) {
+        setHotbarIdle((v) => (v ? v : true));
+      }
+    }, 600);
+    return () => {
+      window.removeEventListener("keydown", bump);
+      window.removeEventListener("pointermove", bump);
+      window.removeEventListener("pointerdown", bump);
+      window.removeEventListener("wheel", bump);
+      window.removeEventListener("touchstart", bump);
+      window.clearInterval(iv);
+    };
+  }, []);
   const [placingKind, setPlacingKind] = useState<BuildKind | null>(null);
   const placingKindRef = useRef<BuildKind | null>(null);
   placingKindRef.current = placingKind;
