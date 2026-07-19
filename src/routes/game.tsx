@@ -33,11 +33,6 @@ import seedIconUrl from "@/assets/seed-icon.png";
 import torchIconAsset from "@/assets/torch-icon.png.asset.json";
 import copperPickIconAsset from "@/assets/copper-pick-icon.png.asset.json";
 import woodPanelBg from "@/assets/wood-panel-bg.jpg";
-import uiBuildIcon from "@/assets/ui-build.png";
-import uiMapIcon from "@/assets/ui-map.png";
-import uiLookIcon from "@/assets/ui-look.png";
-import uiSettingsIcon from "@/assets/ui-settings.png";
-void uiBuildIcon; void uiMapIcon; void uiLookIcon; void uiSettingsIcon;
 import {
   getItemVariantPixels,
   renderItemPixelsToDataURL,
