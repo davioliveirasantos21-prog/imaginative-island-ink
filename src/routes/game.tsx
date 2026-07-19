@@ -2546,7 +2546,7 @@ function GamePage() {
                   }
                 }
 
-                const maxHits = usingAxe ? 3 : 10;
+                const maxHits = TREE_MAX_HP;
                 const hpKey = chopTarget.isPlanted ? `p:${chopTarget.treeObj!.id}` : `n:${chopTarget.x}`;
                 const prevHP = treeHPRef.current.get(hpKey) ?? maxHits;
                 const damage = usingAxe ? 3 : 1;
