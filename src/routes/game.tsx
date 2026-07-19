@@ -3266,15 +3266,26 @@ function GamePage() {
           const x = Math.round(sx);
           const y = GROUND_Y;
           const t = performance.now() / 1000;
-          // Three puffs at staggered phases climb from the chimney and fade.
-          for (let i = 0; i < 3; i++) {
-            const phase = (t * 0.6 + i * 0.33) % 1;
-            const rise = Math.floor(phase * 10);      // 0..9 pixels up
-            const drift = Math.round(Math.sin((t + i) * 1.7) * 1); // -1..1
-            const alpha = 0.55 * (1 - phase);
-            if (alpha <= 0.02) continue;
+          // Chimney center (grid col ~9, anchor col 1 → sx + 8).
+          const cx = x + 8;
+          // Four staggered puffs climb higher, grow, and fade.
+          for (let i = 0; i < 4; i++) {
+            const phase = (t * 0.5 + i * 0.25) % 1;
+            const rise = Math.floor(phase * 18);      // 0..17 pixels up
+            const drift = Math.round(Math.sin((t + i) * 1.6) * 2); // -2..2
+            const alpha = 0.6 * (1 - phase);
+            if (alpha <= 0.03) continue;
+            // Puff grows as it rises.
+            const size = 2 + Math.floor(phase * 3);   // 2..4 px
+            const px = cx + drift - Math.floor(size / 2);
+            const py = y - 22 - rise;
             ctx.fillStyle = `rgba(220,220,220,${alpha.toFixed(2)})`;
-            ctx.fillRect(x + 13 + drift, y - 21 - rise, 2, 1);
+            ctx.fillRect(px, py, size, size);
+            // Softer inner highlight to give a fluffier feel.
+            if (size >= 3) {
+              ctx.fillStyle = `rgba(245,245,245,${(alpha * 0.7).toFixed(2)})`;
+              ctx.fillRect(px + 1, py, size - 2, 1);
+            }
           }
         }
 
