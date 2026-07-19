@@ -1127,7 +1127,8 @@ function GamePage() {
       if (it.mode !== mode) continue;
       if (!withinReach(it.x + 5)) continue;
       const d = Math.abs(it.x + 5 - worldX);
-      if (d < bestD && worldY > GROUND_Y - 16 && worldY < GROUND_Y + 12) {
+      const gY = mode === "world" ? getGroundYAt(it.x) : GROUND_Y;
+      if (d < bestD && worldY > gY - 16 && worldY < gY + 12) {
         bestD = d; best = it;
       }
     }
@@ -4580,7 +4581,8 @@ function GamePage() {
       for (const seed of seedsRef.current) {
         if (!withinReach(seed.x + 2)) continue;
         const d = Math.abs(seed.x + 2 - worldX);
-        if (d < bestSeedD && worldY > GROUND_Y - 10 && worldY < GROUND_Y + 8) {
+        const gY = getGroundYAt(seed.x);
+        if (d < bestSeedD && worldY > gY - 10 && worldY < gY + 8) {
           bestSeedD = d;
           bestSeed = seed;
         }
@@ -4606,7 +4608,8 @@ function GamePage() {
           if (stonesTakenRef.current.has(st.id)) continue;
           if (!withinReach(st.x + 2)) continue;
           const d = Math.abs(st.x + 2 - worldX);
-          if (d < bestD && worldY > GROUND_Y - 14 && worldY < GROUND_Y + 12) {
+          const gY = getGroundYAt(st.x);
+          if (d < bestD && worldY > gY - 14 && worldY < gY + 12) {
             bestD = d; bestStone = st;
           }
         }
@@ -4615,7 +4618,8 @@ function GamePage() {
         for (const p of groundPebblesRef.current) {
           if (!withinReach(p.x + 2)) continue;
           const d = Math.abs(p.x + 2 - worldX);
-          if (d < bestGPD && worldY > GROUND_Y - 14 && worldY < GROUND_Y + 12) {
+          const gY = getGroundYAt(p.x);
+          if (d < bestGPD && worldY > gY - 14 && worldY < gY + 12) {
             bestGPD = d; bestGP = p;
           }
         }
@@ -4969,10 +4973,15 @@ function GamePage() {
         for (const side of ["left", "right"] as const) {
           for (const p of getPalms(side)) {
             if (brokenPalmsRef.current.has(p.wx)) continue;
+            // Only allow clicking palms actually drawn on screen — prevents
+            // hitting an off-camera "invisible" palm that isn't rendered.
+            const sxPalm = p.wx - camXRef.current;
+            if (sxPalm < -20 || sxPalm > VW + 20) continue;
             const cx = p.wx + 2;
             if (!withinReach(cx)) continue;
             const d = Math.abs(cx - worldX);
-            if (d < bestPalmD && worldY > GROUND_Y - 80 && worldY < GROUND_Y + 12) {
+            const gY = getGroundYAt(cx);
+            if (d < bestPalmD && worldY > gY - 80 && worldY < gY + 12) {
               bestPalmD = d;
               bestPalm = p;
             }
@@ -6478,6 +6487,12 @@ function beachSurfaceOffset(wx: number): number {
   return 0;
 }
 
+// Canonical surface Y for any world-x. Drops, pickups and beach entities
+// must use THIS instead of raw GROUND_Y so they follow the sand slope.
+export function getGroundYAt(wx: number): number {
+  return GROUND_Y + beachSurfaceOffset(wx);
+}
+
 function mixHex(a: string, b: string, t: number): string {
   const pa = parseInt(a.slice(1), 16);
   const pb = parseInt(b.slice(1), 16);
@@ -7020,7 +7035,7 @@ function drawScene(
   for (const p of world.groundPebbles) {
     const sx = p.x - camX;
     if (sx < -8 || sx > VW + 8) continue;
-    drawPickupStone(ctx, sx, GROUND_Y + bob, p.variant);
+    drawPickupStone(ctx, sx, getGroundYAt(p.x) + bob, p.variant);
   }
 
 
@@ -7064,7 +7079,7 @@ function drawScene(
   for (const seed of world.seeds) {
     const sx = seed.x - camX;
     if (sx < -8 || sx > VW + 8) continue;
-    drawSeed(ctx, sx, GROUND_Y + bob);
+    drawSeed(ctx, sx, getGroundYAt(seed.x) + bob);
   }
 
   // ----- Planted saplings & growing trees -----
