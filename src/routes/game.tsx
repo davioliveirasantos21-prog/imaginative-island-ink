@@ -5214,12 +5214,8 @@ function GamePage() {
       style={{ WebkitUserSelect: "none", WebkitTouchCallout: "none", WebkitTapHighlightColor: "transparent" }}
     >
       <header className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-4">
-        <Link
-          to="/characters"
-          className="text-[9px] sm:text-[10px] tracking-widest uppercase border-2 border-[#f4e9c1]/40 px-2 py-1.5 sm:px-3 sm:py-2 hover:border-[#f4e9c1]"
-        >
-          ← {t("game.leave")}
-        </Link>
+        <div />
+
         <div className="order-last w-full text-center text-xs sm:text-sm sm:order-none sm:w-auto text-[#ffd166]" style={{ textShadow: "2px 2px 0 #7a3e1d" }}>
           {t("game.zone")}
         </div>
@@ -5371,6 +5367,14 @@ function GamePage() {
                     <circle cx="12" cy="17" r="0.6" fill={stroke} />
                   </svg>
                 );
+                const IconExit = (
+                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5" />
+                    <path d="M10 8l-4 4 4 4" />
+                    <path d="M6 12h10" />
+                  </svg>
+                );
+
                 type CornerBtn = {
                   key: string;
                   label: string;
@@ -5413,9 +5417,17 @@ function GamePage() {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
                     icon: IconZoom,
-                    pos: "left-14 top-2 sm:left-16 sm:top-2",
+                    pos: "left-1/2 -translate-x-1/2 top-3 sm:top-6",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
+                  {
+                    key: "exit",
+                    label: t("game.leave"),
+                    icon: IconExit,
+                    pos: "right-3 bottom-3 sm:right-6 sm:bottom-6",
+                    onClick: () => { setGameMenuOpen(false); navigate({ to: "/characters" }); },
+                  },
+
                   {
                     key: "tutorial",
                     label: t("gameMenu.tutorial.title"),
@@ -5451,8 +5463,7 @@ function GamePage() {
               {cameraMenuOpen ? (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute left-14 top-20 sm:left-24 sm:top-20 z-10 w-[200px] border-2 border-[#f4e9c1] bg-[#0d1b2a]/95 p-2 animate-fade-in"
-                  style={{ boxShadow: "0 4px 0 #0a141f" }}
+                  className="absolute left-1/2 -translate-x-1/2 top-20 sm:top-24 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
                 >
                   <div className="flex items-center justify-between gap-2 text-[10px] tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
                     <span>🔍</span>
