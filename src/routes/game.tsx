@@ -471,24 +471,6 @@ function GamePage() {
     const audio = new Audio(furnaceLoopAsset.url);
     audio.loop = true;
     audio.volume = 0;
-    // Skip the musical intro of the clip so the loop starts on the
-    // crackling body of the fire, not the melody at the top.
-    const INTRO_SKIP_SECONDS = 22;
-    const seekPastIntro = () => {
-      try {
-        if (audio.duration && isFinite(audio.duration) && audio.duration > INTRO_SKIP_SECONDS + 2) {
-          audio.currentTime = INTRO_SKIP_SECONDS;
-        }
-      } catch { /* ignore */ }
-    };
-    const onLoaded = () => seekPastIntro();
-    // Re-seek every time the clip loops back to the beginning, otherwise
-    // the intro plays again on every loop.
-    audio.addEventListener("seeked", () => { /* noop, keeps handler live */ });
-    audio.addEventListener("timeupdate", () => {
-      if (audio.currentTime < INTRO_SKIP_SECONDS - 0.2) seekPastIntro();
-    });
-    audio.addEventListener("loadedmetadata", onLoaded);
     let started = false;
     const tryPlay = () => {
       if (started) return;
@@ -504,6 +486,7 @@ function GamePage() {
     window.addEventListener("pointerdown", onInteract);
     window.addEventListener("keydown", onInteract);
     tryPlay();
+
 
     const interval = window.setInterval(() => {
       const job = smeltJobRef.current;
