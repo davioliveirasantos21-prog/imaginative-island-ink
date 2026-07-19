@@ -2580,6 +2580,61 @@ function GamePage() {
                 flashPickup(t("msg.needStones"));
               }
             }
+
+            // Also try to chop a palm during the SAME axe swing — the palm
+            // that's actually within the axe's reach in front of the player,
+            // not whichever palm the mouse is over.
+            if (!ts.hasHit) {
+              let bestPalm: PalmPos | null = null;
+              let bestPalmD = 60;
+              for (const side of ["left", "right"] as const) {
+                for (const p of getPalms(side)) {
+                  if (brokenPalmsRef.current.has(p.wx)) continue;
+                  const trunkCenter = p.wx + 2;
+                  if (isFacingRight && trunkCenter < playerCenter) continue;
+                  if (!isFacingRight && trunkCenter > playerCenter) continue;
+                  const d = Math.abs(trunkCenter - playerCenter);
+                  if (d <= 50 && d < bestPalmD) {
+                    bestPalmD = d;
+                    bestPalm = p;
+                  }
+                }
+              }
+              if (bestPalm) {
+                const usingAxe = inventoryRef.current.axe > 0;
+                if (usingAxe) {
+                  ts.hasHit = true;
+                  const nowMs = performance.now();
+                  playOneShot(woodHitSfxAsset.url, (ambientVolume / 100) * 0.7);
+                  const damage = Math.ceil(PALM_MAX_HP / 3);
+                  const prevHP = palmHPRef.current.get(bestPalm.wx) ?? PALM_MAX_HP;
+                  const nextHP = prevHP - damage;
+                  if (nextHP > 0) {
+                    palmHPRef.current.set(bestPalm.wx, nextHP);
+                    flashPickup(t("msg.palm", { n: nextHP, max: PALM_MAX_HP }));
+                  } else {
+                    palmHPRef.current.delete(bestPalm.wx);
+                    brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(bestPalm.wx);
+                    const logCount = 2 + Math.floor(Math.random() * 2);
+                    const nowPalm = Date.now();
+                    const newLogs: GroundLog[] = [];
+                    for (let i = 0; i < logCount; i++) {
+                      newLogs.push({
+                        id: `palm-${bestPalm.wx}-${nowMs}-${i}`,
+                        x: bestPalm.wx + 4 + i * 11,
+                        droppedAt: nowPalm + i,
+                      });
+                    }
+                    groundLogsRef.current = [...groundLogsRef.current, ...newLogs];
+                    enforceCombinedGroundLimit();
+                    const seedCount = 1 + Math.floor(Math.random() * 2);
+                    setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds + seedCount }));
+                    flashPickup(t("msg.palmFelled", { logs: logCount, seeds: seedCount }));
+                  }
+                  saveWorld();
+                }
+              }
+            }
           }
         }
       }
@@ -4967,7 +5022,10 @@ function GamePage() {
       // 7) Chop a palm tree on the beach. Requires stone or axe like a
       //    regular tree, but a palm is smaller (PALM_MAX_HP hits) and
       //    drops 1-2 palm seeds when it falls.
-      {
+      //    Skip when holding the axe — axe damage is dealt by the swing
+      //    animation tick (above), based on which palm is in front of the
+      //    player, NOT which one the mouse is over.
+      if (getSelectedHotbarKind() !== "axe") {
         let bestPalm: PalmPos | null = null;
         let bestPalmD = 18;
         for (const side of ["left", "right"] as const) {
