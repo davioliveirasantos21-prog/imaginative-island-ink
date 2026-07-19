@@ -5352,17 +5352,12 @@ function GamePage() {
                   </svg>
                 );
                 const IconLook = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6" />
-                  </svg>
+                  <Pencil strokeWidth={1.8} />
                 );
                 const IconSettings = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
-                  </svg>
+                  <SettingsIcon strokeWidth={1.8} />
                 );
+
                 const IconZoom = (
                   <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="6" />
