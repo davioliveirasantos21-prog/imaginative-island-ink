@@ -35,6 +35,7 @@ import seedIconUrl from "@/assets/seed-icon.png";
 import torchIconAsset from "@/assets/torch-icon.png.asset.json";
 import copperPickIconAsset from "@/assets/copper-pick-icon.png.asset.json";
 import woodPanelBg from "@/assets/wood-panel-bg.jpg";
+import mapButtonIconAsset from "@/assets/map-button-icon.png.asset.json";
 import {
   getItemVariantPixels,
   renderItemPixelsToDataURL,
@@ -5357,10 +5358,12 @@ function GamePage() {
                   </svg>
                 );
                 const IconMap = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2V6z" />
-                    <path d="M9 4v16M15 6v16" />
-                  </svg>
+                  <img
+                    src={mapButtonIconAsset.url}
+                    alt={t("game.map")}
+                    className="w-full h-full object-contain pixelated"
+                    style={{ imageRendering: "pixelated" }}
+                  />
                 );
                 const IconLook = (
                   <Pencil strokeWidth={1.8} />
