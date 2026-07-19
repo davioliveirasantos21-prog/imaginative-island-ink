@@ -5471,10 +5471,29 @@ function GamePage() {
           ) : null}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-2 pb-2">
             <div
-              className="pointer-events-auto flex items-center gap-1 sm:gap-2 border-2 border-[#f4e9c1]/60 bg-[#0d1b2a]/85 px-1.5 py-1 sm:px-2 sm:py-1.5"
+              className="pointer-events-auto relative flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 font-pixel"
               title={t("game.inv")}
-              style={{ boxShadow: "0 3px 0 #0a141f" }}
+              style={{
+                border: "4px solid #2a1608",
+                boxShadow:
+                  "0 0 0 2px #ffd166 inset, 0 6px 0 rgba(0,0,0,0.55), 0 0 20px rgba(0,0,0,0.5)",
+                backgroundImage: `url(${woodPanelBg})`,
+                backgroundSize: "220px auto",
+                backgroundRepeat: "repeat",
+                imageRendering: "pixelated",
+              }}
             >
+              {/* left rivet */}
+              <span
+                aria-hidden
+                className="absolute -left-[3px] top-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
+                style={{ background: "#ffd166", boxShadow: "0 0 0 1px #2a1608" }}
+              />
+              <span
+                aria-hidden
+                className="absolute -right-[3px] top-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
+                style={{ background: "#ffd166", boxShadow: "0 0 0 1px #2a1608" }}
+              />
               {HOTBAR_SLOTS.map((kind, i) => {
                 const count =
                   kind === "stone" ? inventory.stones :
@@ -5535,15 +5554,10 @@ function GamePage() {
                         inventoryRef.current = nxt;
                         return nxt;
                       });
-                      // Drop the item on the ground at the player's feet so
-                      // it can be picked up again — matches how carried logs
-                      // are released. Bars aren't in ItemKind so they still
-                      // just discard.
                       const droppable = kind !== "copperBar" && kind !== "bronzeBar";
                       if (droppable) {
                         const s = stateRef.current;
                         const feetX = Math.round(s.x + SPRITE_W / 2 - 5);
-                        // slight jitter so repeated drops fan out visually
                         const jitter = Math.floor((Math.random() - 0.5) * 10);
                         const dropId = `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
                         groundItemsRef.current = [
@@ -5555,23 +5569,36 @@ function GamePage() {
                       flashPickup(t("msg.dropped"));
                       saveWorld();
                     }}
-
-
-                    className={
-                      "relative h-6 w-6 sm:h-9 sm:w-9 flex items-center justify-center border-2 " +
-                      (selected
-                        ? "border-[#ffd166] bg-[#3a2a0a]"
-                        : "border-[#f4e9c1]/40 bg-[#0a141f]/70 hover:border-[#f4e9c1]/70")
-                    }
-                    style={{ imageRendering: "pixelated" }}
+                    className="relative h-7 w-7 sm:h-10 sm:w-10 flex items-center justify-center transition-transform active:translate-y-[1px]"
+                    style={{
+                      border: "2px solid #1a0e05",
+                      boxShadow: selected
+                        ? "0 0 0 2px #ffd166 inset, 0 0 10px rgba(255,209,102,0.7)"
+                        : "0 0 0 1px #6a4020 inset",
+                      background: selected
+                        ? "radial-gradient(ellipse at center, rgba(255,209,102,0.28), rgba(58,32,16,0.85) 70%)"
+                        : "linear-gradient(180deg, rgba(10,20,31,0.65), rgba(4,8,12,0.85))",
+                      imageRendering: "pixelated",
+                    }}
                   >
                     {has ? <SlotIcon kind={kind!} /> : null}
                     {has ? (
-                      <span className="absolute bottom-0 right-0.5 text-[9px] sm:text-[10px] leading-none tabular-nums text-[#f4e9c1]"
-                        style={{ textShadow: "1px 1px 0 #000" }}
+                      <span
+                        className="absolute -bottom-0.5 right-0.5 text-[9px] sm:text-[10px] leading-none tabular-nums font-bold"
+                        style={{ color: "#ffe6a3", textShadow: "1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000" }}
                       >
                         {count}
                       </span>
+                    ) : null}
+                    {selected ? (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0"
+                        style={{
+                          background:
+                            "linear-gradient(180deg, rgba(255,230,163,0.18), transparent 60%)",
+                        }}
+                      />
                     ) : null}
                   </button>
                 );
@@ -5579,6 +5606,7 @@ function GamePage() {
             </div>
           </div>
         </div>
+
 
         <p className="text-[9px] sm:text-[10px] tracking-widest text-[#f4e9c1]/60 text-center px-2">
           {isMobile ? t("game.hint.mobile") : `${t("game.hint.side")} · I / O = zoom`}
