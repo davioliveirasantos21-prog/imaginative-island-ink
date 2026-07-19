@@ -5575,7 +5575,7 @@ function GamePage() {
                             coal: inv.coal - r.coal,
                             copper: inv.copper - r.copper,
                             copperMetal: inv.copperMetal - r.copperMetal,
-                            [r.invField]: (inv[r.invField] as number) + 1,
+                            [r.invField]: (inv[r.invField] as number) + (r.yield ?? 1),
                           };
                           inventoryRef.current = next;
                           return next;
