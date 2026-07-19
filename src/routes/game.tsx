@@ -5339,9 +5339,21 @@ function GamePage() {
               {(() => {
                 const stroke = "#f4e9c1";
                 const IconBuild = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 3l7 7-3 3-7-7 3-3z" />
-                    <path d="M11 6L4 13v7h7l7-7" />
+                  <svg viewBox="0 0 16 16" shapeRendering="crispEdges" fill={stroke}>
+                    {/* pixel-art hammer */}
+                    <rect x="6" y="1" width="7" height="1" />
+                    <rect x="5" y="2" width="9" height="1" />
+                    <rect x="4" y="3" width="10" height="2" />
+                    <rect x="5" y="5" width="9" height="1" />
+                    <rect x="6" y="6" width="7" height="1" />
+                    {/* handle */}
+                    <rect x="8" y="7" width="2" height="1" />
+                    <rect x="7" y="8" width="2" height="1" />
+                    <rect x="6" y="9" width="2" height="1" />
+                    <rect x="5" y="10" width="2" height="1" />
+                    <rect x="4" y="11" width="2" height="1" />
+                    <rect x="3" y="12" width="2" height="1" />
+                    <rect x="2" y="13" width="2" height="2" />
                   </svg>
                 );
                 const IconMap = (
