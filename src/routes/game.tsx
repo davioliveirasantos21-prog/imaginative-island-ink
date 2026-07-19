@@ -515,7 +515,7 @@ function GamePage() {
 
     return () => {
       window.clearInterval(interval);
-      audio.removeEventListener("loadedmetadata", onLoaded);
+      
       audio.pause();
       audio.src = "";
       window.removeEventListener("pointerdown", onInteract);
