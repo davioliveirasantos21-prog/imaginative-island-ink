@@ -884,9 +884,9 @@ function GamePage() {
   const groundItemsRef = useRef<GroundItem[]>([]);
   const seedsRef = useRef<GroundSeed[]>([]);
   const plantedRef = useRef<PlantedTree[]>([]);
-  // Per-tree HP: chopping consumes 1 stone per hit and takes TREE_MAX_HP hits.
+  // Per-tree HP: a stone deals 1 damage per hit; the axe deals 3 damage per hit.
   // Key format: `n:<worldX>` for natural trees, `p:<plantedId>` for planted.
-  const TREE_MAX_HP = 10;
+  const TREE_MAX_HP = 9;
   const HP_BAR_VIEW_RANGE = 110; // px around the player where HP bars are visible
   const treeHPRef = useRef<Map<string, number>>(new Map());
   // A single stone endures for TREE_MAX_HP swings. When charges hit 0, the next
@@ -2546,7 +2546,7 @@ function GamePage() {
                   }
                 }
 
-                const maxHits = usingAxe ? 3 : 10;
+                const maxHits = TREE_MAX_HP;
                 const hpKey = chopTarget.isPlanted ? `p:${chopTarget.treeObj!.id}` : `n:${chopTarget.x}`;
                 const prevHP = treeHPRef.current.get(hpKey) ?? maxHits;
                 const damage = usingAxe ? 3 : 1;
@@ -4718,7 +4718,7 @@ function GamePage() {
           : null;
 
         if (chopTarget) {
-          // Chopping requires either the stone slot (10 hits, consumes stones)
+          // Chopping requires either the stone slot (9 hits, consumes stones)
           // or the improvised axe (3 hits, no cost) to be selected.
           const heldForChop =
             getSelectedHotbarKind();
