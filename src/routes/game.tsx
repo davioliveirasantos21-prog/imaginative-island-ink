@@ -33,12 +33,6 @@ import seedIconUrl from "@/assets/seed-icon.png";
 import torchIconAsset from "@/assets/torch-icon.png.asset.json";
 import copperPickIconAsset from "@/assets/copper-pick-icon.png.asset.json";
 import woodPanelBg from "@/assets/wood-panel-bg.jpg";
-import uiBuildIcon from "@/assets/ui-build.png";
-import uiMapIcon from "@/assets/ui-map.png";
-import uiLookIcon from "@/assets/ui-look.png";
-import uiSettingsIcon from "@/assets/ui-settings.png";
-import uiCameraIcon from "@/assets/ui-camera.png";
-import uiTutorialIcon from "@/assets/ui-tutorial.png";
 import {
   getItemVariantPixels,
   renderItemPixelsToDataURL,
@@ -5329,18 +5323,55 @@ function GamePage() {
           </button>
           {gameMenuOpen ? (
             <div
-              className="absolute inset-0 z-20 pointer-events-none"
+              className="absolute inset-0 z-20"
               onClick={(e) => {
                 // click on backdrop closes
                 if (e.target === e.currentTarget && canCloseMenu()) setGameMenuOpen(false);
               }}
-              style={{ background: "radial-gradient(ellipse at center, rgba(10,20,35,0.35) 0%, rgba(10,20,35,0.55) 100%)", pointerEvents: "auto" }}
             >
               {(() => {
+                const stroke = "#f4e9c1";
+                const IconBuild = (
+                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 3l7 7-3 3-7-7 3-3z" />
+                    <path d="M11 6L4 13v7h7l7-7" />
+                  </svg>
+                );
+                const IconMap = (
+                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2V6z" />
+                    <path d="M9 4v16M15 6v16" />
+                  </svg>
+                );
+                const IconLook = (
+                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6" />
+                  </svg>
+                );
+                const IconSettings = (
+                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+                  </svg>
+                );
+                const IconZoom = (
+                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="6" />
+                    <path d="M20 20l-4-4M8 11h6M11 8v6" />
+                  </svg>
+                );
+                const IconHelp = (
+                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4" />
+                    <circle cx="12" cy="17" r="0.6" fill={stroke} />
+                  </svg>
+                );
                 type CornerBtn = {
                   key: string;
                   label: string;
-                  icon: string;
+                  icon: React.ReactNode;
                   pos: string;
                   onClick: () => void;
                   disabled?: boolean;
@@ -5349,21 +5380,21 @@ function GamePage() {
                   {
                     key: "build",
                     label: t("gameMenu.build"),
-                    icon: uiBuildIcon,
+                    icon: IconBuild,
                     pos: "left-3 bottom-24 sm:left-6 sm:bottom-28",
                     onClick: () => { setGameMenuOpen(false); markMenuOpened(); setBuildMenuOpen(true); },
                   },
                   {
                     key: "map",
                     label: t("game.map"),
-                    icon: uiMapIcon,
+                    icon: IconMap,
                     pos: "right-3 top-14 sm:right-6 sm:top-16",
                     onClick: () => { setGameMenuOpen(false); setMapOpen(true); },
                   },
                   {
                     key: "look",
                     label: t("game.editLook"),
-                    icon: uiLookIcon,
+                    icon: IconLook,
                     pos: "left-3 top-1/2 -translate-y-1/2 sm:left-6",
                     onClick: () => { setGameMenuOpen(false); setEditingLook(true); },
                     disabled: !character,
@@ -5371,21 +5402,21 @@ function GamePage() {
                   {
                     key: "settings",
                     label: t("settings.title"),
-                    icon: uiSettingsIcon,
+                    icon: IconSettings,
                     pos: "right-3 bottom-24 sm:right-6 sm:bottom-28",
                     onClick: () => { setGameMenuOpen(false); setSettingsOpen(true); },
                   },
                   {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
-                    icon: uiCameraIcon,
+                    icon: IconZoom,
                     pos: "left-14 top-2 sm:left-16 sm:top-2",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
                   {
                     key: "tutorial",
                     label: t("gameMenu.tutorial.title"),
-                    icon: uiTutorialIcon,
+                    icon: IconHelp,
                     pos: "right-3 top-1/2 -translate-y-1/2 sm:right-6",
                     onClick: () => setTutorialOpen((v) => !v),
                   },
@@ -5398,19 +5429,13 @@ function GamePage() {
                     disabled={b.disabled}
                     aria-label={b.label}
                     title={b.label}
-                    className={`group absolute ${b.pos} h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center border-2 border-[#f4e9c1]/80 bg-[#0d1b2a]/85 hover:border-[#ffd166] hover:bg-[#ffd166]/15 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
-                    style={{ boxShadow: "0 4px 0 #0a141f, inset 0 0 0 2px rgba(198,154,103,0.35)", imageRendering: "pixelated" }}
+                    className={`group absolute ${b.pos} h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-md border border-[#f4e9c1]/70 bg-[#0d1b2a]/70 backdrop-blur-sm hover:border-[#ffd166] hover:bg-[#ffd166]/15 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
+                    style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.4)" }}
                   >
-                    <img
-                      src={b.icon}
-                      alt=""
-                      width={64}
-                      height={64}
-                      loading="lazy"
-                      className="w-10 h-10 sm:w-12 sm:h-12 pixelated group-hover:scale-110 transition-transform"
-                      style={{ imageRendering: "pixelated", filter: "drop-shadow(0 2px 0 rgba(0,0,0,0.6))" }}
-                    />
-                    <span className="pointer-events-none absolute -bottom-5 left-1/2 -translate-x-1/2 text-[8px] sm:text-[9px] tracking-wider uppercase text-[#ffd166] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap px-1 bg-[#0a141f]/90 border border-[#c69a67]/50">
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 text-[#f4e9c1] group-hover:text-[#ffd166] transition-colors [&_svg]:w-full [&_svg]:h-full">
+                      {b.icon}
+                    </span>
+                    <span className="pointer-events-none absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] tracking-wider uppercase text-[#ffd166] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap px-1.5 py-0.5 bg-[#0a141f]/90 rounded-sm">
                       {b.label}
                     </span>
                   </button>
