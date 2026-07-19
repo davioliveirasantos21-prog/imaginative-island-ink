@@ -5417,9 +5417,17 @@ function GamePage() {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
                     icon: IconZoom,
-                    pos: "left-14 top-2 sm:left-16 sm:top-2",
+                    pos: "left-1/2 -translate-x-1/2 top-3 sm:top-6",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
+                  {
+                    key: "exit",
+                    label: t("game.leave"),
+                    icon: IconExit,
+                    pos: "right-3 bottom-3 sm:right-6 sm:bottom-6",
+                    onClick: () => { setGameMenuOpen(false); navigate({ to: "/characters" }); },
+                  },
+
                   {
                     key: "tutorial",
                     label: t("gameMenu.tutorial.title"),
