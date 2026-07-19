@@ -1127,7 +1127,8 @@ function GamePage() {
       if (it.mode !== mode) continue;
       if (!withinReach(it.x + 5)) continue;
       const d = Math.abs(it.x + 5 - worldX);
-      if (d < bestD && worldY > GROUND_Y - 16 && worldY < GROUND_Y + 12) {
+      const gY = mode === "world" ? getGroundYAt(it.x) : GROUND_Y;
+      if (d < bestD && worldY > gY - 16 && worldY < gY + 12) {
         bestD = d; best = it;
       }
     }
