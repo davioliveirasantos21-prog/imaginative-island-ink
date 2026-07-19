@@ -3108,8 +3108,8 @@ function GamePage() {
             const dh = img.naturalHeight * scale;
             // Anchor at the bottom-center of the sprite's opaque area so the
             // cave mouth sits flush with the ground line (no floating).
-            const anchorX = 184; // opaque center x in source pixels
-            const anchorY = 195; // sprite bottom in source pixels
+            const anchorX = 243; // opaque center x in source pixels
+            const anchorY = 256; // sprite bottom in source pixels
             const dx = baseX - anchorX * scale;
             const dy = baseY - anchorY * scale;
             ctx.save();
