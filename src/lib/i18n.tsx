@@ -185,8 +185,8 @@ export const dictionaries: Record<Lang, Dict> = {
 
     "msg.needPick": "Selecione a picareta",
     "msg.mined.coal": "+1 Carvão",
-    "msg.mined.copper": "+1 Cobre",
-    "msg.mined.bronze": "+1 Bronze",
+    "msg.mined.copper": "+1 Minério de cobre",
+    "msg.mined.bronze": "+1 Minério de bronze",
     "msg.ore": "Rocha {n}/{max}",
     "msg.rock": "Pedra {n}/{max}",
     "msg.rockBroken": "+{n} pedras no chão",
