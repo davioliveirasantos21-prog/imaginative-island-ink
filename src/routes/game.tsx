@@ -5546,14 +5546,14 @@ function GamePage() {
         <WoodMenu title={t("bench.title")} onClose={() => { if (canCloseMenu()) setBenchMenuOpen(false); }} wide>
           {(() => {
             type CraftKey = "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear" | "torch";
-            const recipes: { key: CraftKey; label: string; wood: number; stones: number; coal: number; copper: number; copperMetal: number; invField: keyof typeof inventory }[] = [
+            const recipes: { key: CraftKey; label: string; wood: number; stones: number; coal: number; copper: number; copperMetal: number; invField: keyof typeof inventory; yield?: number }[] = [
               { key: "axe",   label: t("craft.axe"),   wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "axe" },
               { key: "hoe",   label: t("craft.hoe"),   wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "hoe" },
               { key: "pick",  label: t("craft.pick"),  wood: 2, stones: 2, coal: 0, copper: 0, copperMetal: 0, invField: "pick" },
               { key: "copperPick", label: t("craft.copperPick"), wood: 2, stones: 0, coal: 0, copper: 2, copperMetal: 0, invField: "copperPick" },
               { key: "copperHammer", label: t("craft.copperHammer"), wood: 2, stones: 0, coal: 0, copper: 0, copperMetal: 2, invField: "copperHammer" },
               { key: "spear", label: t("craft.spear"), wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "spear" },
-              { key: "torch", label: t("craft.torch"), wood: 1, stones: 0, coal: 1, copper: 0, copperMetal: 0, invField: "torches" },
+              { key: "torch", label: t("craft.torch"), wood: 1, stones: 0, coal: 1, copper: 0, copperMetal: 0, invField: "torches", yield: 3 },
             ];
             return (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 overflow-y-auto pr-1" style={{ minHeight: 0 }}>
