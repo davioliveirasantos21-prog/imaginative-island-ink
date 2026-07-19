@@ -884,9 +884,9 @@ function GamePage() {
   const groundItemsRef = useRef<GroundItem[]>([]);
   const seedsRef = useRef<GroundSeed[]>([]);
   const plantedRef = useRef<PlantedTree[]>([]);
-  // Per-tree HP: chopping consumes 1 stone per hit and takes TREE_MAX_HP hits.
+  // Per-tree HP: a stone deals 1 damage per hit; the axe deals 3 damage per hit.
   // Key format: `n:<worldX>` for natural trees, `p:<plantedId>` for planted.
-  const TREE_MAX_HP = 10;
+  const TREE_MAX_HP = 9;
   const HP_BAR_VIEW_RANGE = 110; // px around the player where HP bars are visible
   const treeHPRef = useRef<Map<string, number>>(new Map());
   // A single stone endures for TREE_MAX_HP swings. When charges hit 0, the next
