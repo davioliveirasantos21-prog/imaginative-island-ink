@@ -9611,7 +9611,7 @@ function CraftTile({
 }: {
   title: string;
   thumb: React.ReactNode;
-  costs: { qty: number; kind: SlotIconKind }[];
+  costs: { qty: number; kind: SlotIconKind; affordable?: boolean }[];
   disabled?: boolean;
   onClick: () => void;
 }) {
@@ -9620,15 +9620,16 @@ function CraftTile({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`relative flex flex-col items-center justify-between p-2 transition-transform ${disabled ? "opacity-40 cursor-not-allowed" : "active:translate-y-[2px]"}`}
+      className={`relative flex flex-col items-center justify-between p-2 transition-transform ${disabled ? "cursor-not-allowed" : "active:translate-y-[2px]"}`}
       style={{
         border: "3px solid #1a0e05",
         boxShadow: disabled
           ? "0 0 0 2px #5a3a20 inset"
           : "0 0 0 2px #c69a67 inset, 0 4px 0 #1a0e05",
         background: disabled
-          ? "rgba(10,10,10,0.55)"
+          ? "linear-gradient(180deg, rgba(20,12,6,0.85), rgba(8,8,8,0.9))"
           : "linear-gradient(180deg, rgba(58,32,16,0.55), rgba(26,14,5,0.75))",
+        filter: disabled ? "brightness(0.72)" : undefined,
         minHeight: 96,
       }}
     >
@@ -9645,7 +9646,7 @@ function CraftTile({
       <div className="mt-1 flex items-center justify-center flex-wrap gap-x-1.5 text-[10px] text-[#f4e9c1]">
         {costs.map((c, i) => (
           <span key={i} className="inline-flex items-center gap-0.5">
-            <span className="text-[#ffd166]">{c.qty}</span>
+            <span style={{ color: c.affordable === false ? "#e05a4a" : "#ffd166" }}>{c.qty}</span>
             <SlotIcon kind={c.kind} size="sm" />
           </span>
         ))}
