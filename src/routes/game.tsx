@@ -5529,257 +5529,154 @@ function GamePage() {
 
       {mapOpen ? <WorldMap onClose={() => setMapOpen(false)} /> : null}
       {buildMenuOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => { if (canCloseMenu()) setBuildMenuOpen(false); }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative border-4 border-[#f4e9c1] bg-[#0d1b2a] p-5 max-w-[420px] w-full text-[#f4e9c1]"
-            style={{ boxShadow: "0 6px 0 #0a141f" }}
-          >
-            <h2 className="text-sm sm:text-base tracking-widest uppercase mb-3">🔨 {t("build.title")}</h2>
-            <p className="text-[10px] sm:text-xs text-[#f4e9c1]/70 mb-4">
-              {t("build.intro")}
-            </p>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                onClick={() => {
-                  setPlacingKind("bench");
-                  setBuildMenuOpen(false);
-                  flashPickup(t("build.clickGround"));
-                }}
-                className="text-left border-2 border-[#c69a67]/60 bg-[#3a2010]/40 hover:border-[#ffd166] p-3"
-              >
-                <div className="text-xs sm:text-sm tracking-wider">{t("build.bench")}</div>
-                <div className="text-[10px] text-[#f4e9c1]/70 mt-1">
-                  {t("build.benchCost")}
-                </div>
-              </button>
-              <button
-                onClick={() => {
-                  setPlacingKind("workshop");
-                  setBuildMenuOpen(false);
-                  flashPickup(t("build.clickGround"));
-                }}
-                className="text-left border-2 border-[#c69a67]/60 bg-[#3a2010]/40 hover:border-[#ffd166] p-3"
-              >
-                <div className="text-xs sm:text-sm tracking-wider">{t("build.workshop")}</div>
-                <div className="text-[10px] text-[#f4e9c1]/70 mt-1">
-                  {t("build.workshopCost")}
-                </div>
-              </button>
-              <div className="border-2 border-dashed border-[#f4e9c1]/20 p-3 text-[10px] text-[#f4e9c1]/40 text-center">
-                {t("build.moreSoon")}
-              </div>
+        <WoodMenu title={t("build.title")} onClose={() => { if (canCloseMenu()) setBuildMenuOpen(false); }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <BuildTile
+              emoji="🪚"
+              onClick={() => {
+                setPlacingKind("bench");
+                setBuildMenuOpen(false);
+                flashPickup(t("build.clickGround"));
+              }}
+              costs={[
+                { qty: BUILD_COSTS.bench.wood, kind: "wood" },
+              ]}
+              label={t("build.bench")}
+            />
+            <BuildTile
+              emoji="🔨"
+              onClick={() => {
+                setPlacingKind("workshop");
+                setBuildMenuOpen(false);
+                flashPickup(t("build.clickGround"));
+              }}
+              costs={[
+                { qty: BUILD_COSTS.workshop.wood, kind: "wood" },
+                { qty: BUILD_COSTS.workshop.stones, kind: "stone" },
+              ]}
+              label={t("build.workshop")}
+            />
+            <div className="flex items-center justify-center border-4 border-dashed border-[#f4e9c1]/20 min-h-[140px] text-3xl opacity-40">
+              ✦
             </div>
-            <button
-              onClick={() => { if (canCloseMenu()) setBuildMenuOpen(false); }}
-              className="mt-4 w-full text-[10px] tracking-widest uppercase border-2 border-[#f4e9c1]/40 py-2 hover:border-[#f4e9c1]"
-            >
-              {t("build.close")}
-            </button>
-
           </div>
-        </div>
+        </WoodMenu>
       ) : null}
       {benchMenuOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => { if (canCloseMenu()) setBenchMenuOpen(false); }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative border-4 border-[#f4e9c1] bg-[#0d1b2a] p-4 sm:p-5 max-w-[720px] w-full max-h-[90vh] flex flex-col text-[#f4e9c1]"
-            style={{ boxShadow: "0 6px 0 #0a141f" }}
-          >
-            <h2 className="text-sm sm:text-base tracking-widest uppercase mb-2">{t("bench.title")}</h2>
-            <p className="text-[10px] sm:text-xs text-[#f4e9c1]/70 mb-3">
-              {t("bench.intro")}
-            </p>
-            {(() => {
-              type CraftKey = "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear" | "torch";
-              const recipes: { key: CraftKey; label: string; wood: number; stones: number; coal: number; copper: number; copperMetal: number; desc: string; invField: keyof typeof inventory }[] = [
-                { key: "axe",   label: t("craft.axe"),   wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, desc: t("craft.axeDesc"),   invField: "axe" },
-                { key: "hoe",   label: t("craft.hoe"),   wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, desc: t("craft.hoeDesc"),   invField: "hoe" },
-                { key: "pick",  label: t("craft.pick"),  wood: 2, stones: 2, coal: 0, copper: 0, copperMetal: 0, desc: t("craft.pickDesc"),  invField: "pick" },
-                { key: "copperPick", label: t("craft.copperPick"), wood: 2, stones: 0, coal: 0, copper: 2, copperMetal: 0, desc: t("craft.copperPickDesc"), invField: "copperPick" },
-                { key: "copperHammer", label: t("craft.copperHammer"), wood: 2, stones: 0, coal: 0, copper: 0, copperMetal: 2, desc: t("craft.copperHammerDesc"), invField: "copperHammer" },
-                { key: "spear", label: t("craft.spear"), wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, desc: t("craft.spearDesc"), invField: "spear" },
-                { key: "torch", label: t("craft.torch"), wood: 1, stones: 0, coal: 1, copper: 0, copperMetal: 0, desc: t("craft.torchDesc"), invField: "torches" },
-              ];
-              return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto pr-1" style={{ minHeight: 0 }}>
-                  {recipes.map((r) => {
-                    const canCraft =
-                      inventory.wood >= r.wood && inventory.stones >= r.stones && inventory.coal >= r.coal && inventory.copper >= r.copper && inventory.copperMetal >= r.copperMetal;
-
-                    return (
-                      <button
-                        key={r.key}
-                        disabled={!canCraft}
-                        onClick={() => {
-                          if (!canCraft) return;
-                          setInventory((inv) => {
-                            const next = {
-                              ...inv,
-                              wood: inv.wood - r.wood,
-                              stones: inv.stones - r.stones,
-                              coal: inv.coal - r.coal,
-                              copper: inv.copper - r.copper,
-                              copperMetal: inv.copperMetal - r.copperMetal,
-                              [r.invField]: (inv[r.invField] as number) + 1,
-                            };
-
-                            inventoryRef.current = next;
-                            return next;
-                          });
-                          if (r.wood > 0) {
-                            carriedLogsRef.current = Math.max(0, carriedLogsRef.current - r.wood);
-                            setCarriedLogs(carriedLogsRef.current);
-                          }
-                          flashPickup(t("craft.created", { name: r.label }));
-                          saveWorld();
-
-                        }}
-                        className={
-                          "text-left border-2 p-2 " +
-                          (canCraft
-                            ? "border-[#c69a67]/60 bg-[#3a2010]/40 hover:border-[#ffd166]"
-                            : "border-[#f4e9c1]/20 bg-[#0a141f]/50 opacity-50 cursor-not-allowed")
+        <WoodMenu title={t("bench.title")} onClose={() => { if (canCloseMenu()) setBenchMenuOpen(false); }} wide>
+          {(() => {
+            type CraftKey = "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear" | "torch";
+            const recipes: { key: CraftKey; label: string; wood: number; stones: number; coal: number; copper: number; copperMetal: number; invField: keyof typeof inventory }[] = [
+              { key: "axe",   label: t("craft.axe"),   wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "axe" },
+              { key: "hoe",   label: t("craft.hoe"),   wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "hoe" },
+              { key: "pick",  label: t("craft.pick"),  wood: 2, stones: 2, coal: 0, copper: 0, copperMetal: 0, invField: "pick" },
+              { key: "copperPick", label: t("craft.copperPick"), wood: 2, stones: 0, coal: 0, copper: 2, copperMetal: 0, invField: "copperPick" },
+              { key: "copperHammer", label: t("craft.copperHammer"), wood: 2, stones: 0, coal: 0, copper: 0, copperMetal: 2, invField: "copperHammer" },
+              { key: "spear", label: t("craft.spear"), wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "spear" },
+              { key: "torch", label: t("craft.torch"), wood: 1, stones: 0, coal: 1, copper: 0, copperMetal: 0, invField: "torches" },
+            ];
+            return (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 overflow-y-auto pr-1" style={{ minHeight: 0 }}>
+                {recipes.map((r) => {
+                  const canCraft =
+                    inventory.wood >= r.wood && inventory.stones >= r.stones && inventory.coal >= r.coal && inventory.copper >= r.copper && inventory.copperMetal >= r.copperMetal;
+                  return (
+                    <CraftTile
+                      key={r.key}
+                      title={r.label}
+                      disabled={!canCraft}
+                      onClick={() => {
+                        if (!canCraft) return;
+                        setInventory((inv) => {
+                          const next = {
+                            ...inv,
+                            wood: inv.wood - r.wood,
+                            stones: inv.stones - r.stones,
+                            coal: inv.coal - r.coal,
+                            copper: inv.copper - r.copper,
+                            copperMetal: inv.copperMetal - r.copperMetal,
+                            [r.invField]: (inv[r.invField] as number) + 1,
+                          };
+                          inventoryRef.current = next;
+                          return next;
+                        });
+                        if (r.wood > 0) {
+                          carriedLogsRef.current = Math.max(0, carriedLogsRef.current - r.wood);
+                          setCarriedLogs(carriedLogsRef.current);
                         }
-                      >
-                        <div className="text-[11px] sm:text-xs tracking-wider flex items-center gap-2">
-                          <span
-                            aria-hidden
-                            className="inline-flex items-center justify-center h-6 w-6 shrink-0 border border-[#f4e9c1]/30 bg-[#0a141f]/70"
-                          >
-                            <SlotIcon kind={r.key} size="sm" />
-                          </span>
-                          <span className="truncate">{r.label}</span>
-                        </div>
-                        <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/70 mt-1 flex items-center flex-wrap gap-x-2 gap-y-1">
-                          {r.wood > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                              {r.wood}× <SlotIcon kind="wood" size="sm" />
-                            </span>
-                          ) : null}
-                          {r.stones > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                              {r.stones}× <SlotIcon kind="stone" size="sm" />
-                            </span>
-                          ) : null}
-                          {r.coal > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                              {r.coal}× <SlotIcon kind="coal" size="sm" />
-                            </span>
-                          ) : null}
-                          {r.copper > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                              {r.copper}× <SlotIcon kind="copper" size="sm" />
-                            </span>
-                          ) : null}
-                          {r.copperMetal > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                              {r.copperMetal}× <SlotIcon kind="copperMetal" size="sm" />
-                            </span>
-                          ) : null}
-
-
-                        </div>
-                        <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/50 mt-1 line-clamp-2">{r.desc}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })()}
-            <button
-              onClick={() => { if (canCloseMenu()) setBenchMenuOpen(false); }}
-              className="mt-4 w-full text-[10px] tracking-widest uppercase border-2 border-[#f4e9c1]/40 py-2 hover:border-[#f4e9c1]"
-            >
-              {t("build.close")}
-            </button>
-
-          </div>
-        </div>
+                        flashPickup(t("craft.created", { name: r.label }));
+                        saveWorld();
+                      }}
+                      thumb={<SlotIcon kind={r.key} size="lg" />}
+                      costs={[
+                        r.wood > 0 ? { qty: r.wood, kind: "wood" as SlotIconKind } : null,
+                        r.stones > 0 ? { qty: r.stones, kind: "stone" as SlotIconKind } : null,
+                        r.coal > 0 ? { qty: r.coal, kind: "coal" as SlotIconKind } : null,
+                        r.copper > 0 ? { qty: r.copper, kind: "copper" as SlotIconKind } : null,
+                        r.copperMetal > 0 ? { qty: r.copperMetal, kind: "copperMetal" as SlotIconKind } : null,
+                      ].filter(Boolean) as { qty: number; kind: SlotIconKind }[]}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </WoodMenu>
       ) : null}
       {workshopMenuOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => { if (canCloseMenu()) setWorkshopMenuOpen(false); }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative border-4 border-[#f4e9c1] bg-[#0d1b2a] p-5 max-w-[480px] w-full text-[#f4e9c1]"
-            style={{ boxShadow: "0 6px 0 #0a141f" }}
-          >
-            <h2 className="text-sm sm:text-base tracking-widest uppercase mb-2">{t("workshop.title")}</h2>
-            <p className="text-[10px] sm:text-xs text-[#f4e9c1]/70 mb-3">{t("workshop.intro")}</p>
-            {(() => {
-              const furnaceCost = BUILD_COSTS.furnace;
-              const chestCost = BUILD_COSTS.chest;
-              const anvilCost = BUILD_COSTS.anvil;
-              return (
-                <div className="grid grid-cols-1 gap-2">
-                <button
+        <WoodMenu title={t("workshop.title")} onClose={() => { if (canCloseMenu()) setWorkshopMenuOpen(false); }}>
+          {(() => {
+            const furnaceCost = BUILD_COSTS.furnace;
+            const chestCost = BUILD_COSTS.chest;
+            const anvilCost = BUILD_COSTS.anvil;
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <BuildTile
+                  emoji="🔥"
+                  label={t("workshop.craftFurnace")}
                   onClick={() => {
                     setWorkshopMenuOpen(false);
                     setPlacingKind("furnace");
                     flashPickup(t("build.clickGround"));
                   }}
-                  className="w-full text-left border-2 p-3 border-[#c69a67]/60 bg-[#3a2010]/40 hover:border-[#ffd166]"
-                >
-                  <div className="text-[11px] sm:text-xs tracking-wider">{t("workshop.craftFurnace")}</div>
-                  <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/70 mt-1 flex items-center flex-wrap gap-x-2 gap-y-1">
-                    <span className="inline-flex items-center gap-1">{furnaceCost.stones}× <SlotIcon kind="stone" size="sm" /></span>
-                    <span className="inline-flex items-center gap-1">{furnaceCost.coal}× <SlotIcon kind="coal" size="sm" /></span>
-                    <span className="inline-flex items-center gap-1">{furnaceCost.wood}× <SlotIcon kind="wood" size="sm" /></span>
-                  </div>
-                  <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/50 mt-1">{t("workshop.furnaceDesc")}</div>
-                </button>
-                <button
+                  costs={[
+                    { qty: furnaceCost.stones, kind: "stone" },
+                    { qty: furnaceCost.coal, kind: "coal" },
+                    { qty: furnaceCost.wood, kind: "wood" },
+                  ]}
+                />
+                <BuildTile
+                  emoji="📦"
+                  label={t("workshop.craftChest")}
                   onClick={() => {
                     setWorkshopMenuOpen(false);
                     setPlacingKind("chest");
                     flashPickup(t("build.clickGround"));
                   }}
-                  className="w-full text-left border-2 p-3 border-[#c69a67]/60 bg-[#3a2010]/40 hover:border-[#ffd166]"
-                >
-                  <div className="text-[11px] sm:text-xs tracking-wider">📦 {t("workshop.craftChest")}</div>
-                  <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/70 mt-1 flex items-center flex-wrap gap-x-2 gap-y-1">
-                    <span className="inline-flex items-center gap-1">{chestCost.wood}× <SlotIcon kind="wood" size="sm" /></span>
-                    <span className="inline-flex items-center gap-1">{chestCost.stones}× <SlotIcon kind="stone" size="sm" /></span>
-                  </div>
-                  <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/50 mt-1">{t("workshop.chestDesc")}</div>
-                </button>
-                <button
+                  costs={[
+                    { qty: chestCost.wood, kind: "wood" },
+                    { qty: chestCost.stones, kind: "stone" },
+                  ]}
+                />
+                <BuildTile
+                  emoji="⚒️"
+                  label={t("workshop.craftAnvil")}
                   onClick={() => {
                     setWorkshopMenuOpen(false);
                     setPlacingKind("anvil");
                     flashPickup(t("build.clickGround"));
                   }}
-                  className="w-full text-left border-2 p-3 border-[#c69a67]/60 bg-[#3a2010]/40 hover:border-[#ffd166]"
-                >
-                  <div className="text-[11px] sm:text-xs tracking-wider">⚒ {t("workshop.craftAnvil")}</div>
-                  <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/70 mt-1 flex items-center flex-wrap gap-x-2 gap-y-1">
-                    <span className="inline-flex items-center gap-1">{anvilCost.bronzeMetal}× <SlotIcon kind="bronzeMetal" size="sm" /></span>
-                    <span className="inline-flex items-center gap-1">{anvilCost.wood}× <SlotIcon kind="wood" size="sm" /></span>
-                  </div>
-                  <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/50 mt-1">{t("workshop.anvilDesc")}</div>
-                </button>
-                </div>
-              );
-            })()}
-            <button
-              onClick={() => { if (canCloseMenu()) setWorkshopMenuOpen(false); }}
-              className="mt-4 w-full text-[10px] tracking-widest uppercase border-2 border-[#f4e9c1]/40 py-2 hover:border-[#f4e9c1]"
-            >
-              {t("build.close")}
-            </button>
-          </div>
-        </div>
+                  costs={[
+                    { qty: anvilCost.bronzeMetal, kind: "bronzeMetal" },
+                    { qty: anvilCost.wood, kind: "wood" },
+                  ]}
+                />
+              </div>
+            );
+          })()}
+        </WoodMenu>
       ) : null}
+
       {anvilMenuOpen ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
