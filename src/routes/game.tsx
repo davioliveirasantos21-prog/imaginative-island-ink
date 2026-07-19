@@ -5530,7 +5530,7 @@ function GamePage() {
       {mapOpen ? <WorldMap onClose={() => setMapOpen(false)} /> : null}
       {buildMenuOpen ? (
         <WoodMenu title={t("build.title")} onClose={() => { if (canCloseMenu()) setBuildMenuOpen(false); }}>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <BuildTile
               emoji="🪚"
               onClick={() => {
@@ -5556,9 +5556,6 @@ function GamePage() {
               ]}
               label={t("build.workshop")}
             />
-            <div className="flex items-center justify-center border-4 border-dashed border-[#f4e9c1]/20 min-h-[140px] text-3xl opacity-40">
-              ✦
-            </div>
           </div>
         </WoodMenu>
       ) : null}
