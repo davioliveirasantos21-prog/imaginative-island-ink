@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { Pencil, Settings as SettingsIcon } from "lucide-react";
+
 import { useI18n } from "@/lib/i18n";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getActiveSlot, loadSlots, updateSlotAppearance, type Character } from "@/lib/characters";
@@ -5316,7 +5318,7 @@ function GamePage() {
             onClick={() => setGameMenuOpen((v) => !v)}
             aria-label={t("gameMenu.open")}
             title={t("gameMenu.open")}
-            className="absolute left-2 top-2 z-30 h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-md border-2 border-[#3a2010] text-[#f4e9c1] text-lg sm:text-xl hover:brightness-110 active:scale-95 transition-all"
+            className="absolute left-3 top-3 sm:left-6 sm:top-6 z-30 h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-md border-2 border-[#3a2010] text-[#f4e9c1] text-2xl sm:text-3xl hover:brightness-110 active:scale-95 transition-all"
             style={{
               background: "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
               boxShadow: "inset 0 1px 0 rgba(255,220,170,0.35), inset 0 -3px 0 rgba(0,0,0,0.35), 0 3px 0 #2a1608",
@@ -5350,17 +5352,12 @@ function GamePage() {
                   </svg>
                 );
                 const IconLook = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6" />
-                  </svg>
+                  <Pencil strokeWidth={1.8} />
                 );
                 const IconSettings = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
-                  </svg>
+                  <SettingsIcon strokeWidth={1.8} />
                 );
+
                 const IconZoom = (
                   <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="6" />
