@@ -1,6 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Pencil, Settings as SettingsIcon } from "lucide-react";
+import btnBuildImg from "@/assets/btn-build.png";
+import btnMapImg from "@/assets/btn-map.png";
+import btnLookImg from "@/assets/btn-look.png";
+import btnSettingsImg from "@/assets/btn-settings.png";
+import btnCameraImg from "@/assets/btn-camera.png";
+import btnHelpImg from "@/assets/btn-help.png";
+import btnExitImg from "@/assets/btn-exit.png";
+import btnToggleImg from "@/assets/btn-toggle.png";
 
 import { useI18n } from "@/lib/i18n";
 import { useIsMobile } from "@/hooks/use-mobile";
