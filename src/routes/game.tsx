@@ -7026,7 +7026,7 @@ function drawScene(
   for (const p of world.groundPebbles) {
     const sx = p.x - camX;
     if (sx < -8 || sx > VW + 8) continue;
-    drawPickupStone(ctx, sx, GROUND_Y + bob, p.variant);
+    drawPickupStone(ctx, sx, getGroundYAt(p.x) + bob, p.variant);
   }
 
 
