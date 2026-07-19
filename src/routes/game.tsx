@@ -5022,7 +5022,10 @@ function GamePage() {
       // 7) Chop a palm tree on the beach. Requires stone or axe like a
       //    regular tree, but a palm is smaller (PALM_MAX_HP hits) and
       //    drops 1-2 palm seeds when it falls.
-      {
+      //    Skip when holding the axe — axe damage is dealt by the swing
+      //    animation tick (above), based on which palm is in front of the
+      //    player, NOT which one the mouse is over.
+      if (getSelectedHotbarKind() !== "axe") {
         let bestPalm: PalmPos | null = null;
         let bestPalmD = 18;
         for (const side of ["left", "right"] as const) {
