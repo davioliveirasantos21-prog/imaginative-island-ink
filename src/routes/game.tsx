@@ -6478,6 +6478,12 @@ function beachSurfaceOffset(wx: number): number {
   return 0;
 }
 
+// Canonical surface Y for any world-x. Drops, pickups and beach entities
+// must use THIS instead of raw GROUND_Y so they follow the sand slope.
+export function getGroundYAt(wx: number): number {
+  return GROUND_Y + beachSurfaceOffset(wx);
+}
+
 function mixHex(a: string, b: string, t: number): string {
   const pa = parseInt(a.slice(1), 16);
   const pb = parseInt(b.slice(1), 16);
