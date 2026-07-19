@@ -1016,36 +1016,30 @@ function GamePage() {
     return () => window.clearInterval(id);
   }, [smeltJob?.endsAt]);
 
-  // ----- Hotbar idle fade -----
-  // After a few seconds without any player input the hotbar fades to near
-  // transparent so it stops covering the game. Any keypress / pointer move /
-  // touch snaps it back to full opacity.
-  const [hotbarIdle, setHotbarIdle] = useState(false);
-  const lastActivityRef = useRef(Date.now());
+  // ----- Hotbar transparency -----
+  // The hotbar fades when the player isn't receiving or spending items and
+  // isn't hovering or clicking it. Any inventory change, or interaction with
+  // the hotbar itself, snaps it back to full opacity.
+  const [inventoryVisible, setInventoryVisible] = useState(true);
+  const lastInventoryChangeRef = useRef(Date.now());
+  const lastInventoryHoverRef = useRef(Date.now());
   useEffect(() => {
-    const HOTBAR_IDLE_MS = 4000;
-    const bump = () => {
-      lastActivityRef.current = Date.now();
-      setHotbarIdle((v) => (v ? false : v));
-    };
-    window.addEventListener("keydown", bump, { passive: true });
-    window.addEventListener("pointermove", bump, { passive: true });
-    window.addEventListener("pointerdown", bump, { passive: true });
-    window.addEventListener("wheel", bump, { passive: true });
-    window.addEventListener("touchstart", bump, { passive: true });
+    // Any inventory change (gain/spend) keeps the bar visible.
+    lastInventoryChangeRef.current = Date.now();
+    setInventoryVisible((v) => (v ? v : true));
+  }, [inventory]);
+  useEffect(() => {
+    const HOTBAR_IDLE_MS = 1500;
     const iv = window.setInterval(() => {
-      if (Date.now() - lastActivityRef.current > HOTBAR_IDLE_MS) {
-        setHotbarIdle((v) => (v ? v : true));
+      const now = Date.now();
+      if (
+        now - lastInventoryChangeRef.current > HOTBAR_IDLE_MS &&
+        now - lastInventoryHoverRef.current > HOTBAR_IDLE_MS
+      ) {
+        setInventoryVisible((v) => (v ? false : v));
       }
-    }, 600);
-    return () => {
-      window.removeEventListener("keydown", bump);
-      window.removeEventListener("pointermove", bump);
-      window.removeEventListener("pointerdown", bump);
-      window.removeEventListener("wheel", bump);
-      window.removeEventListener("touchstart", bump);
-      window.clearInterval(iv);
-    };
+    }, 200);
+    return () => window.clearInterval(iv);
   }, []);
   const [placingKind, setPlacingKind] = useState<BuildKind | null>(null);
   const placingKindRef = useRef<BuildKind | null>(null);
@@ -5505,10 +5499,14 @@ function GamePage() {
             <div
               className="pointer-events-auto flex items-center gap-1 sm:gap-2 border-2 border-[#f4e9c1]/60 bg-[#0d1b2a]/85 px-1.5 py-1 sm:px-2 sm:py-1.5"
               title={t("game.inv")}
-              onMouseEnter={() => { lastActivityRef.current = Date.now(); setHotbarIdle(false); }}
+              onMouseEnter={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
+              onMouseMove={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
+              onMouseLeave={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
+              onClick={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
+              onTouchStart={() => { lastInventoryHoverRef.current = Date.now(); setInventoryVisible(true); }}
               style={{
                 boxShadow: "0 3px 0 #0a141f",
-                opacity: hotbarIdle ? 0.18 : 1,
+                opacity: inventoryVisible ? 1 : 0.18,
                 transition: "opacity 600ms ease",
               }}
             >
