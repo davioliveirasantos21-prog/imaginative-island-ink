@@ -7070,7 +7070,7 @@ function drawScene(
   for (const seed of world.seeds) {
     const sx = seed.x - camX;
     if (sx < -8 || sx > VW + 8) continue;
-    drawSeed(ctx, sx, GROUND_Y + bob);
+    drawSeed(ctx, sx, getGroundYAt(seed.x) + bob);
   }
 
   // ----- Planted saplings & growing trees -----
