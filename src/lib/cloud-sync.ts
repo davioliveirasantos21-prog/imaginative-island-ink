@@ -114,6 +114,11 @@ export function initCloudSync() {
   if (inited || typeof window === "undefined") return;
   inited = true;
 
+  // Purge any legacy insecure admin flag from previous versions on boot.
+  try { window.localStorage.removeItem("pixel-islands.current-admin"); } catch {}
+
+
+
   // 1. Monkey-patch localStorage so any write to a synced key mirrors to cloud.
   const origSet = window.localStorage.setItem.bind(window.localStorage);
   const origRemove = window.localStorage.removeItem.bind(window.localStorage);
