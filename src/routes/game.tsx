@@ -32,6 +32,7 @@ import seedIconUrl from "@/assets/seed-icon.png";
 
 import torchIconAsset from "@/assets/torch-icon.png.asset.json";
 import copperPickIconAsset from "@/assets/copper-pick-icon.png.asset.json";
+import woodPanelBg from "@/assets/wood-panel-bg.jpg";
 import {
   getItemVariantPixels,
   renderItemPixelsToDataURL,
