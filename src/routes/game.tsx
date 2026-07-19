@@ -37,8 +37,7 @@ import uiBuildIcon from "@/assets/ui-build.png";
 import uiMapIcon from "@/assets/ui-map.png";
 import uiLookIcon from "@/assets/ui-look.png";
 import uiSettingsIcon from "@/assets/ui-settings.png";
-import uiCameraIcon from "@/assets/ui-camera.png";
-import uiTutorialIcon from "@/assets/ui-tutorial.png";
+void uiBuildIcon; void uiMapIcon; void uiLookIcon; void uiSettingsIcon;
 import {
   getItemVariantPixels,
   renderItemPixelsToDataURL,
