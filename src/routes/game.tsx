@@ -5214,12 +5214,8 @@ function GamePage() {
       style={{ WebkitUserSelect: "none", WebkitTouchCallout: "none", WebkitTapHighlightColor: "transparent" }}
     >
       <header className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-4">
-        <Link
-          to="/characters"
-          className="text-[9px] sm:text-[10px] tracking-widest uppercase border-2 border-[#f4e9c1]/40 px-2 py-1.5 sm:px-3 sm:py-2 hover:border-[#f4e9c1]"
-        >
-          ← {t("game.leave")}
-        </Link>
+        <div />
+
         <div className="order-last w-full text-center text-xs sm:text-sm sm:order-none sm:w-auto text-[#ffd166]" style={{ textShadow: "2px 2px 0 #7a3e1d" }}>
           {t("game.zone")}
         </div>
