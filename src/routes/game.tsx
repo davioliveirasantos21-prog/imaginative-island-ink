@@ -33,6 +33,12 @@ import seedIconUrl from "@/assets/seed-icon.png";
 import torchIconAsset from "@/assets/torch-icon.png.asset.json";
 import copperPickIconAsset from "@/assets/copper-pick-icon.png.asset.json";
 import woodPanelBg from "@/assets/wood-panel-bg.jpg";
+import uiBuildIcon from "@/assets/ui-build.png";
+import uiMapIcon from "@/assets/ui-map.png";
+import uiLookIcon from "@/assets/ui-look.png";
+import uiSettingsIcon from "@/assets/ui-settings.png";
+import uiCameraIcon from "@/assets/ui-camera.png";
+import uiTutorialIcon from "@/assets/ui-tutorial.png";
 import {
   getItemVariantPixels,
   renderItemPixelsToDataURL,
@@ -5316,136 +5322,138 @@ function GamePage() {
             onClick={() => setGameMenuOpen((v) => !v)}
             aria-label={t("gameMenu.open")}
             title={t("gameMenu.open")}
-            className="absolute left-2 top-2 z-20 h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center border-2 border-[#f4e9c1] bg-[#0d1b2a]/80 text-[#ffd166] text-base sm:text-lg hover:bg-[#ffd166]/20 active:bg-[#ffd166]/30"
-            style={{ boxShadow: "0 3px 0 #0a141f" }}
+            className="absolute left-2 top-2 z-30 h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center border-2 border-[#f4e9c1] bg-[#0d1b2a]/80 text-[#ffd166] text-base sm:text-lg hover:bg-[#ffd166]/20 active:bg-[#ffd166]/30 transition-transform"
+            style={{ boxShadow: "0 3px 0 #0a141f", transform: gameMenuOpen ? "rotate(180deg)" : "none" }}
           >
-            {gameMenuOpen ? "‹" : "›"}
+            ›
           </button>
           {gameMenuOpen ? (
             <div
-              onClick={(e) => e.stopPropagation()}
-              className="absolute left-0 top-0 bottom-0 z-10 w-[220px] sm:w-[260px] border-r-2 border-[#f4e9c1] bg-[#0d1b2a]/95 text-[#f4e9c1] p-3 pt-12 overflow-y-auto"
-              style={{ boxShadow: "3px 0 0 #0a141f" }}
+              className="absolute inset-0 z-20 pointer-events-none"
+              onClick={(e) => {
+                // click on backdrop closes
+                if (e.target === e.currentTarget && canCloseMenu()) setGameMenuOpen(false);
+              }}
+              style={{ background: "radial-gradient(ellipse at center, rgba(10,20,35,0.35) 0%, rgba(10,20,35,0.55) 100%)", pointerEvents: "auto" }}
             >
-              <div className="text-[10px] sm:text-xs tracking-widest uppercase text-[#ffd166] mb-2">
-                {t("gameMenu.title")}
-              </div>
-              <button
-                type="button"
-                onClick={() => setCameraMenuOpen((v) => !v)}
-                aria-expanded={cameraMenuOpen}
-                className="w-full flex items-center justify-between gap-2 border border-[#c69a67]/50 bg-[#3a2010]/30 hover:border-[#ffd166] p-2 mb-3 text-left"
-              >
-                <span className="text-[10px] sm:text-xs tracking-wider text-[#ffd166]">
-                  📷 {t("gameMenu.camera.title")}
-                </span>
-                <span className="text-[#ffd166] text-xs">{cameraMenuOpen ? "▾" : "▸"}</span>
-              </button>
+              {(() => {
+                type CornerBtn = {
+                  key: string;
+                  label: string;
+                  icon: string;
+                  pos: string;
+                  onClick: () => void;
+                  disabled?: boolean;
+                };
+                const buttons: CornerBtn[] = [
+                  {
+                    key: "build",
+                    label: t("gameMenu.build"),
+                    icon: uiBuildIcon,
+                    pos: "left-3 bottom-24 sm:left-6 sm:bottom-28",
+                    onClick: () => { setGameMenuOpen(false); markMenuOpened(); setBuildMenuOpen(true); },
+                  },
+                  {
+                    key: "map",
+                    label: t("game.map"),
+                    icon: uiMapIcon,
+                    pos: "right-3 top-14 sm:right-6 sm:top-16",
+                    onClick: () => { setGameMenuOpen(false); setMapOpen(true); },
+                  },
+                  {
+                    key: "look",
+                    label: t("game.editLook"),
+                    icon: uiLookIcon,
+                    pos: "left-3 top-1/2 -translate-y-1/2 sm:left-6",
+                    onClick: () => { setGameMenuOpen(false); setEditingLook(true); },
+                    disabled: !character,
+                  },
+                  {
+                    key: "settings",
+                    label: t("settings.title"),
+                    icon: uiSettingsIcon,
+                    pos: "right-3 bottom-24 sm:right-6 sm:bottom-28",
+                    onClick: () => { setGameMenuOpen(false); setSettingsOpen(true); },
+                  },
+                  {
+                    key: "camera",
+                    label: t("gameMenu.camera.title"),
+                    icon: uiCameraIcon,
+                    pos: "left-14 top-2 sm:left-16 sm:top-2",
+                    onClick: () => setCameraMenuOpen((v) => !v),
+                  },
+                  {
+                    key: "tutorial",
+                    label: t("gameMenu.tutorial.title"),
+                    icon: uiTutorialIcon,
+                    pos: "right-3 top-1/2 -translate-y-1/2 sm:right-6",
+                    onClick: () => setTutorialOpen((v) => !v),
+                  },
+                ];
+                return buttons.map((b) => (
+                  <button
+                    key={b.key}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); if (!b.disabled) b.onClick(); }}
+                    disabled={b.disabled}
+                    aria-label={b.label}
+                    title={b.label}
+                    className={`group absolute ${b.pos} h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center border-2 border-[#f4e9c1]/80 bg-[#0d1b2a]/85 hover:border-[#ffd166] hover:bg-[#ffd166]/15 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
+                    style={{ boxShadow: "0 4px 0 #0a141f, inset 0 0 0 2px rgba(198,154,103,0.35)", imageRendering: "pixelated" }}
+                  >
+                    <img
+                      src={b.icon}
+                      alt=""
+                      width={64}
+                      height={64}
+                      loading="lazy"
+                      className="w-10 h-10 sm:w-12 sm:h-12 pixelated group-hover:scale-110 transition-transform"
+                      style={{ imageRendering: "pixelated", filter: "drop-shadow(0 2px 0 rgba(0,0,0,0.6))" }}
+                    />
+                    <span className="pointer-events-none absolute -bottom-5 left-1/2 -translate-x-1/2 text-[8px] sm:text-[9px] tracking-wider uppercase text-[#ffd166] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap px-1 bg-[#0a141f]/90 border border-[#c69a67]/50">
+                      {b.label}
+                    </span>
+                  </button>
+                ));
+              })()}
               {cameraMenuOpen ? (
-                <div className="border border-[#c69a67]/40 bg-[#0a141f]/60 p-2 mb-3 -mt-2">
-                  <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
-                    <span>🔍 {t("game.zoomOut")}/{t("game.zoomIn")}</span>
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute left-14 top-20 sm:left-24 sm:top-20 z-10 w-[200px] border-2 border-[#f4e9c1] bg-[#0d1b2a]/95 p-2 animate-fade-in"
+                  style={{ boxShadow: "0 4px 0 #0a141f" }}
+                >
+                  <div className="flex items-center justify-between gap-2 text-[10px] tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
+                    <span>🔍</span>
                     <span className="tabular-nums text-[#ffd166]">{Math.round(zoom * 100)}%</span>
                   </div>
-                  <div className="flex items-center gap-1 mb-3">
-                    <button
-                      onClick={zoomOut}
-                      className="flex-1 border-2 border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-sm"
-                    >
-                      −
-                    </button>
-                    <button
-                      onClick={zoomIn}
-                      className="flex-1 border-2 border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-sm"
-                    >
-                      +
-                    </button>
+                  <div className="flex items-center gap-1 mb-2">
+                    <button onClick={zoomOut} className="flex-1 border-2 border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-sm text-[#f4e9c1]">−</button>
+                    <button onClick={zoomIn} className="flex-1 border-2 border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-sm text-[#f4e9c1]">+</button>
                   </div>
-                  <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
-                    <span>↕ {t("gameMenu.camera.move")}</span>
+                  <div className="flex items-center justify-between gap-2 text-[10px] tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
+                    <span>↕</span>
                     <span className="tabular-nums text-[#ffd166]">{cameraOffsetY}px</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button
-                      onClick={cameraUp}
-                      className="flex-1 border-2 border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-sm"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      onClick={cameraDown}
-                      className="flex-1 border-2 border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-sm"
-                    >
-                      ↓
-                    </button>
+                    <button onClick={cameraUp} className="flex-1 border-2 border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-sm text-[#f4e9c1]">↑</button>
+                    <button onClick={cameraDown} className="flex-1 border-2 border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-sm text-[#f4e9c1]">↓</button>
                   </div>
-                  <button
-                    onClick={cameraReset}
-                    className="w-full mt-2 border border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-[10px] sm:text-xs tracking-wider"
-                  >
-                    {t("gameMenu.camera.reset")}
+                  <button onClick={cameraReset} className="w-full mt-2 border border-[#f4e9c1]/40 hover:border-[#f4e9c1] py-1 text-[10px] tracking-wider text-[#f4e9c1]">
+                    ↺
                   </button>
                 </div>
               ) : null}
-              <button
-                type="button"
-                onClick={() => setTutorialOpen((v) => !v)}
-                aria-expanded={tutorialOpen}
-                className="w-full flex items-center justify-between gap-2 border border-[#c69a67]/50 bg-[#3a2010]/30 hover:border-[#ffd166] p-2 mb-3 text-left"
-              >
-                <span className="text-[10px] sm:text-xs tracking-wider text-[#ffd166]">
-                  📜 {t("gameMenu.tutorial.title")}
-                </span>
-                <span className="text-[#ffd166] text-xs">{tutorialOpen ? "▾" : "▸"}</span>
-              </button>
               {tutorialOpen ? (
-                <div className="border border-[#c69a67]/40 bg-[#3a2010]/20 p-2 mb-3 -mt-2">
-                  <p className="text-[9px] sm:text-[10px] leading-snug text-[#f4e9c1]/85">
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute right-20 top-1/2 -translate-y-1/2 z-10 w-[220px] border-2 border-[#c69a67] bg-[#3a2010]/95 p-3 animate-fade-in"
+                  style={{ boxShadow: "0 4px 0 #0a141f" }}
+                >
+                  <p className="text-[10px] leading-snug text-[#f4e9c1]/90">
                     {t("gameMenu.tutorial.text")}
                   </p>
                 </div>
               ) : null}
-
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    setGameMenuOpen(false);
-                    markMenuOpened();
-                    setBuildMenuOpen(true);
-                  }}
-                  className="w-full text-left border-2 border-[#c69a67]/60 bg-[#3a2010]/40 hover:border-[#ffd166] p-2 text-[10px] sm:text-xs tracking-wider"
-                >
-                  🔨 {t("gameMenu.build")}
-                </button>
-                <button
-                  onClick={() => {
-                    setGameMenuOpen(false);
-                    setMapOpen(true);
-                  }}
-                  className="w-full text-left border-2 border-[#f4e9c1]/40 bg-[#0a141f]/60 hover:border-[#f4e9c1] p-2 text-[10px] sm:text-xs tracking-wider"
-                >
-                  🗺 {t("game.map")}
-                </button>
-                <button
-                  onClick={() => {
-                    setGameMenuOpen(false);
-                    setEditingLook(true);
-                  }}
-                  disabled={!character}
-                  className="w-full text-left border-2 border-[#f4e9c1]/40 bg-[#0a141f]/60 hover:border-[#f4e9c1] p-2 text-[10px] sm:text-xs tracking-wider disabled:opacity-40"
-                >
-                  ✎ {t("game.editLook")}
-                </button>
-                <button
-                  onClick={() => {
-                    setGameMenuOpen(false);
-                    setSettingsOpen(true);
-                  }}
-                  className="w-full text-left border-2 border-[#f4e9c1]/40 bg-[#0a141f]/60 hover:border-[#f4e9c1] p-2 text-[10px] sm:text-xs tracking-wider"
-                >
-                  ⚙ {t("settings.title")}
-                </button>
-              </div>
             </div>
           ) : null}
           {settingsOpen ? (
