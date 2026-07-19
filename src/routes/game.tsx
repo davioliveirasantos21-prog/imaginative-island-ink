@@ -1015,6 +1015,38 @@ function GamePage() {
     }, 250);
     return () => window.clearInterval(id);
   }, [smeltJob?.endsAt]);
+
+  // ----- Hotbar idle fade -----
+  // After a few seconds without any player input the hotbar fades to near
+  // transparent so it stops covering the game. Any keypress / pointer move /
+  // touch snaps it back to full opacity.
+  const [hotbarIdle, setHotbarIdle] = useState(false);
+  const lastActivityRef = useRef(Date.now());
+  useEffect(() => {
+    const HOTBAR_IDLE_MS = 4000;
+    const bump = () => {
+      lastActivityRef.current = Date.now();
+      setHotbarIdle((v) => (v ? false : v));
+    };
+    window.addEventListener("keydown", bump, { passive: true });
+    window.addEventListener("pointermove", bump, { passive: true });
+    window.addEventListener("pointerdown", bump, { passive: true });
+    window.addEventListener("wheel", bump, { passive: true });
+    window.addEventListener("touchstart", bump, { passive: true });
+    const iv = window.setInterval(() => {
+      if (Date.now() - lastActivityRef.current > HOTBAR_IDLE_MS) {
+        setHotbarIdle((v) => (v ? v : true));
+      }
+    }, 600);
+    return () => {
+      window.removeEventListener("keydown", bump);
+      window.removeEventListener("pointermove", bump);
+      window.removeEventListener("pointerdown", bump);
+      window.removeEventListener("wheel", bump);
+      window.removeEventListener("touchstart", bump);
+      window.clearInterval(iv);
+    };
+  }, []);
   const [placingKind, setPlacingKind] = useState<BuildKind | null>(null);
   const placingKindRef = useRef<BuildKind | null>(null);
   placingKindRef.current = placingKind;
@@ -5473,7 +5505,12 @@ function GamePage() {
             <div
               className="pointer-events-auto flex items-center gap-1 sm:gap-2 border-2 border-[#f4e9c1]/60 bg-[#0d1b2a]/85 px-1.5 py-1 sm:px-2 sm:py-1.5"
               title={t("game.inv")}
-              style={{ boxShadow: "0 3px 0 #0a141f" }}
+              onMouseEnter={() => { lastActivityRef.current = Date.now(); setHotbarIdle(false); }}
+              style={{
+                boxShadow: "0 3px 0 #0a141f",
+                opacity: hotbarIdle ? 0.18 : 1,
+                transition: "opacity 600ms ease",
+              }}
             >
               {HOTBAR_SLOTS.map((kind, i) => {
                 const count =
@@ -5855,195 +5892,266 @@ function GamePage() {
         </div>
       ) : null}
       {furnaceMenuOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => { if (canCloseMenu()) setFurnaceMenuOpen(false); }}
-        >
+        <StoneMenu title={t("furnace.title")} onClose={() => { if (canCloseMenu()) setFurnaceMenuOpen(false); }}>
+          {/* Ember glow bar under the title — sells the "hot forge" feel */}
           <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative border-4 border-[#f4e9c1] bg-[#0d1b2a] p-5 max-w-[480px] w-full text-[#f4e9c1]"
-            style={{ boxShadow: "0 6px 0 #0a141f" }}
-          >
-            <h2 className="text-sm sm:text-base tracking-widest uppercase mb-2">{t("furnace.title")}</h2>
-            <p className="text-[10px] sm:text-xs text-[#f4e9c1]/70 mb-1">{t("furnace.intro")}</p>
-            <p className="text-[9px] sm:text-[10px] text-[#f4e9c1]/50 mb-3">{t("furnace.recipe")}</p>
-            {(() => {
-              type Row = {
-                key: string;
-                label: string;
-                barKind: SmeltJob["barKind"];
-                barName: string;
-                barQty: number;
-                inputs: { field: keyof Inv; kind: SlotKind; qty: number }[];
-                canRun: boolean;
-              };
-              const rows: Row[] = [
-                {
-                  key: "copper",
-                  label: t("furnace.smeltCopper"),
-                  barKind: "copperMetal",
-                  barName: t("item.copperMetal"),
-                  barQty: 4,
-                  inputs: [
-                    { field: "coal", kind: "coal", qty: 1 },
-                    { field: "copper", kind: "copper", qty: 4 },
-                  ],
-                  canRun: inventory.coal >= 1 && inventory.copper >= 4,
-                },
-                {
-                  key: "bronze",
-                  label: t("furnace.smeltBronze"),
-                  barKind: "bronzeMetal",
-                  barName: t("item.bronzeMetal"),
-                  barQty: 4,
-                  inputs: [
-                    { field: "coal", kind: "coal", qty: 1 },
-                    { field: "bronze", kind: "bronze", qty: 4 },
-                  ],
-                  canRun: inventory.coal >= 1 && inventory.bronze >= 4,
-                },
-                {
-                  key: "coal",
-                  label: t("furnace.burnWood"),
-                  barKind: "coal",
-                  barName: t("item.coal"),
-                  barQty: 2,
-                  inputs: [{ field: "wood", kind: "wood", qty: 1 }],
-                  canRun: inventory.wood >= 1,
-                },
-              ];
-              const active = smeltJob;
-              const remainingMs = active ? Math.max(0, active.endsAt - smeltNow) : 0;
-              const pct = active
-                ? Math.max(0, Math.min(1, 1 - remainingMs / SMELT_DURATION_MS))
-                : 0;
-              return (
-                <div className="grid grid-cols-1 gap-2">
-                  {active ? (
-                    (() => {
-                      const done = remainingMs <= 0;
-                      return (
-                        <div className="border-2 border-[#ffd166]/60 bg-[#3a2010]/40 p-3">
-                          <div className="text-[11px] sm:text-xs tracking-wider flex items-center gap-2 mb-2">
-                            <span className="inline-flex items-center justify-center h-6 w-6 border border-[#f4e9c1]/30 bg-[#0a141f]/70">
-                              <SlotIcon kind={active.barKind} size="sm" />
-                            </span>
-                            <span className="truncate">
-                              {done
-                                ? t("furnace.ready", { name: active.barName })
-                                : `${t("furnace.smelting", { name: active.barName })} · ${Math.ceil(remainingMs / 1000)}s`}
-                            </span>
-                          </div>
-                          <div className="h-2 w-full bg-[#0a141f] border border-[#f4e9c1]/30 mb-2">
-                            <div
-                              className="h-full bg-[#ffd166] transition-[width] duration-200"
-                              style={{ width: `${Math.round(pct * 100)}%` }}
-                            />
-                          </div>
-                          {done ? (
-                            <button
-                              onClick={() => {
-                                const job = smeltJobRef.current;
-                                if (!job || Date.now() < job.endsAt) return;
-                                smeltJobRef.current = null;
-                                setInventory((inv) => {
-                                  const next = { ...inv, [job.barKind]: (inv[job.barKind] as number) + job.barQty } as Inv;
-                                  inventoryRef.current = next;
-                                  return next;
-                                });
-                                setSmeltJob(null);
-                                flashPickup(`+${job.barQty} ${job.barName}`);
-                                saveWorld();
-                              }}
-                              className="w-full text-[10px] sm:text-xs tracking-widest uppercase border-2 border-[#ffd166] bg-[#ffd166]/20 hover:bg-[#ffd166]/30 py-2"
-                            >
-                              {t("furnace.collect")} ({active.barQty}× {active.barName})
-                            </button>
-                          ) : null}
-                        </div>
-                      );
-                    })()
-                  ) : (
-                    rows.map((r) => {
-                      return (
-                        <button
-                          key={r.key}
-                          disabled={!r.canRun}
-                          onClick={() => {
-                            if (!r.canRun || smeltJobRef.current) return;
-                            // Consume materials ONCE, right now. Output added when the job completes.
-                            setInventory((inv) => {
-                              for (const inp of r.inputs) {
-                                if ((inv[inp.field] as number) < inp.qty) return inv;
-                              }
-                              const next = { ...inv } as Inv;
-                              for (const inp of r.inputs) {
-                                (next[inp.field] as number) = (inv[inp.field] as number) - inp.qty;
-                              }
-                              inventoryRef.current = next;
-                              return next;
-                            });
-                            // Wood is also carried visibly as logs — keep the
-                            // carriedLogs counter in sync so burning wood also
-                            // removes it from the player's hands.
-                            const woodIn = r.inputs.find((i) => i.field === "wood");
-                            if (woodIn) {
-                              const drop = Math.min(woodIn.qty, carriedLogsRef.current);
-                              if (drop > 0) {
-                                carriedLogsRef.current = carriedLogsRef.current - drop;
-                                setCarriedLogs((c) => Math.max(0, c - drop));
-                              }
-                            }
-                            const startedAt = Date.now();
-                            const job: SmeltJob = {
-                              barKind: r.barKind,
-                              barName: r.barName,
-                              barQty: r.barQty,
-                              startedAt,
-                              endsAt: startedAt + SMELT_DURATION_MS,
-                            };
-                            smeltJobRef.current = job;
-                            setSmeltJob(job);
-                            setSmeltNow(startedAt);
-                            saveWorld();
+            className="mb-3 h-1 w-full"
+            style={{
+              background: "linear-gradient(90deg, transparent, #ff4a10 20%, #ffb03a 50%, #ff4a10 80%, transparent)",
+              boxShadow: "0 0 12px rgba(255,90,20,0.7)",
+            }}
+          />
+          <p className="text-[10px] sm:text-xs text-[#ffd1a3]/85 mb-1" style={{ textShadow: "1px 1px 0 #000" }}>
+            {t("furnace.intro")}
+          </p>
+          <p className="text-[9px] sm:text-[10px] text-[#ffd1a3]/55 mb-3" style={{ textShadow: "1px 1px 0 #000" }}>
+            {t("furnace.recipe")}
+          </p>
+          {(() => {
+            type Row = {
+              key: string;
+              label: string;
+              barKind: SmeltJob["barKind"];
+              barName: string;
+              barQty: number;
+              inputs: { field: keyof Inv; kind: SlotKind; qty: number }[];
+              canRun: boolean;
+            };
+            const rows: Row[] = [
+              {
+                key: "copper",
+                label: t("furnace.smeltCopper"),
+                barKind: "copperMetal",
+                barName: t("item.copperMetal"),
+                barQty: 4,
+                inputs: [
+                  { field: "coal", kind: "coal", qty: 1 },
+                  { field: "copper", kind: "copper", qty: 4 },
+                ],
+                canRun: inventory.coal >= 1 && inventory.copper >= 4,
+              },
+              {
+                key: "bronze",
+                label: t("furnace.smeltBronze"),
+                barKind: "bronzeMetal",
+                barName: t("item.bronzeMetal"),
+                barQty: 4,
+                inputs: [
+                  { field: "coal", kind: "coal", qty: 1 },
+                  { field: "bronze", kind: "bronze", qty: 4 },
+                ],
+                canRun: inventory.coal >= 1 && inventory.bronze >= 4,
+              },
+              {
+                key: "coal",
+                label: t("furnace.burnWood"),
+                barKind: "coal",
+                barName: t("item.coal"),
+                barQty: 2,
+                inputs: [{ field: "wood", kind: "wood", qty: 1 }],
+                canRun: inventory.wood >= 1,
+              },
+            ];
+            const active = smeltJob;
+            const remainingMs = active ? Math.max(0, active.endsAt - smeltNow) : 0;
+            const pct = active
+              ? Math.max(0, Math.min(1, 1 - remainingMs / SMELT_DURATION_MS))
+              : 0;
+            // Ember pulse when actively smelting; still glow when ready to collect.
+            const emberPulse = active
+              ? (remainingMs <= 0
+                ? "0 0 24px rgba(255,180,60,0.9), 0 0 0 3px #ff7a3d inset"
+                : "0 0 14px rgba(255,120,40,0.55), 0 0 0 3px #ff7a3d inset")
+              : undefined;
+            return (
+              <div className="grid grid-cols-1 gap-2">
+                {active ? (
+                  (() => {
+                    const done = remainingMs <= 0;
+                    return (
+                      <div
+                        className="relative p-3 overflow-hidden"
+                        style={{
+                          border: "3px solid #0a0608",
+                          background:
+                            "radial-gradient(ellipse at 50% 120%, rgba(255,90,20,0.35), transparent 60%), linear-gradient(180deg, #2a2028, #14101a)",
+                          boxShadow: emberPulse,
+                        }}
+                      >
+                        {/* Flickering ember flecks */}
+                        <div
+                          aria-hidden
+                          className="pointer-events-none absolute inset-0 opacity-70"
+                          style={{
+                            backgroundImage:
+                              "radial-gradient(circle, #ffb03a 1px, transparent 2px), radial-gradient(circle, #ff5a10 1px, transparent 2px)",
+                            backgroundSize: "40px 40px, 60px 60px",
+                            backgroundPosition: "0 0, 20px 30px",
+                            mixBlendMode: "screen",
+                            animation: "pulse 2.4s ease-in-out infinite",
                           }}
-                          className={
-                            "text-left border-2 p-2 " +
-                            (r.canRun
-                              ? "border-[#c69a67]/60 bg-[#3a2010]/40 hover:border-[#ffd166]"
-                              : "border-[#f4e9c1]/20 bg-[#0a141f]/50 opacity-50 cursor-not-allowed")
-                          }
+                        />
+                        <div className="relative text-[11px] sm:text-xs tracking-wider flex items-center gap-2 mb-2 text-[#ffe6a3]" style={{ textShadow: "1px 1px 0 #000" }}>
+                          <span
+                            className="inline-flex items-center justify-center h-7 w-7"
+                            style={{
+                              border: "2px solid #ff7a3d",
+                              background: "#0a0608",
+                              boxShadow: "0 0 10px rgba(255,120,40,0.6) inset",
+                            }}
+                          >
+                            <SlotIcon kind={active.barKind} size="sm" />
+                          </span>
+                          <span className="truncate">
+                            {done
+                              ? t("furnace.ready", { name: active.barName })
+                              : `${t("furnace.smelting", { name: active.barName })} · ${Math.ceil(remainingMs / 1000)}s`}
+                          </span>
+                        </div>
+                        <div
+                          className="relative h-2.5 w-full mb-2"
+                          style={{ background: "#0a0608", border: "2px solid #1a1015" }}
                         >
-                          <div className="text-[11px] sm:text-xs tracking-wider flex items-center gap-2">
-                            <span className="inline-flex items-center justify-center h-6 w-6 border border-[#f4e9c1]/30 bg-[#0a141f]/70">
-                              <SlotIcon kind={r.barKind} size="sm" />
-                            </span>
-                            <span className="truncate">{r.label}</span>
-                          </div>
-                          <div className="text-[9px] sm:text-[10px] text-[#f4e9c1]/70 mt-1 flex items-center flex-wrap gap-x-2 gap-y-1">
-                            {r.inputs.map((inp, i) => (
+                          <div
+                            className="h-full transition-[width] duration-200"
+                            style={{
+                              width: `${Math.round(pct * 100)}%`,
+                              background: "linear-gradient(90deg, #ff4a10, #ffb03a, #fff2a3)",
+                              boxShadow: "0 0 8px rgba(255,150,50,0.9)",
+                            }}
+                          />
+                        </div>
+                        {done ? (
+                          <button
+                            onClick={() => {
+                              const job = smeltJobRef.current;
+                              if (!job || Date.now() < job.endsAt) return;
+                              smeltJobRef.current = null;
+                              setInventory((inv) => {
+                                const next = { ...inv, [job.barKind]: (inv[job.barKind] as number) + job.barQty } as Inv;
+                                inventoryRef.current = next;
+                                return next;
+                              });
+                              setSmeltJob(null);
+                              flashPickup(`+${job.barQty} ${job.barName}`);
+                              saveWorld();
+                            }}
+                            className="relative w-full text-[10px] sm:text-xs tracking-widest uppercase py-2 text-[#fff2a3] active:translate-y-[2px]"
+                            style={{
+                              border: "3px solid #0a0608",
+                              background: "linear-gradient(180deg, #ff7a3d, #c94a10)",
+                              boxShadow: "0 0 0 2px #ffd166 inset, 0 4px 0 #0a0608, 0 0 18px rgba(255,150,50,0.7)",
+                              textShadow: "1px 1px 0 #000",
+                            }}
+                          >
+                            {t("furnace.collect")} ({active.barQty}× {active.barName})
+                          </button>
+                        ) : null}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  rows.map((r) => {
+                    return (
+                      <button
+                        key={r.key}
+                        disabled={!r.canRun}
+                        onClick={() => {
+                          if (!r.canRun || smeltJobRef.current) return;
+                          setInventory((inv) => {
+                            for (const inp of r.inputs) {
+                              if ((inv[inp.field] as number) < inp.qty) return inv;
+                            }
+                            const next = { ...inv } as Inv;
+                            for (const inp of r.inputs) {
+                              (next[inp.field] as number) = (inv[inp.field] as number) - inp.qty;
+                            }
+                            inventoryRef.current = next;
+                            return next;
+                          });
+                          const woodIn = r.inputs.find((i) => i.field === "wood");
+                          if (woodIn) {
+                            const drop = Math.min(woodIn.qty, carriedLogsRef.current);
+                            if (drop > 0) {
+                              carriedLogsRef.current = carriedLogsRef.current - drop;
+                              setCarriedLogs((c) => Math.max(0, c - drop));
+                            }
+                          }
+                          const startedAt = Date.now();
+                          const job: SmeltJob = {
+                            barKind: r.barKind,
+                            barName: r.barName,
+                            barQty: r.barQty,
+                            startedAt,
+                            endsAt: startedAt + SMELT_DURATION_MS,
+                          };
+                          smeltJobRef.current = job;
+                          setSmeltJob(job);
+                          setSmeltNow(startedAt);
+                          saveWorld();
+                        }}
+                        className={`relative text-left p-2 transition-transform ${r.canRun ? "active:translate-y-[2px]" : "cursor-not-allowed"}`}
+                        style={{
+                          border: "3px solid #0a0608",
+                          background: r.canRun
+                            ? "linear-gradient(180deg, rgba(90,80,95,0.75), rgba(40,32,44,0.9))"
+                            : "linear-gradient(180deg, rgba(30,26,34,0.85), rgba(15,12,18,0.9))",
+                          boxShadow: r.canRun
+                            ? "0 0 0 2px #ff7a3d inset, 0 4px 0 #0a0608"
+                            : "0 0 0 2px #3a3038 inset",
+                          filter: r.canRun ? undefined : "brightness(0.7)",
+                        }}
+                      >
+                        <div className="text-[11px] sm:text-xs tracking-wider flex items-center gap-2 text-[#ffe6a3]" style={{ textShadow: "1px 1px 0 #000" }}>
+                          <span
+                            className="inline-flex items-center justify-center h-7 w-7"
+                            style={{
+                              border: "2px solid " + (r.canRun ? "#ff7a3d" : "#3a3038"),
+                              background: "#0a0608",
+                              boxShadow: r.canRun ? "0 0 8px rgba(255,120,40,0.55) inset" : undefined,
+                            }}
+                          >
+                            <SlotIcon kind={r.barKind} size="sm" />
+                          </span>
+                          <span className="truncate">{r.label}</span>
+                        </div>
+                        <div className="text-[9px] sm:text-[10px] text-[#ffd1a3]/80 mt-1 flex items-center flex-wrap gap-x-2 gap-y-1" style={{ textShadow: "1px 1px 0 #000" }}>
+                          {r.inputs.map((inp, i) => {
+                            const have = (inventory[inp.field] as number) ?? 0;
+                            const short = have < inp.qty;
+                            return (
                               <span key={i} className="inline-flex items-center gap-1">
-                                {inp.qty}× <SlotIcon kind={inp.kind} size="sm" />
+                                <span style={{ color: short ? "#ff5a4a" : "#ffd166" }}>{inp.qty}×</span>
+                                <SlotIcon kind={inp.kind} size="sm" />
                               </span>
-                            ))}
-                            <span className="text-[#f4e9c1]/50">→</span>
-                            <span className="inline-flex items-center gap-1">{r.barQty}× <SlotIcon kind={r.barKind} size="sm" /></span>
-                          </div>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              );
-            })()}
-            <button
-              onClick={() => { if (canCloseMenu()) setFurnaceMenuOpen(false); }}
-              className="mt-4 w-full text-[10px] tracking-widest uppercase border-2 border-[#f4e9c1]/40 py-2 hover:border-[#f4e9c1]"
-            >
-              {t("build.close")}
-            </button>
-          </div>
-        </div>
+                            );
+                          })}
+                          <span className="text-[#ffd1a3]/50">→</span>
+                          <span className="inline-flex items-center gap-1">
+                            <span style={{ color: "#ffd166" }}>{r.barQty}×</span>
+                            <SlotIcon kind={r.barKind} size="sm" />
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            );
+          })()}
+          <button
+            onClick={() => { if (canCloseMenu()) setFurnaceMenuOpen(false); }}
+            className="mt-4 w-full text-[10px] tracking-widest uppercase py-2 text-[#ffd1a3] hover:text-[#ffe6a3]"
+            style={{
+              border: "3px solid #0a0608",
+              background: "linear-gradient(180deg, #2a2028, #14101a)",
+              boxShadow: "0 0 0 2px #4a4650 inset, 0 3px 0 #0a0608",
+              textShadow: "1px 1px 0 #000",
+            }}
+          >
+            {t("build.close")}
+          </button>
+        </StoneMenu>
       ) : null}
       {chestMenuOpen ? (() => {
         const chestId = chestMenuOpen;
@@ -9723,3 +9831,77 @@ function CraftTile({
     </button>
   );
 }
+
+// A stone-brick themed modal used by the furnace. Same shape as WoodMenu but
+// with cold masonry surfaces, an ember-orange trim and a coal-black title bar
+// so the furnace UI reads visually distinct from the wood workbenches.
+function StoneMenu({
+  title,
+  onClose,
+  wide = false,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  wide?: boolean;
+  children: React.ReactNode;
+}) {
+  // Procedural stone-brick pattern drawn with layered gradients — no image
+  // needed. Two brick rows offset by 32px, with dark mortar lines and
+  // subtle stone speckle.
+  const stoneBg =
+    "repeating-linear-gradient(90deg, transparent 0 63px, rgba(0,0,0,0.55) 63px 65px)," +
+    "repeating-linear-gradient(0deg, transparent 0 31px, rgba(0,0,0,0.55) 31px 33px)," +
+    "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1.5px)," +
+    "linear-gradient(180deg, #6b6772 0%, #4a4650 55%, #38343d 100%)";
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={`relative w-full ${wide ? "max-w-[760px]" : "max-w-[480px]"} max-h-[92vh] flex flex-col text-[#f4e9c1] font-pixel`}
+        style={{
+          border: "6px solid #1a1519",
+          boxShadow:
+            "0 0 0 3px #ff7a3d inset, 0 10px 0 rgba(0,0,0,0.6), 0 0 60px rgba(255,110,40,0.25)",
+          backgroundImage: stoneBg,
+          backgroundSize: "64px 32px, 64px 32px, 6px 6px, auto",
+          imageRendering: "pixelated",
+        }}
+      >
+        <div
+          className="flex items-center justify-between px-4 py-2"
+          style={{
+            background: "linear-gradient(#1a1015, #0a0608)",
+            borderBottom: "4px solid #050303",
+            boxShadow: "0 2px 0 #ff7a3d inset",
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-[#ff7a3d] text-lg leading-none" style={{ textShadow: "0 0 6px #ff4a10" }}>🔥</span>
+            <h2
+              className="text-[11px] sm:text-sm tracking-[0.2em] uppercase text-[#ffd1a3]"
+              style={{ textShadow: "2px 2px 0 #000, 0 0 6px rgba(255,110,40,0.5)" }}
+            >
+              {title}
+            </h2>
+            <span className="text-[#ff7a3d] text-lg leading-none" style={{ textShadow: "0 0 6px #ff4a10" }}>🔥</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-7 w-7 text-[#ff7a3d] text-sm border-2 border-[#ff7a3d]/70 bg-[#0a0608] hover:bg-[#1a1015]"
+            aria-label="close"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="p-4 overflow-y-auto" style={{ minHeight: 0 }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
