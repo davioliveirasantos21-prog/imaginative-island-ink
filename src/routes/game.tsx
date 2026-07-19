@@ -5322,19 +5322,17 @@ function GamePage() {
             onClick={() => setGameMenuOpen((v) => !v)}
             aria-label={t("gameMenu.open")}
             title={t("gameMenu.open")}
-            className="absolute left-3 top-3 sm:left-6 sm:top-6 z-30 h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-md border-2 border-[#3a2010] text-[#f4e9c1] text-2xl sm:text-3xl hover:brightness-110 active:scale-95 transition-all"
+            className="absolute left-3 top-3 sm:left-6 sm:top-6 z-30 h-14 w-14 sm:h-16 sm:w-16 hover:brightness-110 active:scale-95 transition-all"
             style={{
-              backgroundImage:
-                "repeating-linear-gradient(0deg, transparent 0 10px, rgba(0,0,0,0.35) 10px 12px)," +
-                "repeating-linear-gradient(90deg, rgba(255,235,200,0.06) 0 3px, transparent 3px 7px)," +
-                "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
-              boxShadow: "inset 0 1px 0 rgba(255,220,170,0.35), inset 0 -3px 0 rgba(0,0,0,0.35), 0 3px 0 #2a1608",
+              backgroundImage: `url(${btnToggleImg})`,
+              backgroundSize: "100% 100%",
+              backgroundRepeat: "no-repeat",
+              imageRendering: "pixelated",
               transform: gameMenuOpen ? "rotate(180deg)" : "none",
-              textShadow: "0 1px 0 rgba(0,0,0,0.5)",
+              filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))",
             }}
-          >
-            ›
-          </button>
+          />
+
 
           {gameMenuOpen ? (
             <div
@@ -5345,63 +5343,10 @@ function GamePage() {
               }}
             >
               {(() => {
-                const stroke = "#f4e9c1";
-                const IconBuild = (
-                  <svg viewBox="0 0 16 16" shapeRendering="crispEdges" fill={stroke}>
-                    {/* pixel-art hammer */}
-                    <rect x="6" y="1" width="7" height="1" />
-                    <rect x="5" y="2" width="9" height="1" />
-                    <rect x="4" y="3" width="10" height="2" />
-                    <rect x="5" y="5" width="9" height="1" />
-                    <rect x="6" y="6" width="7" height="1" />
-                    {/* handle */}
-                    <rect x="8" y="7" width="2" height="1" />
-                    <rect x="7" y="8" width="2" height="1" />
-                    <rect x="6" y="9" width="2" height="1" />
-                    <rect x="5" y="10" width="2" height="1" />
-                    <rect x="4" y="11" width="2" height="1" />
-                    <rect x="3" y="12" width="2" height="1" />
-                    <rect x="2" y="13" width="2" height="2" />
-                  </svg>
-                );
-                const IconMap = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2V6z" />
-                    <path d="M9 4v16M15 6v16" />
-                  </svg>
-                );
-                const IconLook = (
-                  <Pencil strokeWidth={1.8} />
-                );
-                const IconSettings = (
-                  <SettingsIcon strokeWidth={1.8} />
-                );
-
-                const IconZoom = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="6" />
-                    <path d="M20 20l-4-4M8 11h6M11 8v6" />
-                  </svg>
-                );
-                const IconHelp = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4" />
-                    <circle cx="12" cy="17" r="0.6" fill={stroke} />
-                  </svg>
-                );
-                const IconExit = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5" />
-                    <path d="M10 8l-4 4 4 4" />
-                    <path d="M6 12h10" />
-                  </svg>
-                );
-
                 type CornerBtn = {
                   key: string;
                   label: string;
-                  icon: React.ReactNode;
+                  img: string;
                   pos: string;
                   onClick: () => void;
                   disabled?: boolean;
@@ -5410,21 +5355,21 @@ function GamePage() {
                   {
                     key: "build",
                     label: t("gameMenu.build"),
-                    icon: IconBuild,
+                    img: btnBuildImg,
                     pos: "left-3 bottom-24 sm:left-6 sm:bottom-28",
                     onClick: () => { setGameMenuOpen(false); markMenuOpened(); setBuildMenuOpen(true); },
                   },
                   {
                     key: "map",
                     label: t("game.map"),
-                    icon: IconMap,
+                    img: btnMapImg,
                     pos: "right-3 top-14 sm:right-6 sm:top-16",
                     onClick: () => { setGameMenuOpen(false); setMapOpen(true); },
                   },
                   {
                     key: "look",
                     label: t("game.editLook"),
-                    icon: IconLook,
+                    img: btnLookImg,
                     pos: "left-3 top-1/2 -translate-y-1/2 sm:left-6",
                     onClick: () => { setGameMenuOpen(false); setEditingLook(true); },
                     disabled: !character,
@@ -5432,29 +5377,28 @@ function GamePage() {
                   {
                     key: "settings",
                     label: t("settings.title"),
-                    icon: IconSettings,
+                    img: btnSettingsImg,
                     pos: "right-3 bottom-24 sm:right-6 sm:bottom-28",
                     onClick: () => { setGameMenuOpen(false); setSettingsOpen(true); },
                   },
                   {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
-                    icon: IconZoom,
+                    img: btnCameraImg,
                     pos: "left-1/2 -translate-x-1/2 top-3 sm:top-6",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
                   {
                     key: "exit",
                     label: t("game.leave"),
-                    icon: IconExit,
+                    img: btnExitImg,
                     pos: "right-3 bottom-3 sm:right-6 sm:bottom-6",
                     onClick: () => { setGameMenuOpen(false); navigate({ to: "/characters" }); },
                   },
-
                   {
                     key: "tutorial",
                     label: t("gameMenu.tutorial.title"),
-                    icon: IconHelp,
+                    img: btnHelpImg,
                     pos: "right-3 top-1/2 -translate-y-1/2 sm:right-6",
                     onClick: () => setTutorialOpen((v) => !v),
                   },
@@ -5467,18 +5411,15 @@ function GamePage() {
                     disabled={b.disabled}
                     aria-label={b.label}
                     title={b.label}
-                    className={`group absolute ${b.pos} h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-md border-2 border-[#3a2010] hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
+                    className={`group absolute ${b.pos} h-14 w-14 sm:h-16 sm:w-16 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
                     style={{
-                      backgroundImage:
-                        "repeating-linear-gradient(0deg, transparent 0 10px, rgba(0,0,0,0.35) 10px 12px)," +
-                        "repeating-linear-gradient(90deg, rgba(255,235,200,0.06) 0 3px, transparent 3px 7px)," +
-                        "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
-                      boxShadow: "inset 0 1px 0 rgba(255,220,170,0.35), inset 0 -3px 0 rgba(0,0,0,0.35), 0 3px 0 #2a1608, 0 4px 10px rgba(0,0,0,0.4)",
+                      backgroundImage: `url(${b.img})`,
+                      backgroundSize: "100% 100%",
+                      backgroundRepeat: "no-repeat",
+                      imageRendering: "pixelated",
+                      filter: "drop-shadow(0 3px 0 rgba(0,0,0,0.4))",
                     }}
                   >
-                    <span className="w-6 h-6 sm:w-7 sm:h-7 text-[#f4e9c1] group-hover:text-[#ffd166] transition-colors drop-shadow-[0_1px_0_rgba(0,0,0,0.6)] [&_svg]:w-full [&_svg]:h-full">
-                      {b.icon}
-                    </span>
                     <span className="pointer-events-none absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] tracking-wider uppercase text-[#f4e9c1] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap px-1.5 py-0.5 rounded-sm border border-[#3a2010]" style={{ background: "linear-gradient(180deg, #7a4a24, #5a3416)" }}>
                       {b.label}
                     </span>
