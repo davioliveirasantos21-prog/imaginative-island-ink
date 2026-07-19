@@ -5316,11 +5316,17 @@ function GamePage() {
             onClick={() => setGameMenuOpen((v) => !v)}
             aria-label={t("gameMenu.open")}
             title={t("gameMenu.open")}
-            className="absolute left-2 top-2 z-30 h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center border-2 border-[#f4e9c1] bg-[#0d1b2a]/80 text-[#ffd166] text-base sm:text-lg hover:bg-[#ffd166]/20 active:bg-[#ffd166]/30 transition-transform"
-            style={{ boxShadow: "0 3px 0 #0a141f", transform: gameMenuOpen ? "rotate(180deg)" : "none" }}
+            className="absolute left-2 top-2 z-30 h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-md border-2 border-[#3a2010] text-[#f4e9c1] text-lg sm:text-xl hover:brightness-110 active:scale-95 transition-all"
+            style={{
+              background: "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
+              boxShadow: "inset 0 1px 0 rgba(255,220,170,0.35), inset 0 -3px 0 rgba(0,0,0,0.35), 0 3px 0 #2a1608",
+              transform: gameMenuOpen ? "rotate(180deg)" : "none",
+              textShadow: "0 1px 0 rgba(0,0,0,0.5)",
+            }}
           >
             ›
           </button>
+
           {gameMenuOpen ? (
             <div
               className="absolute inset-0 z-20"
