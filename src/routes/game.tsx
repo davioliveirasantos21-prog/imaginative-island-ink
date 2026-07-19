@@ -5609,12 +5609,12 @@ function GamePage() {
                       }}
                       thumb={<SlotIcon kind={r.key} size="lg" />}
                       costs={[
-                        r.wood > 0 ? { qty: r.wood, kind: "wood" as SlotIconKind } : null,
-                        r.stones > 0 ? { qty: r.stones, kind: "stone" as SlotIconKind } : null,
-                        r.coal > 0 ? { qty: r.coal, kind: "coal" as SlotIconKind } : null,
-                        r.copper > 0 ? { qty: r.copper, kind: "copper" as SlotIconKind } : null,
-                        r.copperMetal > 0 ? { qty: r.copperMetal, kind: "copperMetal" as SlotIconKind } : null,
-                      ].filter(Boolean) as { qty: number; kind: SlotIconKind }[]}
+                        r.wood > 0 ? { qty: r.wood, kind: "wood" as SlotIconKind, affordable: inventory.wood >= r.wood } : null,
+                        r.stones > 0 ? { qty: r.stones, kind: "stone" as SlotIconKind, affordable: inventory.stones >= r.stones } : null,
+                        r.coal > 0 ? { qty: r.coal, kind: "coal" as SlotIconKind, affordable: inventory.coal >= r.coal } : null,
+                        r.copper > 0 ? { qty: r.copper, kind: "copper" as SlotIconKind, affordable: inventory.copper >= r.copper } : null,
+                        r.copperMetal > 0 ? { qty: r.copperMetal, kind: "copperMetal" as SlotIconKind, affordable: inventory.copperMetal >= r.copperMetal } : null,
+                      ].filter(Boolean) as { qty: number; kind: SlotIconKind; affordable: boolean }[]}
                     />
                   );
                 })}
