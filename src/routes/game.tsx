@@ -4608,7 +4608,8 @@ function GamePage() {
           if (stonesTakenRef.current.has(st.id)) continue;
           if (!withinReach(st.x + 2)) continue;
           const d = Math.abs(st.x + 2 - worldX);
-          if (d < bestD && worldY > GROUND_Y - 14 && worldY < GROUND_Y + 12) {
+          const gY = getGroundYAt(st.x);
+          if (d < bestD && worldY > gY - 14 && worldY < gY + 12) {
             bestD = d; bestStone = st;
           }
         }
@@ -4617,7 +4618,8 @@ function GamePage() {
         for (const p of groundPebblesRef.current) {
           if (!withinReach(p.x + 2)) continue;
           const d = Math.abs(p.x + 2 - worldX);
-          if (d < bestGPD && worldY > GROUND_Y - 14 && worldY < GROUND_Y + 12) {
+          const gY = getGroundYAt(p.x);
+          if (d < bestGPD && worldY > gY - 14 && worldY < gY + 12) {
             bestGPD = d; bestGP = p;
           }
         }
