@@ -9760,3 +9760,77 @@ function CraftTile({
     </button>
   );
 }
+
+// A stone-brick themed modal used by the furnace. Same shape as WoodMenu but
+// with cold masonry surfaces, an ember-orange trim and a coal-black title bar
+// so the furnace UI reads visually distinct from the wood workbenches.
+function StoneMenu({
+  title,
+  onClose,
+  wide = false,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  wide?: boolean;
+  children: React.ReactNode;
+}) {
+  // Procedural stone-brick pattern drawn with layered gradients — no image
+  // needed. Two brick rows offset by 32px, with dark mortar lines and
+  // subtle stone speckle.
+  const stoneBg =
+    "repeating-linear-gradient(90deg, transparent 0 63px, rgba(0,0,0,0.55) 63px 65px)," +
+    "repeating-linear-gradient(0deg, transparent 0 31px, rgba(0,0,0,0.55) 31px 33px)," +
+    "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1.5px)," +
+    "linear-gradient(180deg, #6b6772 0%, #4a4650 55%, #38343d 100%)";
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={`relative w-full ${wide ? "max-w-[760px]" : "max-w-[480px]"} max-h-[92vh] flex flex-col text-[#f4e9c1] font-pixel`}
+        style={{
+          border: "6px solid #1a1519",
+          boxShadow:
+            "0 0 0 3px #ff7a3d inset, 0 10px 0 rgba(0,0,0,0.6), 0 0 60px rgba(255,110,40,0.25)",
+          backgroundImage: stoneBg,
+          backgroundSize: "64px 32px, 64px 32px, 6px 6px, auto",
+          imageRendering: "pixelated",
+        }}
+      >
+        <div
+          className="flex items-center justify-between px-4 py-2"
+          style={{
+            background: "linear-gradient(#1a1015, #0a0608)",
+            borderBottom: "4px solid #050303",
+            boxShadow: "0 2px 0 #ff7a3d inset",
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-[#ff7a3d] text-lg leading-none" style={{ textShadow: "0 0 6px #ff4a10" }}>🔥</span>
+            <h2
+              className="text-[11px] sm:text-sm tracking-[0.2em] uppercase text-[#ffd1a3]"
+              style={{ textShadow: "2px 2px 0 #000, 0 0 6px rgba(255,110,40,0.5)" }}
+            >
+              {title}
+            </h2>
+            <span className="text-[#ff7a3d] text-lg leading-none" style={{ textShadow: "0 0 6px #ff4a10" }}>🔥</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-7 w-7 text-[#ff7a3d] text-sm border-2 border-[#ff7a3d]/70 bg-[#0a0608] hover:bg-[#1a1015]"
+            aria-label="close"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="p-4 overflow-y-auto" style={{ minHeight: 0 }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
