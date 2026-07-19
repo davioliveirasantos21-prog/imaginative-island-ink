@@ -312,7 +312,6 @@ export function initPlayerSync() {
 
   // Track session state. On identity changes, hydrate or clear.
   void supabase.auth.getSession().then(({ data }) => {
-    if (currentUserId && currentUserId.startsWith("local-")) return;
     const uid = data.session?.user?.id ?? null;
     if (uid) {
       currentUserId = uid;
@@ -323,13 +322,13 @@ export function initPlayerSync() {
   });
 
   supabase.auth.onAuthStateChange((event, session) => {
-    if (currentUserId && currentUserId.startsWith("local-")) return;
     const uid = session?.user?.id ?? null;
     if (event === "SIGNED_IN" && uid && uid !== currentUserId) {
       markPlayerSavePending();
       currentUserId = uid;
       void hydrateFromCloud(uid, origSet, origRemove);
     } else if (event === "SIGNED_OUT") {
+
       currentUserId = null;
       clearAllLocal(origRemove);
       localStorage.removeItem(SAVE_OWNER_KEY);
