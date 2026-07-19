@@ -9485,3 +9485,171 @@ function drawInsects(ctx: CanvasRenderingContext2D, list: Insect[], camX: number
     }
   }
 }
+
+// ---- Revamped wood-themed menu primitives ----
+function WoodMenu({
+  title,
+  onClose,
+  wide = false,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  wide?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={`relative w-full ${wide ? "max-w-[760px]" : "max-w-[480px]"} max-h-[92vh] flex flex-col text-[#f4e9c1] font-pixel`}
+        style={{
+          border: "6px solid #2a1608",
+          boxShadow:
+            "0 0 0 3px #ffd166 inset, 0 10px 0 rgba(0,0,0,0.55), 0 0 40px rgba(0,0,0,0.6)",
+          backgroundImage: `url(${woodPanelBg})`,
+          backgroundSize: "320px auto",
+          backgroundRepeat: "repeat",
+          imageRendering: "pixelated",
+        }}
+      >
+        <div
+          className="flex items-center justify-between px-4 py-2"
+          style={{
+            background:
+              "linear-gradient(#3a1e0c, #2a1608)",
+            borderBottom: "4px solid #1a0e05",
+            boxShadow: "0 2px 0 #ffd166 inset",
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-[#ffd166] text-lg leading-none">✦</span>
+            <h2 className="text-[11px] sm:text-sm tracking-[0.2em] uppercase text-[#ffe6a3]" style={{ textShadow: "2px 2px 0 #000" }}>
+              {title}
+            </h2>
+            <span className="text-[#ffd166] text-lg leading-none">✦</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-7 w-7 text-[#ffd166] text-sm border-2 border-[#ffd166]/70 bg-[#1a0e05] hover:bg-[#3a1e0c]"
+            aria-label="close"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="p-4 overflow-y-auto" style={{ minHeight: 0 }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BuildTile({
+  emoji,
+  label,
+  onClick,
+  costs,
+}: {
+  emoji: string;
+  label?: string;
+  onClick: () => void;
+  costs: { qty: number; kind: SlotIconKind }[];
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="group relative flex flex-col items-center justify-between p-2 pt-3 transition-transform active:translate-y-[2px]"
+      style={{
+        border: "3px solid #1a0e05",
+        boxShadow:
+          "0 0 0 2px #c69a67 inset, 0 4px 0 #1a0e05",
+        background:
+          "linear-gradient(180deg, rgba(58,32,16,0.55), rgba(26,14,5,0.75))",
+        minHeight: 140,
+      }}
+    >
+      <div
+        className="flex items-center justify-center w-full"
+        style={{
+          height: 64,
+          background: "rgba(10,20,31,0.55)",
+          border: "2px solid #6a4020",
+          imageRendering: "pixelated",
+        }}
+      >
+        <span className="text-4xl leading-none" style={{ filter: "drop-shadow(2px 2px 0 rgba(0,0,0,0.7))" }}>
+          {emoji}
+        </span>
+      </div>
+      {label ? (
+        <div className="mt-2 text-[9px] sm:text-[10px] tracking-widest uppercase text-[#ffe6a3]" style={{ textShadow: "1px 1px 0 #000" }}>
+          {label}
+        </div>
+      ) : null}
+      <div className="mt-1 flex items-center justify-center flex-wrap gap-x-2 gap-y-1 text-[10px] text-[#f4e9c1]">
+        {costs.filter((c) => c.qty > 0).map((c, i) => (
+          <span key={i} className="inline-flex items-center gap-1">
+            <span className="text-[#ffd166]">{c.qty}</span>
+            <SlotIcon kind={c.kind} size="sm" />
+          </span>
+        ))}
+      </div>
+    </button>
+  );
+}
+
+function CraftTile({
+  title,
+  thumb,
+  costs,
+  disabled,
+  onClick,
+}: {
+  title: string;
+  thumb: React.ReactNode;
+  costs: { qty: number; kind: SlotIconKind }[];
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className={`relative flex flex-col items-center justify-between p-2 transition-transform ${disabled ? "opacity-40 cursor-not-allowed" : "active:translate-y-[2px]"}`}
+      style={{
+        border: "3px solid #1a0e05",
+        boxShadow: disabled
+          ? "0 0 0 2px #5a3a20 inset"
+          : "0 0 0 2px #c69a67 inset, 0 4px 0 #1a0e05",
+        background: disabled
+          ? "rgba(10,10,10,0.55)"
+          : "linear-gradient(180deg, rgba(58,32,16,0.55), rgba(26,14,5,0.75))",
+        minHeight: 96,
+      }}
+    >
+      <div
+        className="flex items-center justify-center w-full"
+        style={{
+          height: 48,
+          background: "rgba(10,20,31,0.55)",
+          border: "2px solid #6a4020",
+        }}
+      >
+        {thumb}
+      </div>
+      <div className="mt-1 flex items-center justify-center flex-wrap gap-x-1.5 text-[10px] text-[#f4e9c1]">
+        {costs.map((c, i) => (
+          <span key={i} className="inline-flex items-center gap-0.5">
+            <span className="text-[#ffd166]">{c.qty}</span>
+            <SlotIcon kind={c.kind} size="sm" />
+          </span>
+        ))}
+      </div>
+    </button>
+  );
+}
