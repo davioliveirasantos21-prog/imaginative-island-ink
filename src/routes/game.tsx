@@ -1041,6 +1041,28 @@ function GamePage() {
     }, 200);
     return () => window.clearInterval(iv);
   }, []);
+
+  // ----- Hotbar item tooltip -----
+  // Desktop: long hover or selecting a slot shows the item name above the slot.
+  // Mobile: tapping a slot shows the name briefly.
+  const [slotTooltip, setSlotTooltip] = useState<{ kind: SlotKind; label: string } | null>(null);
+  const slotTooltipTimerRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (isMobile || selectedSlot == null) return;
+    const kind = hotbarSlotsRef.current[selectedSlot];
+    if (!kind) {
+      setSlotTooltip(null);
+      return;
+    }
+    const label = t(`item.${kind}`);
+    if (slotTooltipTimerRef.current) window.clearTimeout(slotTooltipTimerRef.current);
+    setSlotTooltip({ kind, label });
+    slotTooltipTimerRef.current = window.setTimeout(() => setSlotTooltip(null), 1500);
+    return () => {
+      if (slotTooltipTimerRef.current) window.clearTimeout(slotTooltipTimerRef.current);
+    };
+  }, [selectedSlot, isMobile, t]);
+
   const [placingKind, setPlacingKind] = useState<BuildKind | null>(null);
   const placingKindRef = useRef<BuildKind | null>(null);
   placingKindRef.current = placingKind;
