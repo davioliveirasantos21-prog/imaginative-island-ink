@@ -4581,7 +4581,8 @@ function GamePage() {
       for (const seed of seedsRef.current) {
         if (!withinReach(seed.x + 2)) continue;
         const d = Math.abs(seed.x + 2 - worldX);
-        if (d < bestSeedD && worldY > GROUND_Y - 10 && worldY < GROUND_Y + 8) {
+        const gY = getGroundYAt(seed.x);
+        if (d < bestSeedD && worldY > gY - 10 && worldY < gY + 8) {
           bestSeedD = d;
           bestSeed = seed;
         }
