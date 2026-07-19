@@ -4973,10 +4973,15 @@ function GamePage() {
         for (const side of ["left", "right"] as const) {
           for (const p of getPalms(side)) {
             if (brokenPalmsRef.current.has(p.wx)) continue;
+            // Only allow clicking palms actually drawn on screen — prevents
+            // hitting an off-camera "invisible" palm that isn't rendered.
+            const sxPalm = p.wx - camXRef.current;
+            if (sxPalm < -20 || sxPalm > VW + 20) continue;
             const cx = p.wx + 2;
             if (!withinReach(cx)) continue;
             const d = Math.abs(cx - worldX);
-            if (d < bestPalmD && worldY > GROUND_Y - 80 && worldY < GROUND_Y + 12) {
+            const gY = getGroundYAt(cx);
+            if (d < bestPalmD && worldY > gY - 80 && worldY < gY + 12) {
               bestPalmD = d;
               bestPalm = p;
             }
