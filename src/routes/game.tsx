@@ -5572,6 +5572,12 @@ function GamePage() {
                       selectedSlotRef.current = next;
                       selectedKindRef.current = next == null ? null : kind;
                       setSelectedSlot(next);
+                      // Mobile: tapping an item shows its name briefly.
+                      if (isMobile && kind) {
+                        if (slotTooltipTimerRef.current) window.clearTimeout(slotTooltipTimerRef.current);
+                        setSlotTooltip({ kind, label });
+                        slotTooltipTimerRef.current = window.setTimeout(() => setSlotTooltip(null), 2000);
+                      }
                     }}
                     onDoubleClick={() => {
                       if (!has || kind == null) return;
@@ -5612,6 +5618,18 @@ function GamePage() {
                       flashPickup(t("msg.dropped"));
                       saveWorld();
                     }}
+                    onMouseEnter={() => {
+                      if (isMobile || !kind) return;
+                      if (slotTooltipTimerRef.current) window.clearTimeout(slotTooltipTimerRef.current);
+                      slotTooltipTimerRef.current = window.setTimeout(() => {
+                        setSlotTooltip({ kind, label });
+                      }, 500);
+                    }}
+                    onMouseLeave={() => {
+                      if (slotTooltipTimerRef.current) window.clearTimeout(slotTooltipTimerRef.current);
+                      slotTooltipTimerRef.current = null;
+                      setSlotTooltip(null);
+                    }}
 
 
                     className={
@@ -5628,6 +5646,14 @@ function GamePage() {
                         style={{ textShadow: "1px 1px 0 #000" }}
                       >
                         {count}
+                      </span>
+                    ) : null}
+                    {slotTooltip?.kind === kind ? (
+                      <span
+                        className="absolute -top-5 left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded border border-[#f4e9c1]/60 bg-[#0d1b2a]/95 px-1.5 py-0.5 text-[9px] text-[#f4e9c1] shadow-md"
+                        style={{ textShadow: "1px 1px 0 #000" }}
+                      >
+                        {slotTooltip.label}
                       </span>
                     ) : null}
                   </button>
