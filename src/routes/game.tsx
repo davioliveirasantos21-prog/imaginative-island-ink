@@ -4031,9 +4031,8 @@ function GamePage() {
         setStuckProgress(sw.progress);
         if (sw.progress >= 10) {
           const s = stateRef.current;
-          s.y = GROUND_Y - SPRITE_H + FOOT_OFFSET;
           s.vy = 0;
-          s.grounded = true;
+          s.grounded = false;
           stuckWebRef.current = null;
           setStuckActive(false);
           setStuckProgress(0);
