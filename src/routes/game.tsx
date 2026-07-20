@@ -35,7 +35,7 @@ import seedIconUrl from "@/assets/seed-icon.png";
 import torchIconAsset from "@/assets/torch-icon.png.asset.json";
 import copperPickIconAsset from "@/assets/copper-pick-icon.png.asset.json";
 import woodPanelBg from "@/assets/wood-panel-bg.jpg";
-import mapButtonIconAsset from "@/assets/map-button-icon.png.asset.json";
+
 import uiBuildAsset from "@/assets/ui-build.png.asset.json";
 import uiMapaAsset from "@/assets/ui-mapa.png.asset.json";
 import uiCameraAsset from "@/assets/ui-camera.png.asset.json";
