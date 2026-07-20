@@ -5435,7 +5435,7 @@ function GamePage() {
                     disabled={b.disabled}
                     aria-label={b.label}
                     title={b.label}
-                    className={`group absolute ${b.pos} ${b.size || "h-16 w-16 sm:h-20 sm:w-20"} flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
+                    className={`group absolute ${b.pos} ${b.size || "h-16 w-16 sm:h-20 sm:w-20"} pointer-events-auto flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
                   >
                     <span className="w-full h-full flex items-center justify-center [&_svg]:w-full [&_svg]:h-full">
                       {b.icon}
