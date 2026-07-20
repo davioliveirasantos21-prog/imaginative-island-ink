@@ -30,6 +30,9 @@ export type ItemKind =
   | "bronze"
   | "copperMetal"
   | "bronzeMetal"
+  | "iron"
+  | "ironMetal"
+  | "ironBar"
   | "torch";
 
 export const ITEM_KINDS: ItemKind[] = [
