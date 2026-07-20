@@ -174,6 +174,18 @@ function drawDefault(ctx: Ctx, kind: ItemKind): boolean {
       // Reset to coal swatch
       drawOreSwatch(ctx, "#1a1416", "#000000", "#2a2226");
       return true;
+    case "iron":
+      // Iron ore — same swatch shape as copper so admins can repaint it.
+      drawOreSwatch(ctx, "#1a1416", "#000000", "#2a2226");
+      return true;
+    case "ironMetal":
+      // Raw iron — mirror of copperMetal nugget, in cool gray tones.
+      drawMetalNugget(ctx, "#8892a0", "#2a2f38", "#c8d0dc", "#eef0f6");
+      return true;
+    case "ironBar":
+      // Iron bar — mirror of copperBar, in cool gray tones.
+      drawBar(ctx, "#a8b0bc", "#2a2f38", "#d8dee6", "#eef1f6");
+      return true;
     // Note: Old nuggets saved for future coins:
     // copperCoin: drawMetalNugget(ctx, "#c97a45", "#5a2a10", "#ffb070", "#ffd6a0");
     // bronzeCoin: drawMetalNugget(ctx, "#a88245", "#4a3418", "#e8c880", "#f4dfa0");
