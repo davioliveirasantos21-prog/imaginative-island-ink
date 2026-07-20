@@ -5490,36 +5490,59 @@ function GamePage() {
           ) : null}
           {settingsOpen ? (
             <div
-              className="absolute inset-0 z-40 flex items-center justify-center bg-black/70 p-4"
+              className="absolute inset-0 z-40 flex items-center justify-center bg-black/80 p-4 animate-fade-in"
               onClick={() => setSettingsOpen(false)}
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm border-4 border-[#f4e9c1] bg-[#1b2a3a] p-5 text-[#f4e9c1]"
-                style={{ boxShadow: "0 8px 0 #0a141f" }}
+                className="relative w-full max-w-sm overflow-hidden border-4 border-[#1a1a1a] text-[#f4e9c1] animate-scale-in"
+                style={{
+                  backgroundImage: `url(${stoneBgAsset.url})`,
+                  backgroundSize: "256px 256px",
+                  backgroundRepeat: "repeat",
+                  imageRendering: "pixelated",
+                  boxShadow: "0 10px 0 #000, inset 0 0 40px rgba(0,0,0,0.65), inset 0 0 0 2px #4a3a2a",
+                }}
               >
-                <div className="mb-4 text-xs tracking-widest text-[#ffd166] uppercase">
-                  {t("settings.title")}
-                </div>
-                <div className="mb-2 flex items-center justify-between text-[10px]">
-                  <span>🔊 {t("settings.ambient") ?? "Ambiente"}</span>
-                  <span className="text-[#ffd166]">{ambientVolume}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={ambientVolume}
-                  onChange={(e) => setAmbientVolume(Number(e.target.value))}
-                  className="w-full accent-[#ffd166]"
+                {/* dark vignette overlay for legibility */}
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.75) 100%)" }}
                 />
-                <div className="mt-5 flex justify-end">
-                  <button
-                    onClick={() => setSettingsOpen(false)}
-                    className="border-2 border-[#f4e9c1] bg-[#0d1b2a] px-4 py-2 text-[10px] tracking-widest text-[#ffd166] hover:bg-[#ffd166]/10"
-                  >
-                    OK
-                  </button>
+                {/* torch flicker glows */}
+                <div className="pointer-events-none absolute -top-2 left-4 text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
+                <div className="pointer-events-none absolute -top-2 right-4 text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
+
+                <div className="relative p-6">
+                  <div className="mb-1 text-center text-xs tracking-[0.4em] text-[#ffd166] uppercase" style={{ textShadow: "0 2px 0 #000, 0 0 12px rgba(255,140,66,0.6)" }}>
+                    ⚔ {t("settings.title")} ⚔
+                  </div>
+                  <div className="mb-5 mx-auto h-[2px] w-24 bg-gradient-to-r from-transparent via-[#ffd166] to-transparent" />
+
+                  <div className="border-2 border-[#1a1a1a] p-3" style={{ background: "rgba(0,0,0,0.45)", boxShadow: "inset 0 0 0 1px #4a3a2a" }}>
+                    <div className="mb-2 flex items-center justify-between text-[10px] tracking-widest uppercase">
+                      <span className="text-[#f4e9c1]">🔊 {t("settings.ambient")}</span>
+                      <span className="text-[#ffd166] tabular-nums" style={{ textShadow: "0 1px 0 #000" }}>{ambientVolume}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={ambientVolume}
+                      onChange={(e) => setAmbientVolume(Number(e.target.value))}
+                      className="w-full accent-[#ffd166]"
+                    />
+                  </div>
+
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      onClick={() => setSettingsOpen(false)}
+                      className="border-2 border-[#1a1a1a] px-6 py-2 text-[10px] tracking-[0.3em] text-[#ffd166] uppercase hover:brightness-110 active:translate-y-[2px] transition-all"
+                      style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #1a0f06", textShadow: "0 1px 0 #000" }}
+                    >
+                      {t("settings.close")}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
