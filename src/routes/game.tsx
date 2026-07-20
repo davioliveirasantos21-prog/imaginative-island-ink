@@ -586,9 +586,9 @@ function GamePage() {
           const d = Math.abs(c.head.x - playerX);
           if (d < closest) closest = d;
         }
-        if (closest < 420) {
-          const falloff = Math.max(0, 1 - closest / 420);
-          wormVol = vol * 0.55 * falloff;
+        if (closest < 900) {
+          const falloff = Math.max(0.15, 1 - closest / 900);
+          wormVol = vol * 0.75 * falloff;
         }
 
       }
