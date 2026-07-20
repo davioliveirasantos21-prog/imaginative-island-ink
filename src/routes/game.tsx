@@ -1809,11 +1809,10 @@ function GamePage() {
         sw.progress = Math.min(10, sw.progress + 1);
         setStuckProgress(sw.progress);
         if (sw.progress >= 10) {
-          // Escaped — snap back to ground, consume trap.
+          // Escaped — release from web and let gravity pull the player down.
           const s = stateRef.current;
-          s.y = GROUND_Y - SPRITE_H + FOOT_OFFSET;
           s.vy = 0;
-          s.grounded = true;
+          s.grounded = false;
           stuckWebRef.current = null;
           setStuckActive(false);
           setStuckProgress(0);
