@@ -5324,7 +5324,7 @@ function GamePage() {
             onClick={() => setGameMenuOpen((v) => !v)}
             aria-label={t("gameMenu.open")}
             title={t("gameMenu.open")}
-            className="absolute left-1 top-1 sm:left-2 sm:top-2 z-30 h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all"
+            className="absolute left-1 top-1 z-30 h-16 w-16 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all"
           >
             <img
               src={(gameMenuOpen ? uiSetinhaFecharAsset : uiSetinhaAbrirAsset).url}
@@ -5405,18 +5405,20 @@ function GamePage() {
                     onClick: () => { setGameMenuOpen(false); setSettingsOpen(true); },
                   },
                   {
-                    key: "camera",
-                    label: t("gameMenu.camera.title"),
-                    icon: IconZoom,
-                    pos: "left-[5rem] top-1 sm:left-[6rem] sm:top-2",
-                    onClick: () => setCameraMenuOpen((v) => !v),
-                  },
-                  {
                     key: "exit",
                     label: t("game.leave"),
                     icon: IconExit,
-                    pos: "left-16 top-1 sm:left-20 sm:top-2",
+                    pos: "left-[5.5rem] top-1",
+                    size: "h-14 w-14",
                     onClick: () => { setGameMenuOpen(false); navigate({ to: "/characters" }); },
+                  },
+                  {
+                    key: "camera",
+                    label: t("gameMenu.camera.title"),
+                    icon: IconZoom,
+                    pos: "left-[9.75rem] top-1",
+                    size: "h-14 w-14",
+                    onClick: () => setCameraMenuOpen((v) => !v),
                   },
 
                   {
@@ -5450,7 +5452,7 @@ function GamePage() {
               {cameraMenuOpen ? (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute left-[5rem] top-16 sm:left-[6rem] sm:top-20 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
+                  className="absolute left-[9.75rem] top-16 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
                 >
                   <div className="flex items-center justify-between gap-2 text-[10px] tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
                     <span>🔍</span>
