@@ -3674,6 +3674,51 @@ function GamePage() {
           );
         }
 
+        // White silk cocoon wrapping the player while stuck in a spider web.
+        // Drawn AFTER the character so it fully covers them until they escape.
+        if (stuckWebRef.current) {
+          const cocoonCX = spriteX + SPRITE_W / 2;
+          const cocoonCY = spriteY + SPRITE_H / 2 + 1;
+          const cocoonHW = Math.round(SPRITE_W / 2 + 3);
+          const cocoonHH = Math.round(SPRITE_H / 2 + 4);
+          ctx.save();
+          // soft drop shadow
+          ctx.fillStyle = "rgba(0,0,0,0.28)";
+          ctx.beginPath();
+          ctx.ellipse(cocoonCX + 1, cocoonCY + 2, cocoonHW, cocoonHH, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // cocoon body
+          ctx.fillStyle = "#f2f4f7";
+          ctx.beginPath();
+          ctx.ellipse(cocoonCX, cocoonCY, cocoonHW, cocoonHH, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // silk wrap bands
+          ctx.strokeStyle = "rgba(190,196,210,0.9)";
+          ctx.lineWidth = 1;
+          for (let i = -2; i <= 2; i++) {
+            const yb = cocoonCY + i * Math.round(cocoonHH / 2.6);
+            const norm = (yb - cocoonCY) / cocoonHH;
+            const dx = Math.sqrt(Math.max(0, 1 - norm * norm)) * cocoonHW;
+            ctx.beginPath();
+            ctx.moveTo(cocoonCX - dx, yb + 0.5);
+            ctx.quadraticCurveTo(cocoonCX, yb - 1.8, cocoonCX + dx, yb + 0.5);
+            ctx.stroke();
+          }
+          // highlight
+          ctx.fillStyle = "rgba(255,255,255,0.65)";
+          ctx.beginPath();
+          ctx.ellipse(
+            cocoonCX - Math.round(cocoonHW / 3),
+            cocoonCY - Math.round(cocoonHH / 2),
+            Math.max(1, Math.round(cocoonHW / 4)),
+            Math.max(1, Math.round(cocoonHH / 5)),
+            0, 0, Math.PI * 2,
+          );
+          ctx.fill();
+          ctx.restore();
+        }
+
+
         // Carried logs stacked across the torso (horizontal), showing what
         // the player is hauling. Each log = 1 wood, and each slows movement.
         // Hands wrap over the ends of the top log so the pose reads as "held".
