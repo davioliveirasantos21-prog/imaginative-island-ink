@@ -434,16 +434,28 @@ function CreateModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4 short:p-2"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-4 short:p-2 animate-fade-in"
       onClick={onCancel}
     >
       <div
-        className="flex max-h-[90vh] w-full max-w-2xl flex-col border-4 border-[#f4e9c1] bg-[#1b2a3a] font-pixel text-[#f4e9c1] short:max-h-[96vh]"
-        style={{ boxShadow: "0 8px 0 #0a141f, 0 12px 0 rgba(0,0,0,0.5)" }}
+        className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden border-4 border-[#1a1a1a] font-pixel text-[#f4e9c1] short:max-h-[96vh] animate-scale-in"
+        style={stonePanelStyle}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="shrink-0 border-b-4 border-[#f4e9c1]/20 px-5 py-3 text-sm tracking-widest text-[#ffd166] short:px-3 short:py-2 short:text-xs">
-          {t("create.title")}
+        {/* dark vignette */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.75) 100%)" }}
+        />
+        {/* torches */}
+        <div className="pointer-events-none absolute -top-2 left-4 text-3xl z-10" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
+        <div className="pointer-events-none absolute -top-2 right-4 text-3xl z-10" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
+
+        <h2
+          className="relative shrink-0 border-b-2 border-[#1a1a1a] px-5 py-3 text-center text-sm tracking-[0.35em] uppercase text-[#ffd166] short:px-3 short:py-2 short:text-xs"
+          style={{ background: "rgba(0,0,0,0.4)", textShadow: "0 2px 0 #000, 0 0 12px rgba(255,140,66,0.55)" }}
+        >
+          ⚔ {t("create.title")} ⚔
         </h2>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 short:px-3 short:py-2">
