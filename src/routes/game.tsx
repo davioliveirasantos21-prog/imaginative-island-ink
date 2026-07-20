@@ -36,6 +36,15 @@ import torchIconAsset from "@/assets/torch-icon.png.asset.json";
 import copperPickIconAsset from "@/assets/copper-pick-icon.png.asset.json";
 import woodPanelBg from "@/assets/wood-panel-bg.jpg";
 import mapButtonIconAsset from "@/assets/map-button-icon.png.asset.json";
+import uiBuildAsset from "@/assets/ui-build.png.asset.json";
+import uiMapaAsset from "@/assets/ui-mapa.png.asset.json";
+import uiCameraAsset from "@/assets/ui-camera.png.asset.json";
+import uiConfigAsset from "@/assets/ui-config.png.asset.json";
+import uiCustomAsset from "@/assets/ui-custom.png.asset.json";
+import uiMenuAsset from "@/assets/ui-menu.png.asset.json";
+import uiMissoesAsset from "@/assets/ui-missoes.png.asset.json";
+import uiSetinhaAbrirAsset from "@/assets/ui-setinha-abrir.png.asset.json";
+import uiSetinhaFecharAsset from "@/assets/ui-setinha-fechar.png.asset.json";
 import {
   getItemVariantPixels,
   renderItemPixelsToDataURL,
