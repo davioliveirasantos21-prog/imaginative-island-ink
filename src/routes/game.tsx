@@ -3115,37 +3115,6 @@ function GamePage() {
           // Big spider descends as player rises.
           const spiderY = Math.min(s2.y - 6, topY + Math.round(sw.pullY * 0.6));
           drawBigSpider(ctx, sx, Math.round(spiderY), now / 60);
-          // White silk cocoon wrapping the player until they escape.
-          const cocoonCX = sx;
-          const cocoonCY = Math.round(s2.y + SPRITE_H / 2);
-          const cocoonHW = Math.round(SPRITE_W / 2 + 3);
-          const cocoonHH = Math.round(SPRITE_H / 2 + 4);
-          // Soft shadow
-          ctx.fillStyle = "rgba(0,0,0,0.25)";
-          ctx.beginPath();
-          ctx.ellipse(cocoonCX + 1, cocoonCY + 2, cocoonHW, cocoonHH, 0, 0, Math.PI * 2);
-          ctx.fill();
-          // Cocoon body
-          ctx.fillStyle = "#f2f4f7";
-          ctx.beginPath();
-          ctx.ellipse(cocoonCX, cocoonCY, cocoonHW, cocoonHH, 0, 0, Math.PI * 2);
-          ctx.fill();
-          // Silk wrap bands
-          ctx.strokeStyle = "rgba(200,205,215,0.9)";
-          ctx.lineWidth = 1;
-          for (let i = -2; i <= 2; i++) {
-            const yb = cocoonCY + i * Math.round(cocoonHH / 2.5);
-            const dx = Math.sqrt(Math.max(0, 1 - Math.pow((yb - cocoonCY) / cocoonHH, 2))) * cocoonHW;
-            ctx.beginPath();
-            ctx.moveTo(cocoonCX - dx, yb + 0.5);
-            ctx.quadraticCurveTo(cocoonCX, yb - 1.5, cocoonCX + dx, yb + 0.5);
-            ctx.stroke();
-          }
-          // Highlight
-          ctx.fillStyle = "rgba(255,255,255,0.6)";
-          ctx.beginPath();
-          ctx.ellipse(cocoonCX - Math.round(cocoonHW / 3), cocoonCY - Math.round(cocoonHH / 2), Math.max(1, Math.round(cocoonHW / 4)), Math.max(1, Math.round(cocoonHH / 5)), 0, 0, Math.PI * 2);
-          ctx.fill();
         }
         // Exit portal back to cave1
         drawCave2ExitPortal(ctx, CAVE2_RETURN_X - camX, GROUND_Y, now / 1000);
