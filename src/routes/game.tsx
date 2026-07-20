@@ -988,6 +988,10 @@ function GamePage() {
     return 3;
   };
   const blueprintsRef = useRef<Blueprint[]>([]);
+  // When the player clicks a blueprint without the right material, we show
+  // the remaining materials as item icon miniatures floating above THAT
+  // blueprint for a short while.
+  const blueprintHintRef = useRef<{ id: string; until: number } | null>(null);
   const builtRef = useRef<Built[]>([]);
   const [repairModalOpen, setRepairModalOpen] = useState<string | null>(null);
   const [buildMenuOpen, setBuildMenuOpen] = useState(false);
