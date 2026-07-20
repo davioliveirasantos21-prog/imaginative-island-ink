@@ -264,14 +264,6 @@ export function loadCustomGarments(): CustomGarment[] {
     const raw = localStorage.getItem(CUSTOM_GARMENT_KEY);
     const defaultGarments: CustomGarment[] = [
       {
-        id: "built-in-rag",
-        name: { pt: "Trapo", en: "Rag", es: "Trapo" },
-        slot: "fullbody",
-        body: "both",
-        back: {},
-        front: {"2,13":"mid","3,13":"mid","3,14":"mid","3,12":"mid","2,12":"mid","3,11":"mid","12,14":"mid","12,13":"mid","13,13":"mid","13,12":"mid","12,12":"mid","12,11":"mid","6,11":"mid","6,12":"dark2","7,12":"mid","8,12":"mid","9,12":"mid","9,11":"mid","10,11":"mid","11,11":"mid","11,12":"mid","11,13":"mid","11,14":"mid","11,15":"dark2","11,16":"dark2","11,17":"dark2","11,18":"dark2","11,19":"mid","11,20":"dark","11,21":"mid","11,22":"mid","10,22":"mid","9,22":"mid","9,23":"mid","8,23":"mid","7,23":"mid","6,23":"mid","5,23":"mid","4,23":"mid","4,22":"mid","4,21":"mid","4,20":"dark","4,19":"mid","4,18":"mid","4,17":"mid","4,16":"mid","4,15":"mid","4,14":"mid","4,13":"dark2","4,12":"dark2","4,11":"dark2","5,11":"dark2","5,12":"dark2","5,13":"dark2","5,14":"dark2","5,15":"mid","5,16":"mid","6,14":"dark2","6,13":"dark2","7,13":"dark2","8,13":"dark2","8,14":"dark2","7,15":"dark2","7,16":"mid","6,16":"mid","6,17":"mid","7,17":"mid","8,15":"dark2","9,14":"dark2","9,15":"dark2","9,16":"dark2","8,16":"mid","8,17":"mid","8,18":"mid","7,18":"mid","7,19":"mid","8,19":"mid","9,17":"mid","9,18":"mid","9,19":"mid","8,20":"dark","7,21":"dark","8,21":"mid","9,20":"dark","9,21":"mid","8,22":"mid","7,22":"mid","6,22":"mid","5,22":"mid","5,21":"mid","5,20":"dark","5,19":"mid","6,19":"mid","6,18":"mid","6,20":"dark","6,21":"dark","7,20":"dark","10,20":"dark","4,24":"mid","5,24":"mid","6,24":"mid","7,24":"mid","8,24":"mid","9,24":"mid","10,23":"mid","11,23":"mid","10,21":"mid","10,18":"mid","10,17":"dark2","10,16":"dark2","10,15":"dark2","10,14":"dark2","10,13":"mid","10,12":"mid","9,13":"mid","7,14":"dark2","6,15":"mid","5,17":"mid","5,18":"mid","10,19":"mid","4,26":"mid","5,26":"mid","6,26":"mid","7,26":"mid","8,26":"mid","9,26":"mid","9,25":"mid","10,24":"mid","11,24":"mid","10,25":"mid","11,25":"mid","8,25":"mid","7,25":"mid","6,25":"mid","5,25":"mid","4,25":"mid"}
-      },
-      {
         id: "built-in-vest",
         name: { pt: "Colete", en: "Vest", es: "Chaleco" },
         slot: "fullbody",
