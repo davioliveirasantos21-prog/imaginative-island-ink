@@ -5405,18 +5405,20 @@ function GamePage() {
                     onClick: () => { setGameMenuOpen(false); setSettingsOpen(true); },
                   },
                   {
-                    key: "camera",
-                    label: t("gameMenu.camera.title"),
-                    icon: IconZoom,
-                    pos: "left-[5rem] top-1 sm:left-[6rem] sm:top-2",
-                    onClick: () => setCameraMenuOpen((v) => !v),
-                  },
-                  {
                     key: "exit",
                     label: t("game.leave"),
                     icon: IconExit,
-                    pos: "left-16 top-1 sm:left-20 sm:top-2",
+                    pos: "left-[5.5rem] top-1",
+                    size: "h-14 w-14",
                     onClick: () => { setGameMenuOpen(false); navigate({ to: "/characters" }); },
+                  },
+                  {
+                    key: "camera",
+                    label: t("gameMenu.camera.title"),
+                    icon: IconZoom,
+                    pos: "left-[9.75rem] top-1",
+                    size: "h-14 w-14",
+                    onClick: () => setCameraMenuOpen((v) => !v),
                   },
 
                   {
