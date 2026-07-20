@@ -282,22 +282,23 @@ function SlotCard({
 
       {isEmpty ? (
         <>
-          <div className="text-xs text-[#f4e9c1]/60">{t("slots.empty")}</div>
+          <div className="text-xs text-[#f4e9c1]/80">{t("slots.empty")}</div>
           <button
             onClick={onCreate}
-            className="mt-4 border-4 border-[#7a3e1d] bg-[#ffd166] px-4 py-3 text-[10px] uppercase text-[#0d1b2a]"
-            style={{ boxShadow: "0 4px 0 #7a3e1d" }}
+            className="mt-4 border-2 border-[#1a1a1a] px-5 py-3 text-[10px] uppercase text-[#0d1b2a] hover:brightness-110 active:translate-y-[2px] transition-all"
+            style={goldButtonStyle}
           >
             + {t("slots.create")}
           </button>
         </>
       ) : confirmingDelete ? (
         <>
-          <div className="text-xs text-[#e94560]">{t("slots.deleteConfirm")}</div>
+          <div className="text-xs text-[#e94560]" style={{ textShadow: "0 1px 0 #000" }}>{t("slots.deleteConfirm")}</div>
           <div className="mt-3 flex gap-2">
             <button
               onClick={() => setConfirmingDelete(false)}
-              className="border-4 border-[#f4e9c1]/40 px-3 py-2 text-[9px] uppercase"
+              className="border-2 border-[#1a1a1a] px-3 py-2 text-[9px] uppercase text-[#ffd166] hover:brightness-110 active:translate-y-[2px] transition-all"
+              style={woodButtonStyle}
             >
               {t("create.cancel")}
             </button>
@@ -306,8 +307,8 @@ function SlotCard({
                 setConfirmingDelete(false);
                 onDelete();
               }}
-              className="border-4 border-[#e94560] bg-[#e94560] px-3 py-2 text-[9px] uppercase text-[#0d1b2a]"
-              style={{ boxShadow: "0 4px 0 #7a1e2a" }}
+              className="border-2 border-[#1a1a1a] px-3 py-2 text-[9px] uppercase text-[#f4e9c1] hover:brightness-110 active:translate-y-[2px] transition-all"
+              style={{ background: "linear-gradient(180deg, #b32b3a, #6b0f1b)", boxShadow: "0 4px 0 #2a0209", textShadow: "0 1px 0 #000" }}
             >
               {t("slots.delete")}
             </button>
@@ -315,19 +316,20 @@ function SlotCard({
         </>
       ) : (
         <>
-          <div className="text-sm text-[#ffd166]">{slot.name}</div>
-          <div className="mt-1 text-[10px] tracking-widest text-[#f4e9c1]/70">
+          <div className="text-sm text-[#ffd166]" style={{ textShadow: "0 2px 0 #000" }}>{slot.name}</div>
+          <div className="mt-1 text-[10px] tracking-widest text-[#f4e9c1]/80">
             {t("slots.level")} {slot.level}
           </div>
           <button
             onClick={onEnter}
-            className="mt-4 border-4 border-[#7a3e1d] bg-[#ffd166] px-4 py-3 text-[10px] uppercase text-[#0d1b2a]"
-            style={{ boxShadow: "0 4px 0 #7a3e1d" }}
+            className="mt-4 border-2 border-[#1a1a1a] px-5 py-3 text-[10px] uppercase text-[#0d1b2a] hover:brightness-110 active:translate-y-[2px] transition-all"
+            style={goldButtonStyle}
           >
             ▶ {t("slots.enter")}
           </button>
         </>
       )}
+      </div>
     </div>
   );
 }
