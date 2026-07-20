@@ -1133,7 +1133,7 @@ export function generateCentipedes(segs: Cave2Segment[], worldSeed: number): Cen
         waveBaseY: baseY,
         retreating: false,
         slowUntil: 0,
-        active: firstWall,
+        active: true,
         sizeMul: 0.9 + rnd() * 0.3,
         tintShift: (rnd() - 0.5) * 2,
         moveDirX: 1,
