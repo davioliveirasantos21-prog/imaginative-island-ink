@@ -313,20 +313,21 @@ function SlotCard({
         aria-hidden
       >
         <div
-          className="relative flex items-center justify-center px-3 py-1"
+          className="relative flex items-center justify-center px-4 py-1"
           style={{
             background: `linear-gradient(180deg, ${h.banner}, ${h.bannerDark})`,
             boxShadow: `0 3px 0 rgba(0,0,0,0.6), inset 0 0 0 1px ${h.bannerDark}`,
             clipPath:
               "polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%)",
-            minWidth: "78px",
+            minWidth: "110px",
           }}
         >
           <span
-            className="text-[10px] tracking-[0.35em] uppercase"
+            className="whitespace-nowrap text-[10px] tracking-[0.25em] uppercase"
             style={{ color: h.accent, textShadow: "0 1px 0 #000" }}
           >
-            {h.sigil} {h.name}
+            <span className="mr-1 align-middle">{h.sigil}</span>
+            <span className="align-middle">{houseName}</span>
           </span>
         </div>
       </div>
