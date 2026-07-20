@@ -2512,7 +2512,8 @@ function GamePage() {
                 dry: 1.4,
                 wet: 0.45,
               });
-              const nextHP = prevHP - 1;
+              const damage = ts.kind === "copperPick" ? 2 : 1;
+              const nextHP = prevHP - damage;
               if (nextHP > 0) {
                 currentHP.set(ore.id, nextHP);
                 flashPickup(t("msg.ore", { n: nextHP, max: ORE_MAX_HP }));
