@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Settings as SettingsIcon } from "lucide-react";
+
 
 import { useI18n } from "@/lib/i18n";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -35,7 +35,16 @@ import seedIconUrl from "@/assets/seed-icon.png";
 import torchIconAsset from "@/assets/torch-icon.png.asset.json";
 import copperPickIconAsset from "@/assets/copper-pick-icon.png.asset.json";
 import woodPanelBg from "@/assets/wood-panel-bg.jpg";
-import mapButtonIconAsset from "@/assets/map-button-icon.png.asset.json";
+
+import uiBuildAsset from "@/assets/ui-build.png.asset.json";
+import uiMapaAsset from "@/assets/ui-mapa.png.asset.json";
+import uiCameraAsset from "@/assets/ui-camera.png.asset.json";
+import uiConfigAsset from "@/assets/ui-config.png.asset.json";
+import uiCustomAsset from "@/assets/ui-custom.png.asset.json";
+import uiMenuAsset from "@/assets/ui-menu.png.asset.json";
+import uiMissoesAsset from "@/assets/ui-missoes.png.asset.json";
+import uiSetinhaAbrirAsset from "@/assets/ui-setinha-abrir.png.asset.json";
+import uiSetinhaFecharAsset from "@/assets/ui-setinha-fechar.png.asset.json";
 import {
   getItemVariantPixels,
   renderItemPixelsToDataURL,
@@ -5320,13 +5329,17 @@ function GamePage() {
               backgroundImage:
                 "repeating-linear-gradient(0deg, transparent 0 10px, rgba(0,0,0,0.35) 10px 12px)," +
                 "repeating-linear-gradient(90deg, rgba(255,235,200,0.06) 0 3px, transparent 3px 7px)," +
-                "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
+              "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
               boxShadow: "inset 0 1px 0 rgba(255,220,170,0.35), inset 0 -3px 0 rgba(0,0,0,0.35), 0 3px 0 #2a1608",
-              transform: gameMenuOpen ? "rotate(180deg)" : "none",
-              textShadow: "0 1px 0 rgba(0,0,0,0.5)",
             }}
           >
-            ›
+            <img
+              src={(gameMenuOpen ? uiSetinhaFecharAsset : uiSetinhaAbrirAsset).url}
+              alt=""
+              className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
+              style={{ imageRendering: "pixelated" }}
+              draggable={false}
+            />
           </button>
 
           {gameMenuOpen ? (
@@ -5339,59 +5352,23 @@ function GamePage() {
             >
               {(() => {
                 const stroke = "#f4e9c1";
-                const IconBuild = (
-                  <svg viewBox="0 0 16 16" shapeRendering="crispEdges" fill={stroke}>
-                    {/* pixel-art hammer */}
-                    <rect x="6" y="1" width="7" height="1" />
-                    <rect x="5" y="2" width="9" height="1" />
-                    <rect x="4" y="3" width="10" height="2" />
-                    <rect x="5" y="5" width="9" height="1" />
-                    <rect x="6" y="6" width="7" height="1" />
-                    {/* handle */}
-                    <rect x="8" y="7" width="2" height="1" />
-                    <rect x="7" y="8" width="2" height="1" />
-                    <rect x="6" y="9" width="2" height="1" />
-                    <rect x="5" y="10" width="2" height="1" />
-                    <rect x="4" y="11" width="2" height="1" />
-                    <rect x="3" y="12" width="2" height="1" />
-                    <rect x="2" y="13" width="2" height="2" />
-                  </svg>
-                );
-                const IconMap = (
+                const pngIcon = (url: string, alt = "") => (
                   <img
-                    src={mapButtonIconAsset.url}
-                    alt={t("game.map")}
-                    className="w-full h-full object-contain pixelated"
+                    src={url}
+                    alt={alt}
+                    className="w-full h-full object-contain"
                     style={{ imageRendering: "pixelated" }}
+                    draggable={false}
                   />
                 );
-                const IconLook = (
-                  <Pencil strokeWidth={1.8} />
-                );
-                const IconSettings = (
-                  <SettingsIcon strokeWidth={1.8} />
-                );
-
-                const IconZoom = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="6" />
-                    <path d="M20 20l-4-4M8 11h6M11 8v6" />
-                  </svg>
-                );
-                const IconHelp = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4" />
-                    <circle cx="12" cy="17" r="0.6" fill={stroke} />
-                  </svg>
-                );
-                const IconExit = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5" />
-                    <path d="M10 8l-4 4 4 4" />
-                    <path d="M6 12h10" />
-                  </svg>
-                );
+                const IconBuild = pngIcon(uiBuildAsset.url, t("gameMenu.build"));
+                const IconMap = pngIcon(uiMapaAsset.url, t("game.map"));
+                const IconLook = pngIcon(uiCustomAsset.url, t("game.editLook"));
+                const IconSettings = pngIcon(uiConfigAsset.url, t("settings.title"));
+                const IconZoom = pngIcon(uiCameraAsset.url, t("gameMenu.camera.title"));
+                const IconHelp = pngIcon(uiMissoesAsset.url, t("gameMenu.tutorial.title"));
+                const IconExit = pngIcon(uiMenuAsset.url, t("game.leave"));
+                void stroke;
 
                 type CornerBtn = {
                   key: string;
