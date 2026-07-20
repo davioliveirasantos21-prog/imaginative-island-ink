@@ -798,6 +798,7 @@ export const dictionaries: Record<Lang, Dict> = {
     "settings.music": "Música",
     "settings.sfx": "Efectos de sonido",
     "settings.close": "Cerrar",
+    "settings.ambient": "Sonido ambiente",
     "lang.title": "Selecciona un idioma",
     "slots.title": "Tus personajes",
     "slots.subtitle": "Elige un héroe para entrar al mundo",
