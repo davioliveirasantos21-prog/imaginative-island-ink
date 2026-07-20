@@ -5375,7 +5375,7 @@ function GamePage() {
                     key: "build",
                     label: t("gameMenu.build"),
                     icon: IconBuild,
-                    pos: "left-2 bottom-[38%] sm:left-4",
+                    pos: "left-2 bottom-[20%] sm:left-4",
                     size: "h-20 w-20 sm:h-24 sm:w-24",
                     onClick: () => { markMenuOpened(); setBuildMenuOpen(true); },
                   },
@@ -5390,7 +5390,7 @@ function GamePage() {
                     key: "look",
                     label: t("game.editLook"),
                     icon: IconLook,
-                    pos: "left-2 top-[58%] -translate-y-1/2 sm:left-4",
+                    pos: "left-2 top-[45%] -translate-y-1/2 sm:left-4",
                     onClick: () => { setEditingLook(true); },
                     disabled: !character,
                   },
@@ -5413,10 +5413,11 @@ function GamePage() {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
                     icon: IconZoom,
-                    pos: "left-[9.75rem] top-1",
-                    size: "h-14 w-14",
+                    pos: "left-[9.5rem] top-1",
+                    size: "h-16 w-16",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
+
 
                   {
                     key: "tutorial",
