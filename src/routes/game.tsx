@@ -5329,13 +5329,17 @@ function GamePage() {
               backgroundImage:
                 "repeating-linear-gradient(0deg, transparent 0 10px, rgba(0,0,0,0.35) 10px 12px)," +
                 "repeating-linear-gradient(90deg, rgba(255,235,200,0.06) 0 3px, transparent 3px 7px)," +
-                "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
+              "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
               boxShadow: "inset 0 1px 0 rgba(255,220,170,0.35), inset 0 -3px 0 rgba(0,0,0,0.35), 0 3px 0 #2a1608",
-              transform: gameMenuOpen ? "rotate(180deg)" : "none",
-              textShadow: "0 1px 0 rgba(0,0,0,0.5)",
             }}
           >
-            ›
+            <img
+              src={(gameMenuOpen ? uiSetinhaFecharAsset : uiSetinhaAbrirAsset).url}
+              alt=""
+              className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
+              style={{ imageRendering: "pixelated" }}
+              draggable={false}
+            />
           </button>
 
           {gameMenuOpen ? (
