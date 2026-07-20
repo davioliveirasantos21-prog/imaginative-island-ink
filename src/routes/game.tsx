@@ -5338,12 +5338,9 @@ function GamePage() {
 
           {gameMenuOpen ? (
             <div
-              className="absolute inset-0 z-20"
-              onClick={(e) => {
-                // click on backdrop closes
-                if (e.target === e.currentTarget && canCloseMenu()) setGameMenuOpen(false);
-              }}
+              className="absolute inset-0 z-20 pointer-events-none"
             >
+
               {(() => {
                 const stroke = "#f4e9c1";
                 const pngIcon = (url: string, alt = "") => (
@@ -5380,21 +5377,21 @@ function GamePage() {
                     icon: IconBuild,
                     pos: "left-2 bottom-[38%] sm:left-4",
                     size: "h-20 w-20 sm:h-24 sm:w-24",
-                    onClick: () => { setGameMenuOpen(false); markMenuOpened(); setBuildMenuOpen(true); },
+                    onClick: () => { markMenuOpened(); setBuildMenuOpen(true); },
                   },
                   {
                     key: "map",
                     label: t("game.map"),
                     icon: IconMap,
                     pos: "right-3 top-14 sm:right-6 sm:top-16",
-                    onClick: () => { setGameMenuOpen(false); setMapOpen(true); },
+                    onClick: () => { setMapOpen(true); },
                   },
                   {
                     key: "look",
                     label: t("game.editLook"),
                     icon: IconLook,
                     pos: "left-2 top-[58%] -translate-y-1/2 sm:left-4",
-                    onClick: () => { setGameMenuOpen(false); setEditingLook(true); },
+                    onClick: () => { setEditingLook(true); },
                     disabled: !character,
                   },
                   {
@@ -5402,7 +5399,7 @@ function GamePage() {
                     label: t("settings.title"),
                     icon: IconSettings,
                     pos: "right-3 bottom-24 sm:right-6 sm:bottom-28",
-                    onClick: () => { setGameMenuOpen(false); setSettingsOpen(true); },
+                    onClick: () => { setSettingsOpen(true); },
                   },
                   {
                     key: "exit",
@@ -5429,6 +5426,7 @@ function GamePage() {
                     onClick: () => setTutorialOpen((v) => !v),
                   },
                 ];
+
                 return buttons.map((b) => (
                   <button
                     key={b.key}
@@ -5437,7 +5435,7 @@ function GamePage() {
                     disabled={b.disabled}
                     aria-label={b.label}
                     title={b.label}
-                    className={`group absolute ${b.pos} ${b.size || "h-16 w-16 sm:h-20 sm:w-20"} flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
+                    className={`group absolute ${b.pos} ${b.size || "h-16 w-16 sm:h-20 sm:w-20"} pointer-events-auto flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
                   >
                     <span className="w-full h-full flex items-center justify-center [&_svg]:w-full [&_svg]:h-full">
                       {b.icon}
@@ -5452,7 +5450,7 @@ function GamePage() {
               {cameraMenuOpen ? (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute left-[9.75rem] top-16 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
+                  className="absolute left-[9.75rem] top-16 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm pointer-events-auto" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
                 >
                   <div className="flex items-center justify-between gap-2 text-[10px] tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
                     <span>🔍</span>
