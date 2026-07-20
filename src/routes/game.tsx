@@ -2539,7 +2539,7 @@ function GamePage() {
               }
               saveWorld();
             }
-          } else if (ts.kind === "axe") {
+          } else if (ts.kind === "axe" && modeRef.current !== "cave" && modeRef.current !== "cave2") {
             const props = getProps();
             let bestTree: Prop | null = null;
             let bestTreeD = 60;
