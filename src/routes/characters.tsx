@@ -155,14 +155,23 @@ function CharactersPage() {
         imageRendering: "pixelated",
       }}
     >
-      {/* vignette + dark tint for legibility */}
+      {/* atmospheric wash — cool dusk at top, warm hearth at bottom, no vignette clone */}
       <div
         className="pointer-events-none fixed inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.85) 100%)",
+            "linear-gradient(180deg, rgba(10,18,32,0.85) 0%, rgba(20,12,8,0.55) 55%, rgba(60,25,10,0.75) 100%)",
         }}
       />
+      {/* faint light beams from above */}
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 h-64"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(255,210,140,0.18), transparent 70%)",
+        }}
+      />
+
       <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-6 py-10 short:px-3 short:py-3">
         <header className="flex flex-col items-center gap-3 sm:grid sm:grid-cols-[auto_minmax(0,1fr)_auto]">
           <Link
@@ -172,20 +181,35 @@ function CharactersPage() {
           >
             ← {t("slots.back")}
           </Link>
-          <div className="relative flex min-w-0 items-center justify-center gap-3">
-            <span className="text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</span>
-            <h1
-              className="min-w-0 text-center text-lg sm:truncate sm:text-2xl uppercase tracking-[0.3em] text-[#ffd166] short:text-sm"
-              style={{ textShadow: "0 2px 0 #000, 0 0 14px rgba(255,140,66,0.55)" }}
+          {/* Carved-stone title plaque with laurel dots — no more torch/sword emojis */}
+          <div className="relative flex min-w-0 items-center justify-center">
+            <div
+              className="relative px-6 py-2 short:px-3 short:py-1"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(20,14,8,0.85), rgba(6,4,2,0.9))",
+                boxShadow:
+                  "inset 0 0 0 2px #2a1f14, inset 0 0 24px rgba(0,0,0,0.7), 0 6px 0 rgba(0,0,0,0.6)",
+              }}
             >
-              ⚔ {t("slots.title")} ⚔
-            </h1>
-            <span className="text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</span>
+              <span className="pointer-events-none absolute left-[-14px] top-1/2 -translate-y-1/2 text-[10px] text-[#ffd166]/70">◆</span>
+              <span className="pointer-events-none absolute right-[-14px] top-1/2 -translate-y-1/2 text-[10px] text-[#ffd166]/70">◆</span>
+              <h1
+                className="min-w-0 whitespace-nowrap text-center text-lg sm:text-2xl uppercase tracking-[0.42em] text-[#ffd166] short:text-sm"
+                style={{ textShadow: "0 2px 0 #000, 0 0 10px rgba(255,180,80,0.35)" }}
+              >
+                {t("slots.title")}
+              </h1>
+            </div>
           </div>
           <div className="hidden sm:block sm:w-16" />
         </header>
-        <div className="mx-auto mt-3 h-[2px] w-40 bg-gradient-to-r from-transparent via-[#ffd166] to-transparent" />
-        <p className="mt-4 text-center text-[10px] sm:text-xs tracking-widest text-[#f4e9c1]/80 short:mt-2 short:text-[9px]">
+        <div className="mx-auto mt-4 flex items-center gap-2 text-[#ffd166]/60">
+          <span className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#ffd166]/60" />
+          <span className="text-[8px] tracking-[0.6em]">· · ·</span>
+          <span className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#ffd166]/60" />
+        </div>
+        <p className="mt-4 text-center text-[10px] sm:text-xs tracking-widest text-[#f4e9c1]/70 short:mt-2 short:text-[9px]">
           {t("slots.subtitle")}
         </p>
 
@@ -221,6 +245,7 @@ function CharactersPage() {
     </div>
   );
 }
+
 
 function SlotCard({
   index,
