@@ -4387,13 +4387,12 @@ function GamePage() {
         }
 
         if (!deposited) {
-          const needs: string[] = [];
-          if (woodLeft > 0) needs.push(`🪵 ${bp.deliveredWood}/${cost.wood}`);
-          if (stonesLeft > 0) needs.push(`🪨 ${bp.deliveredStones}/${cost.stones}`);
-          if (coalLeft > 0) needs.push(`⚫ ${bp.deliveredCoal}/${cost.coal}`);
-          if (copperLeft > 0) needs.push(`🟠 ${bp.deliveredCopper}/${cost.copper}`);
-          if (bronzeMetalLeft > 0) needs.push(`🟫 ${bp.deliveredBronzeMetal}/${cost.bronzeMetal}`);
-          if (needs.length > 0) flashPickup(needs.join(" · "));
+          const anyLeft =
+            woodLeft > 0 || stonesLeft > 0 || coalLeft > 0 || copperLeft > 0 || bronzeMetalLeft > 0;
+          if (anyLeft) {
+            blueprintHintRef.current = { id: bp.id, until: performance.now() + 2500 };
+            bumpWorld();
+          }
           return;
         }
 
