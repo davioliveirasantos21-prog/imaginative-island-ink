@@ -2281,6 +2281,10 @@ function GamePage() {
             && segNow.kind !== "start" && segNow.kind !== "end") {
           if (centerX2 >= segNow.x + segNow.w - 8) {
             cave2ClearedRef.current = new Set([...cave2ClearedRef.current, segNow.index]);
+            // Área segura: mata/remove qualquer lacraia cujo home-segment é este.
+            cave2CentipedesRef.current = cave2CentipedesRef.current.filter(
+              (c) => c.segIndex !== segNow.index,
+            );
             flashPickup(t("cave2.safe"));
             // Ore spawn: only on walkable ground within the segment —
             // never over the water pool or pit gap.
