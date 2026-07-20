@@ -3489,7 +3489,18 @@ function GamePage() {
       for (const bp of blueprintsRef.current) {
         const sx = bp.x - camX;
         if (sx < -32 || sx > VW + 32) continue;
-        if (bp.kind === "bench") drawSawBench(ctx, sx, GROUND_Y, 0.45);
+        // Blueprint ghost should match the admin-customized appearance if one
+        // exists, so what you place looks like what you'll get. Fall back to
+        // the procedural default only when no override is set.
+        const bpOverrideKind: SceneryKind =
+          bp.kind === "furnace" ? "furnaceOff" : bp.kind;
+        const bpOverride = getSceneryOverride(bpOverrideKind);
+        if (bpOverride) {
+          ctx.save();
+          ctx.globalAlpha = 0.45;
+          paintSceneryFor(ctx, bpOverrideKind, Math.round(sx), GROUND_Y);
+          ctx.restore();
+        } else if (bp.kind === "bench") drawSawBench(ctx, sx, GROUND_Y, 0.45);
         else if (bp.kind === "workshop") drawWorkshopBench(ctx, sx, GROUND_Y, 0.45);
         else if (bp.kind === "furnace") drawFurnace(ctx, sx, GROUND_Y, 0.45, false);
         else if (bp.kind === "chest") drawChest(ctx, sx, GROUND_Y, 0.45);
@@ -3576,7 +3587,12 @@ function GamePage() {
         const gx = Math.round(s.x + SPRITE_W / 2 - 10 - camX);
         ctx.save();
         ctx.globalAlpha = 0.35;
-        if (ghostKind === "bench") drawSawBench(ctx, gx, GROUND_Y, 0.6);
+        const ghostOverrideKind: SceneryKind =
+          ghostKind === "furnace" ? "furnaceOff" : ghostKind;
+        const ghostOverride = getSceneryOverride(ghostOverrideKind);
+        if (ghostOverride) {
+          paintSceneryFor(ctx, ghostOverrideKind, Math.round(gx), GROUND_Y);
+        } else if (ghostKind === "bench") drawSawBench(ctx, gx, GROUND_Y, 0.6);
         else if (ghostKind === "workshop") drawWorkshopBench(ctx, gx, GROUND_Y, 0.6);
         else if (ghostKind === "furnace") drawFurnace(ctx, gx, GROUND_Y, 0.6, false);
         else if (ghostKind === "chest") drawChest(ctx, gx, GROUND_Y, 0.6);
