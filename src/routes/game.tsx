@@ -5452,7 +5452,7 @@ function GamePage() {
               {cameraMenuOpen ? (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute left-[5rem] top-16 sm:left-[6rem] sm:top-20 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
+                  className="absolute left-[9.75rem] top-16 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
                 >
                   <div className="flex items-center justify-between gap-2 text-[10px] tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
                     <span>🔍</span>
