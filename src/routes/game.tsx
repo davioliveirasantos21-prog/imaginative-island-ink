@@ -1555,6 +1555,12 @@ function GamePage() {
       }));
       // Cave 2 progress
       cave2ClearedRef.current = new Set(data.cave2Cleared ?? []);
+      // Nunca renasce lacraia num segmento já limpo (área segura): remove
+      // qualquer bicho gerado por generateCentipedes cujo home-segment
+      // esteja no set de cleared. Roda também quando o set é atualizado.
+      cave2CentipedesRef.current = cave2CentipedesRef.current.filter(
+        (c) => !cave2ClearedRef.current.has(c.segIndex),
+      );
       cave2OresRef.current = data.cave2Ores ?? [];
       cave2OreHPRef.current = new Map(data.cave2OreHP ?? []);
       cave2MinedOresRef.current = new Map(data.cave2MinedOres ?? []);
@@ -2275,6 +2281,10 @@ function GamePage() {
             && segNow.kind !== "start" && segNow.kind !== "end") {
           if (centerX2 >= segNow.x + segNow.w - 8) {
             cave2ClearedRef.current = new Set([...cave2ClearedRef.current, segNow.index]);
+            // Área segura: mata/remove qualquer lacraia cujo home-segment é este.
+            cave2CentipedesRef.current = cave2CentipedesRef.current.filter(
+              (c) => c.segIndex !== segNow.index,
+            );
             flashPickup(t("cave2.safe"));
             // Ore spawn: only on walkable ground within the segment —
             // never over the water pool or pit gap.
