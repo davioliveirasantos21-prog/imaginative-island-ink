@@ -774,18 +774,21 @@ function CreateModal({
           </div>
         </div>
 
-        <div className="shrink-0 border-t-4 border-[#f4e9c1]/20 px-5 py-3 flex justify-end gap-3">
-
+        <div
+          className="relative shrink-0 border-t-2 border-[#1a1a1a] px-5 py-3 flex justify-end gap-3"
+          style={{ background: "rgba(0,0,0,0.4)" }}
+        >
           <button
             onClick={onCancel}
-            className="border-4 border-[#f4e9c1]/50 px-4 py-3 text-[10px] uppercase"
+            className="border-2 border-[#1a1a1a] px-5 py-3 text-[10px] uppercase text-[#ffd166] hover:brightness-110 active:translate-y-[2px] transition-all"
+            style={woodButtonStyle}
           >
             {t("create.cancel")}
           </button>
           <button
             onClick={() => onConfirm(index, name, appearance)}
-            className="border-4 border-[#7a3e1d] bg-[#ffd166] px-4 py-3 text-[10px] uppercase text-[#0d1b2a]"
-            style={{ boxShadow: "0 4px 0 #7a3e1d" }}
+            className="border-2 border-[#1a1a1a] px-5 py-3 text-[10px] uppercase text-[#0d1b2a] hover:brightness-110 active:translate-y-[2px] transition-all"
+            style={goldButtonStyle}
           >
             {t("create.confirm")}
           </button>
