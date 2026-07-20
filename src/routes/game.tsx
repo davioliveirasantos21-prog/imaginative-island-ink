@@ -127,12 +127,15 @@ const caveAmbientLoopUrl = "/sfx/caverna.mp3";
 const footstepLoopUrl = "/sfx/andar.mp3";
 import hammerSfxAsset from "@/assets/hammer-hit.mp3.asset.json";
 import pickSfxAsset from "@/assets/pick-hit.mp3.asset.json";
-import centipedeGrowlAsset from "@/assets/centipede-growl.mp3.asset.json";
-import lacraiaDescendoAsset from "@/assets/lacraia-descendo.mp3.asset.json";
-import lacraiaParedeAtacando1Asset from "@/assets/lacraia-parede-atacando.mp3.asset.json";
-import lacraiaParedeAtacando2Asset from "@/assets/lacraia-parede-atacando2.mp3.asset.json";
-import lacraiaWalkingAsset from "@/assets/lacraia-walking.mp3.asset.json";
-import lacraiaDeathAsset from "@/assets/lacraia-death.mp3.asset.json";
+// Centipede sounds are served from /public/sfx/ (previous asset pointers were
+// pinned to a stale project id and 404'd, silencing the cave).
+const centipedeGrowlAsset = { url: "/sfx/centipede-growl.mp3" };
+const lacraiaDescendoAsset = { url: "/sfx/lacraia-descendo.mp3" };
+const lacraiaParedeAtacando1Asset = { url: "/sfx/lacraia-parede-atacando.mp3" };
+const lacraiaParedeAtacando2Asset = { url: "/sfx/lacraia-parede-atacando2.mp3" };
+const lacraiaWalkingAsset = { url: "/sfx/lacraia-walking.mp3" };
+// No dedicated death sample yet — reuse an attack cry as fallback.
+const lacraiaDeathAsset = { url: "/sfx/lacraia-parede-atacando2.mp3" };
 import jumpSfxAsset from "@/assets/jump.mp3.asset.json";
 import woodHitSfxAsset from "@/assets/wood-hit.mp3.asset.json";
 import waterSplashSfxAsset from "@/assets/water-splash.mp3.asset.json";
