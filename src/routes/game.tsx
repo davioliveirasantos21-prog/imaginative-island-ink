@@ -5375,7 +5375,7 @@ function GamePage() {
                     key: "build",
                     label: t("gameMenu.build"),
                     icon: IconBuild,
-                    pos: "left-1 bottom-[20%] sm:left-2",
+                    pos: "left-0.5 bottom-[20%] sm:left-1",
                     size: "h-20 w-20 sm:h-24 sm:w-24",
                     onClick: () => { markMenuOpened(); setBuildMenuOpen(true); },
                   },
