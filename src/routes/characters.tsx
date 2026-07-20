@@ -267,8 +267,7 @@ function SlotCard({
   // Three distinct houses — each slot gets its own heraldry, banner, and mood.
   const HOUSES = [
     {
-      name: "Verdejante",
-      motto: "Raízes fundas",
+      key: "verdejante",
       banner: "#3d7a3a",
       bannerDark: "#1c3a1a",
       accent: "#c8e688",
@@ -277,8 +276,7 @@ function SlotCard({
         "linear-gradient(180deg, #2a3a24 0%, #17201a 100%)",
     },
     {
-      name: "Rubra",
-      motto: "Fogo eterno",
+      key: "rubra",
       banner: "#a02a2a",
       bannerDark: "#4a0f11",
       accent: "#ffb08a",
@@ -287,8 +285,7 @@ function SlotCard({
         "linear-gradient(180deg, #3a2422 0%, #1a1010 100%)",
     },
     {
-      name: "Azurea",
-      motto: "Mar profundo",
+      key: "azurea",
       banner: "#2a5aa0",
       bannerDark: "#0f2144",
       accent: "#9ec4ff",
@@ -298,6 +295,8 @@ function SlotCard({
     },
   ] as const;
   const h = HOUSES[index % HOUSES.length];
+  const houseName = t(`houses.${h.key}.name` as never);
+  const houseMotto = t(`houses.${h.key}.motto` as never);
 
   return (
     <div
