@@ -82,9 +82,13 @@ async function loadBuffer(ctx: AudioContext, url: string): Promise<AudioBuffer> 
   const hit = bufferCache[url];
   if (hit) return hit as Promise<AudioBuffer>;
   const p = fetch(url)
-    .then((r) => r.arrayBuffer())
+    .then((r) => {
+      if (!r.ok) throw new Error(`sfx fetch ${url} → ${r.status}`);
+      return r.arrayBuffer();
+    })
     .then((ab) => ctx.decodeAudioData(ab))
-    .then((buf) => { bufferCache[url] = buf; return buf; });
+    .then((buf) => { bufferCache[url] = buf; return buf; })
+    .catch((err) => { delete bufferCache[url]; throw err; });
   bufferCache[url] = p;
   return p;
 }
