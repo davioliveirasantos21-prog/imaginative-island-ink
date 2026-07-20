@@ -1059,7 +1059,7 @@ const CENTIPEDE_HEAD_R = 7;
 
 // Player must be within this horizontal distance for the centipede to notice
 // them. Outside this range the centipede rests / hides in the dark.
-export const CENTIPEDE_SIGHT_RANGE = 900;
+export const CENTIPEDE_SIGHT_RANGE = 560;
 /** Player is considered "in sight" and the centipede is actively hunting. */
 export function centipedeIsAwake(c: Centipede, playerX: number): boolean {
   if (c.dead || !c.active) return false;
