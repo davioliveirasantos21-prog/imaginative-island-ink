@@ -1983,6 +1983,9 @@ function GamePage() {
 
             }
             // ----- Resting centipede growl (echoing in the dark) -----
+            // Audible anywhere in the cave as long as there is at least one
+            // live, non-attacking lacraia. Distance still shapes the volume
+            // but never drops to zero within the cave.
             if (nowMs >= centipedeGrowlAtRef.current) {
               const playerX = s.x + SPRITE_W / 2;
               const resting = cave2CentipedesRef.current.filter(
@@ -1991,9 +1994,10 @@ function GamePage() {
               if (resting.length > 0) {
                 const pick = resting[Math.floor(Math.random() * resting.length)];
                 const dist = Math.abs(pick.head.x - playerX);
-                // Volume falls off with distance; only audible-ish within ~1200px.
-                const falloff = Math.max(0, 1 - dist / 1200);
-                const baseVol = (ambientVolume / 100) * 0.22 * falloff;
+                // Volume falls off with distance but keeps a floor so a distant
+                // lacraia is still faintly audible from anywhere in the cave.
+                const falloff = Math.max(0.28, 1 - dist / 2800);
+                const baseVol = (ambientVolume / 100) * 0.32 * falloff;
                 if (baseVol > 0.01) {
                   playOneShot(centipedeGrowlAsset.url, baseVol);
                   // Echo — quieter delayed replay, faked reverb in the cave.
