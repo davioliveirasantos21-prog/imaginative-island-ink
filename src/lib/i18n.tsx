@@ -435,7 +435,6 @@ export const dictionaries: Record<Lang, Dict> = {
     "houses.rubra.motto": "Eternal flame",
     "houses.azurea.name": "Azure",
     "houses.azurea.motto": "Deep sea",
-    "slots.deleteConfirm": "Delete this hero?",
     "create.title": "New character",
     "create.name": "Name",
     "create.class": "Class",
