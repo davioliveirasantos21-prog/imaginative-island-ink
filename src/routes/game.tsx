@@ -586,9 +586,9 @@ function GamePage() {
           const d = Math.abs(c.head.x - playerX);
           if (d < closest) closest = d;
         }
-        if (closest < 420) {
-          const falloff = Math.max(0, 1 - closest / 420);
-          wormVol = vol * 0.55 * falloff;
+        if (closest < 900) {
+          const falloff = Math.max(0.15, 1 - closest / 900);
+          wormVol = vol * 0.75 * falloff;
         }
 
       }
@@ -1996,16 +1996,15 @@ function GamePage() {
                 const dist = Math.abs(pick.head.x - playerX);
                 // Volume falls off with distance but keeps a floor so a distant
                 // lacraia is still faintly audible from anywhere in the cave.
-                const falloff = Math.max(0.28, 1 - dist / 2800);
-                const baseVol = (ambientVolume / 100) * 0.32 * falloff;
+                const falloff = Math.max(0.35, 1 - dist / 2800);
+                const baseVol = Math.min(1, (ambientVolume / 100) * 0.7 * falloff);
                 if (baseVol > 0.01) {
-                  playOneShot(centipedeGrowlAsset.url, baseVol);
-                  // Echo — quieter delayed replay, faked reverb in the cave.
-                  window.setTimeout(() => playOneShot(centipedeGrowlAsset.url, baseVol * 0.45), 320);
-                  window.setTimeout(() => playOneShot(centipedeGrowlAsset.url, baseVol * 0.2), 720);
+                  // Use the reverb path (WebAudio) — same as wall-attack SFX
+                  // so it works reliably even when HTMLAudio autoplay is stuck.
+                  playOneShotReverb(centipedeGrowlAsset.url, baseVol);
                 }
               }
-              centipedeGrowlAtRef.current = nowMs + 3800 + Math.random() * 4200;
+              centipedeGrowlAtRef.current = nowMs + 2600 + Math.random() * 2600;
             }
           }
         }
