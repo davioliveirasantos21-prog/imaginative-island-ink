@@ -5369,6 +5369,7 @@ function GamePage() {
                   label: string;
                   icon: React.ReactNode;
                   pos: string;
+                  size?: string;
                   onClick: () => void;
                   disabled?: boolean;
                 };
@@ -5377,7 +5378,8 @@ function GamePage() {
                     key: "build",
                     label: t("gameMenu.build"),
                     icon: IconBuild,
-                    pos: "left-3 bottom-24 sm:left-6 sm:bottom-28",
+                    pos: "left-2 bottom-[38%] sm:left-4",
+                    size: "h-18 w-18 sm:h-22 sm:w-22",
                     onClick: () => { setGameMenuOpen(false); markMenuOpened(); setBuildMenuOpen(true); },
                   },
                   {
@@ -5391,7 +5393,7 @@ function GamePage() {
                     key: "look",
                     label: t("game.editLook"),
                     icon: IconLook,
-                    pos: "left-3 top-1/2 -translate-y-1/2 sm:left-6",
+                    pos: "left-2 top-[58%] -translate-y-1/2 sm:left-4",
                     onClick: () => { setGameMenuOpen(false); setEditingLook(true); },
                     disabled: !character,
                   },
@@ -5406,14 +5408,14 @@ function GamePage() {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
                     icon: IconZoom,
-                    pos: "left-1/2 -translate-x-1/2 top-3 sm:top-6",
+                    pos: "left-[5rem] top-1 sm:left-[6rem] sm:top-2",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
                   {
                     key: "exit",
                     label: t("game.leave"),
                     icon: IconExit,
-                    pos: "right-3 bottom-3 sm:right-6 sm:bottom-6",
+                    pos: "left-16 top-1 sm:left-20 sm:top-2",
                     onClick: () => { setGameMenuOpen(false); navigate({ to: "/characters" }); },
                   },
 
@@ -5433,7 +5435,7 @@ function GamePage() {
                     disabled={b.disabled}
                     aria-label={b.label}
                     title={b.label}
-                    className={`group absolute ${b.pos} h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
+                    className={`group absolute ${b.pos} ${b.size || "h-16 w-16 sm:h-20 sm:w-20"} flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
                   >
                     <span className="w-full h-full flex items-center justify-center [&_svg]:w-full [&_svg]:h-full">
                       {b.icon}
