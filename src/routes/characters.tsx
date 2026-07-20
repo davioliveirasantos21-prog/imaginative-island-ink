@@ -458,7 +458,7 @@ function CreateModal({
           ⚔ {t("create.title")} ⚔
         </h2>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 short:px-3 short:py-2">
+        <div className="relative min-h-0 flex-1 overflow-y-auto px-5 py-4 short:px-3 short:py-2">
           <div className="grid grid-cols-[6rem,1fr] gap-5 md:grid-cols-[7rem,1fr] short:gap-3">
 
             {/* Live preview */}
