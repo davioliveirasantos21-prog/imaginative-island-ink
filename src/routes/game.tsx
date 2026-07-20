@@ -4635,9 +4635,9 @@ function GamePage() {
       // On desktop (mouse) tighten the hit-box a lot so a nearby tree
       // trunk/canopy click doesn't get stolen by a log lying next to it.
       const isMouse = e.pointerType === "mouse";
-      const logXTol = isMouse ? 6 : 12;
-      const logYTopBase = isMouse ? GROUND_Y - 6 : GROUND_Y - 20;
-      const logYBotBase = GROUND_Y + 8;
+      const logXTol = isMouse ? 6 : 22;
+      const logYTopBase = isMouse ? GROUND_Y - 6 : GROUND_Y - 32;
+      const logYBotBase = isMouse ? GROUND_Y + 8 : GROUND_Y + 16;
       let bestLog: GroundLog | null = null;
       let bestLogD = logXTol;
       for (const log of groundLogsRef.current) {
