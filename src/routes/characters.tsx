@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { usePlayerSession } from "@/hooks/use-player-session";
 import { flushPlayerSaveSync, waitForPlayerSaveReady } from "@/lib/player-sync";
+import stoneBgAsset from "@/assets/stone-bg.png.asset.json";
 import {
   loadSlots,
   saveSlots,
@@ -10,6 +11,28 @@ import {
   
   type SlotState,
 } from "@/lib/characters";
+
+// Shared stone-panel style used across slot cards, modals and the page shell.
+const stonePanelStyle: React.CSSProperties = {
+  backgroundImage: `url(${stoneBgAsset.url})`,
+  backgroundSize: "256px 256px",
+  backgroundRepeat: "repeat",
+  imageRendering: "pixelated",
+  boxShadow:
+    "0 10px 0 #000, inset 0 0 40px rgba(0,0,0,0.65), inset 0 0 0 2px #4a3a2a",
+};
+
+const woodButtonStyle: React.CSSProperties = {
+  background: "linear-gradient(180deg, #7a4a24, #4a2810)",
+  boxShadow: "0 4px 0 #1a0f06",
+  textShadow: "0 1px 0 #000",
+};
+
+const goldButtonStyle: React.CSSProperties = {
+  background: "linear-gradient(180deg, #ffd166, #b57d1f)",
+  boxShadow: "0 4px 0 #4a2810",
+  textShadow: "0 1px 0 rgba(255,255,255,0.35)",
+};
 import {
   BEARD_STYLES,
   BODY_TYPES,
