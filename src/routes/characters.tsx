@@ -264,19 +264,79 @@ function SlotCard({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const isEmpty = slot == null;
 
+  // Three distinct houses — each slot gets its own heraldry, banner, and mood.
+  const HOUSES = [
+    {
+      name: "Verdejante",
+      motto: "Raízes fundas",
+      banner: "#3d7a3a",
+      bannerDark: "#1c3a1a",
+      accent: "#c8e688",
+      sigil: "❦", // trefoil / leaf
+      panel:
+        "linear-gradient(180deg, #2a3a24 0%, #17201a 100%)",
+    },
+    {
+      name: "Rubra",
+      motto: "Fogo eterno",
+      banner: "#a02a2a",
+      bannerDark: "#4a0f11",
+      accent: "#ffb08a",
+      sigil: "✶",
+      panel:
+        "linear-gradient(180deg, #3a2422 0%, #1a1010 100%)",
+    },
+    {
+      name: "Azurea",
+      motto: "Mar profundo",
+      banner: "#2a5aa0",
+      bannerDark: "#0f2144",
+      accent: "#9ec4ff",
+      sigil: "❈",
+      panel:
+        "linear-gradient(180deg, #22303a 0%, #0d151d 100%)",
+    },
+  ] as const;
+  const h = HOUSES[index % HOUSES.length];
+
   return (
     <div
-      className="relative flex flex-col items-center overflow-hidden border-4 border-[#1a1a1a] p-6 text-center short:p-2"
-      style={stonePanelStyle}
+      className="relative flex flex-col items-center overflow-visible pt-8 pb-6 px-5 text-center short:pt-5 short:pb-2 short:px-2"
+      style={{
+        background: h.panel,
+        boxShadow:
+          "0 10px 0 #000, inset 0 0 0 2px #12100a, inset 0 0 40px rgba(0,0,0,0.55)",
+      }}
     >
-      {/* dark vignette inside card */}
+      {/* hanging heraldic banner */}
       <div
-        className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%)" }}
-      />
-      {/* torch flickers in the top corners */}
-      <div className="pointer-events-none absolute -top-2 left-2 text-2xl" style={{ filter: "drop-shadow(0 0 10px #ff8c42)" }}>🔥</div>
-      <div className="pointer-events-none absolute -top-2 right-2 text-2xl" style={{ filter: "drop-shadow(0 0 10px #ff8c42)" }}>🔥</div>
+        className="pointer-events-none absolute left-1/2 -top-3 z-10 -translate-x-1/2"
+        aria-hidden
+      >
+        <div
+          className="relative flex items-center justify-center px-3 py-1"
+          style={{
+            background: `linear-gradient(180deg, ${h.banner}, ${h.bannerDark})`,
+            boxShadow: `0 3px 0 rgba(0,0,0,0.6), inset 0 0 0 1px ${h.bannerDark}`,
+            clipPath:
+              "polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%)",
+            minWidth: "78px",
+          }}
+        >
+          <span
+            className="text-[10px] tracking-[0.35em] uppercase"
+            style={{ color: h.accent, textShadow: "0 1px 0 #000" }}
+          >
+            {h.sigil} {h.name}
+          </span>
+        </div>
+      </div>
+
+      {/* corner rivets — subtle metallic detail replacing torch spam */}
+      <span className="pointer-events-none absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#3a2f22] shadow-[inset_0_1px_0_#7a5a30]" />
+      <span className="pointer-events-none absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#3a2f22] shadow-[inset_0_1px_0_#7a5a30]" />
+      <span className="pointer-events-none absolute left-1.5 bottom-1.5 h-1.5 w-1.5 rounded-full bg-[#3a2f22] shadow-[inset_0_1px_0_#7a5a30]" />
+      <span className="pointer-events-none absolute right-1.5 bottom-1.5 h-1.5 w-1.5 rounded-full bg-[#3a2f22] shadow-[inset_0_1px_0_#7a5a30]" />
 
       <div className="relative flex w-full flex-col items-center">
       {!isEmpty && !confirmingDelete && (
@@ -284,30 +344,43 @@ function SlotCard({
           onClick={() => setConfirmingDelete(true)}
           aria-label={t("slots.delete")}
           title={t("slots.delete")}
-          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center border-2 border-[#f4e9c1]/40 text-[#f4e9c1]/70 hover:border-[#e94560] hover:text-[#e94560] short:h-5 short:w-5 short:text-[10px]"
+          className="absolute right-0 top-0 flex h-7 w-7 items-center justify-center border-2 border-[#f4e9c1]/30 text-[#f4e9c1]/60 hover:border-[#e94560] hover:text-[#e94560] short:h-5 short:w-5 short:text-[10px]"
         >
           ✕
         </button>
       )}
 
-      <div className="text-[10px] tracking-widest text-[#f4e9c1]/60 short:text-[8px]">
-        {t("slots.slot")} {index + 1}
+      <div className="mt-2 text-[9px] italic tracking-[0.25em] text-[#f4e9c1]/50 short:text-[8px]">
+        “{h.motto}”
       </div>
 
-      <div className="my-6 flex h-40 w-32 items-center justify-center overflow-hidden border-4 border-dashed border-[#f4e9c1]/30 bg-[#0d1b2a] short:my-2 short:h-20 short:w-16">
+      {/* portrait frame — colored by house */}
+      <div
+        className="my-5 flex h-40 w-32 items-center justify-center overflow-hidden bg-[#07090d] short:my-2 short:h-20 short:w-16"
+        style={{
+          boxShadow: `inset 0 0 0 3px ${h.bannerDark}, inset 0 0 0 5px ${h.banner}, 0 4px 0 rgba(0,0,0,0.6)`,
+        }}
+      >
         <div className="short:scale-50 origin-center">
           {isEmpty ? (
-            <span className="text-3xl text-[#f4e9c1]/30">?</span>
+            <div className="flex flex-col items-center gap-1 text-[#f4e9c1]/25">
+              <span className="text-4xl leading-none" style={{ color: h.accent, opacity: 0.35 }}>{h.sigil}</span>
+              <span className="text-[8px] tracking-widest">vacante</span>
+            </div>
           ) : (
             <SpritePreview appearance={slot.appearance} scale={4} />
           )}
         </div>
       </div>
 
+      <div className="mb-2 text-[9px] tracking-[0.3em] uppercase" style={{ color: h.accent }}>
+        Slot {String(index + 1).padStart(2, "0")}
+      </div>
+
 
       {isEmpty ? (
         <>
-          <div className="text-xs text-[#f4e9c1]/80">{t("slots.empty")}</div>
+          <div className="text-xs text-[#f4e9c1]/70">{t("slots.empty")}</div>
           <button
             onClick={onCreate}
             className="mt-4 border-2 border-[#1a1a1a] px-5 py-3 text-[10px] uppercase text-[#0d1b2a] hover:brightness-110 active:translate-y-[2px] transition-all"
@@ -341,8 +414,8 @@ function SlotCard({
         </>
       ) : (
         <>
-          <div className="text-sm text-[#ffd166]" style={{ textShadow: "0 2px 0 #000" }}>{slot.name}</div>
-          <div className="mt-1 text-[10px] tracking-widest text-[#f4e9c1]/80">
+          <div className="text-sm" style={{ color: h.accent, textShadow: "0 2px 0 #000" }}>{slot.name}</div>
+          <div className="mt-1 text-[10px] tracking-widest text-[#f4e9c1]/70">
             {t("slots.level")} {slot.level}
           </div>
           <button
@@ -358,6 +431,7 @@ function SlotCard({
     </div>
   );
 }
+
 
 
 function SpritePreview({ appearance, scale = 4 }: { appearance: Appearance; scale?: number }) {
