@@ -2078,7 +2078,7 @@ function GamePage() {
             // Freeze horizontal, pull upward slowly.
             s.vx = 0;
             s.x = sw.startX;
-            const pullSpeed = 12; // px/s upward
+            const pullSpeed = 32; // px/s upward
             sw.pullY += pullSpeed * dt;
             const targetY = GROUND_Y - SPRITE_H + FOOT_OFFSET - sw.pullY;
             s.y = targetY;
