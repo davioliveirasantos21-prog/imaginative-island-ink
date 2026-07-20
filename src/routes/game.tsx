@@ -5377,21 +5377,21 @@ function GamePage() {
                     icon: IconBuild,
                     pos: "left-2 bottom-[38%] sm:left-4",
                     size: "h-20 w-20 sm:h-24 sm:w-24",
-                    onClick: () => { setGameMenuOpen(false); markMenuOpened(); setBuildMenuOpen(true); },
+                    onClick: () => { markMenuOpened(); setBuildMenuOpen(true); },
                   },
                   {
                     key: "map",
                     label: t("game.map"),
                     icon: IconMap,
                     pos: "right-3 top-14 sm:right-6 sm:top-16",
-                    onClick: () => { setGameMenuOpen(false); setMapOpen(true); },
+                    onClick: () => { setMapOpen(true); },
                   },
                   {
                     key: "look",
                     label: t("game.editLook"),
                     icon: IconLook,
                     pos: "left-2 top-[58%] -translate-y-1/2 sm:left-4",
-                    onClick: () => { setGameMenuOpen(false); setEditingLook(true); },
+                    onClick: () => { setEditingLook(true); },
                     disabled: !character,
                   },
                   {
@@ -5399,7 +5399,7 @@ function GamePage() {
                     label: t("settings.title"),
                     icon: IconSettings,
                     pos: "right-3 bottom-24 sm:right-6 sm:bottom-28",
-                    onClick: () => { setGameMenuOpen(false); setSettingsOpen(true); },
+                    onClick: () => { setSettingsOpen(true); },
                   },
                   {
                     key: "exit",
@@ -5426,6 +5426,7 @@ function GamePage() {
                     onClick: () => setTutorialOpen((v) => !v),
                   },
                 ];
+
                 return buttons.map((b) => (
                   <button
                     key={b.key}
