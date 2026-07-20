@@ -5338,12 +5338,9 @@ function GamePage() {
 
           {gameMenuOpen ? (
             <div
-              className="absolute inset-0 z-20"
-              onClick={(e) => {
-                // click on backdrop closes
-                if (e.target === e.currentTarget && canCloseMenu()) setGameMenuOpen(false);
-              }}
+              className="absolute inset-0 z-20 pointer-events-none"
             >
+
               {(() => {
                 const stroke = "#f4e9c1";
                 const pngIcon = (url: string, alt = "") => (
