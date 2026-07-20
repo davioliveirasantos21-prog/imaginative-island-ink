@@ -5324,7 +5324,7 @@ function GamePage() {
             onClick={() => setGameMenuOpen((v) => !v)}
             aria-label={t("gameMenu.open")}
             title={t("gameMenu.open")}
-            className="absolute left-1 top-1 sm:left-2 sm:top-2 z-30 h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all"
+            className="absolute left-1 top-1 z-30 h-16 w-16 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all"
           >
             <img
               src={(gameMenuOpen ? uiSetinhaFecharAsset : uiSetinhaAbrirAsset).url}
