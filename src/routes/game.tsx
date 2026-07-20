@@ -3677,45 +3677,48 @@ function GamePage() {
         // White silk cocoon wrapping the player while stuck in a spider web.
         // Drawn AFTER the character so it fully covers them until they escape.
         if (stuckWebRef.current) {
-          const cocoonCX = spriteX + SPRITE_W / 2;
-          const cocoonCY = spriteY + SPRITE_H / 2 + 1;
-          const cocoonHW = Math.round(SPRITE_W / 2 + 3);
-          const cocoonHH = Math.round(SPRITE_H / 2 + 4);
-          ctx.save();
-          // soft drop shadow
-          ctx.fillStyle = "rgba(0,0,0,0.28)";
-          ctx.beginPath();
-          ctx.ellipse(cocoonCX + 1, cocoonCY + 2, cocoonHW, cocoonHH, 0, 0, Math.PI * 2);
-          ctx.fill();
-          // cocoon body
-          ctx.fillStyle = "#f2f4f7";
-          ctx.beginPath();
-          ctx.ellipse(cocoonCX, cocoonCY, cocoonHW, cocoonHH, 0, 0, Math.PI * 2);
-          ctx.fill();
-          // silk wrap bands
-          ctx.strokeStyle = "rgba(190,196,210,0.9)";
-          ctx.lineWidth = 1;
+          const cocoonCX = Math.round(spriteX + SPRITE_W / 2);
+          const cocoonCY = Math.round(spriteY + SPRITE_H / 2 + 1);
+          const hw = Math.round(SPRITE_W / 2 + 3);
+          const hh = Math.round(SPRITE_H / 2 + 4);
+          // Build a chunky pixel-art ellipse mask using 2px "pixels" for a blocky look.
+          const px = 2;
+          const drawEllipseBlocks = (color: string, ox: number, oy: number, rw: number, rh: number) => {
+            ctx.fillStyle = color;
+            for (let y = -rh; y <= rh; y += px) {
+              for (let x = -rw; x <= rw; x += px) {
+                const nx = x / rw;
+                const ny = y / rh;
+                if (nx * nx + ny * ny <= 1) {
+                  ctx.fillRect(cocoonCX + ox + x, cocoonCY + oy + y, px, px);
+                }
+              }
+            }
+          };
+          // Drop shadow
+          drawEllipseBlocks("rgba(0,0,0,0.28)", 2, 2, hw, hh);
+          // Cocoon body
+          drawEllipseBlocks("#f2f4f7", 0, 0, hw, hh);
+          // Silk wrap bands (horizontal stripes)
+          ctx.fillStyle = "#bec4d2";
           for (let i = -2; i <= 2; i++) {
-            const yb = cocoonCY + i * Math.round(cocoonHH / 2.6);
-            const norm = (yb - cocoonCY) / cocoonHH;
-            const dx = Math.sqrt(Math.max(0, 1 - norm * norm)) * cocoonHW;
-            ctx.beginPath();
-            ctx.moveTo(cocoonCX - dx, yb + 0.5);
-            ctx.quadraticCurveTo(cocoonCX, yb - 1.8, cocoonCX + dx, yb + 0.5);
-            ctx.stroke();
+            const yb = cocoonCY + i * Math.round(hh / 2.4);
+            for (let x = -hw; x <= hw; x += px) {
+              const nx = x / hw;
+              const norm = (yb - cocoonCY) / hh;
+              if (nx * nx + norm * norm <= 1) {
+                ctx.fillRect(cocoonCX + x, yb, px, px);
+              }
+            }
           }
-          // highlight
-          ctx.fillStyle = "rgba(255,255,255,0.65)";
-          ctx.beginPath();
-          ctx.ellipse(
-            cocoonCX - Math.round(cocoonHW / 3),
-            cocoonCY - Math.round(cocoonHH / 2),
-            Math.max(1, Math.round(cocoonHW / 4)),
-            Math.max(1, Math.round(cocoonHH / 5)),
-            0, 0, Math.PI * 2,
+          // Highlight
+          drawEllipseBlocks(
+            "rgba(255,255,255,0.75)",
+            -Math.round(hw / 3),
+            -Math.round(hh / 2),
+            Math.max(2, Math.round(hw / 4)),
+            Math.max(2, Math.round(hh / 5)),
           );
-          ctx.fill();
-          ctx.restore();
         }
 
 
