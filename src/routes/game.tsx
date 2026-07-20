@@ -3467,7 +3467,53 @@ function GamePage() {
         ctx.fillRect(bx, by, 16, 2);
         ctx.fillStyle = "#c69a67";
         ctx.fillRect(bx, by, Math.round(16 * pct), 2);
-      }
+
+        // Missing-materials hint: icons + counts floating above this blueprint.
+        const hint = blueprintHintRef.current;
+        if (hint && hint.id === bp.id && performance.now() < hint.until) {
+          type Need = { kind: ItemKind; done: number; total: number };
+          const needs: Need[] = [];
+          if (cost.wood > 0 && bp.deliveredWood < cost.wood)
+            needs.push({ kind: "wood", done: bp.deliveredWood, total: cost.wood });
+          if (cost.stones > 0 && bp.deliveredStones < cost.stones)
+            needs.push({ kind: "stone", done: bp.deliveredStones, total: cost.stones });
+          if (cost.coal > 0 && bp.deliveredCoal < cost.coal)
+            needs.push({ kind: "coal", done: bp.deliveredCoal, total: cost.coal });
+          if (cost.copper > 0 && bp.deliveredCopper < cost.copper)
+            needs.push({ kind: "copper", done: bp.deliveredCopper, total: cost.copper });
+          if (cost.bronzeMetal > 0 && bp.deliveredBronzeMetal < cost.bronzeMetal)
+            needs.push({ kind: "bronzeMetal", done: bp.deliveredBronzeMetal, total: cost.bronzeMetal });
+          if (needs.length > 0) {
+            const iconSize = 12;
+            const gap = 3;
+            ctx.font = "6px monospace";
+            ctx.textBaseline = "top";
+            ctx.textAlign = "left";
+            const labels = needs.map((n) => `${n.done}/${n.total}`);
+            const widths = labels.map((l) => Math.ceil(ctx.measureText(l).width));
+            const cellWidths = widths.map((w) => iconSize + 2 + w);
+            const totalW = cellWidths.reduce((a, b) => a + b, 0) + gap * (needs.length - 1);
+            const startX = Math.round(sx + 10 - totalW / 2);
+            const boxY = by - 18;
+            ctx.fillStyle = "rgba(0,0,0,0.72)";
+            ctx.fillRect(startX - 3, boxY - 2, totalW + 6, iconSize + 4);
+            let cx = startX;
+            for (let i = 0; i < needs.length; i++) {
+              const n = needs[i];
+              const img = getItemIconImage(n.kind);
+              if (img) {
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(img, cx, boxY, iconSize, iconSize);
+              } else {
+                ctx.fillStyle = "#555";
+                ctx.fillRect(cx, boxY, iconSize, iconSize);
+              }
+              ctx.fillStyle = "#fff";
+              ctx.fillText(labels[i], cx + iconSize + 2, boxY + 3);
+              cx += cellWidths[i] + gap;
+            }
+          }
+        }
       // Ghost preview of the blueprint being placed — follows player x for now.
       // Also renders the ghost when a built structure is in "move" mode.
       const ghostKind: BuildKind | null = placingKindRef.current
