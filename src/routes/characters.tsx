@@ -267,8 +267,7 @@ function SlotCard({
   // Three distinct houses — each slot gets its own heraldry, banner, and mood.
   const HOUSES = [
     {
-      name: "Verdejante",
-      motto: "Raízes fundas",
+      key: "verdejante",
       banner: "#3d7a3a",
       bannerDark: "#1c3a1a",
       accent: "#c8e688",
@@ -277,8 +276,7 @@ function SlotCard({
         "linear-gradient(180deg, #2a3a24 0%, #17201a 100%)",
     },
     {
-      name: "Rubra",
-      motto: "Fogo eterno",
+      key: "rubra",
       banner: "#a02a2a",
       bannerDark: "#4a0f11",
       accent: "#ffb08a",
@@ -287,8 +285,7 @@ function SlotCard({
         "linear-gradient(180deg, #3a2422 0%, #1a1010 100%)",
     },
     {
-      name: "Azurea",
-      motto: "Mar profundo",
+      key: "azurea",
       banner: "#2a5aa0",
       bannerDark: "#0f2144",
       accent: "#9ec4ff",
@@ -298,6 +295,8 @@ function SlotCard({
     },
   ] as const;
   const h = HOUSES[index % HOUSES.length];
+  const houseName = t(`houses.${h.key}.name` as never);
+  const houseMotto = t(`houses.${h.key}.motto` as never);
 
   return (
     <div
@@ -314,20 +313,21 @@ function SlotCard({
         aria-hidden
       >
         <div
-          className="relative flex items-center justify-center px-3 py-1"
+          className="relative flex items-center justify-center px-4 py-1"
           style={{
             background: `linear-gradient(180deg, ${h.banner}, ${h.bannerDark})`,
             boxShadow: `0 3px 0 rgba(0,0,0,0.6), inset 0 0 0 1px ${h.bannerDark}`,
             clipPath:
               "polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%)",
-            minWidth: "78px",
+            minWidth: "110px",
           }}
         >
           <span
-            className="text-[10px] tracking-[0.35em] uppercase"
+            className="whitespace-nowrap text-[10px] tracking-[0.25em] uppercase"
             style={{ color: h.accent, textShadow: "0 1px 0 #000" }}
           >
-            {h.sigil} {h.name}
+            <span className="mr-1 align-middle">{h.sigil}</span>
+            <span className="align-middle">{houseName}</span>
           </span>
         </div>
       </div>
@@ -351,7 +351,7 @@ function SlotCard({
       )}
 
       <div className="mt-2 text-[9px] italic tracking-[0.25em] text-[#f4e9c1]/50 short:text-[8px]">
-        “{h.motto}”
+        “{houseMotto}”
       </div>
 
       {/* portrait frame — colored by house */}
