@@ -5375,7 +5375,7 @@ function GamePage() {
                     key: "build",
                     label: t("gameMenu.build"),
                     icon: IconBuild,
-                    pos: "left-2 bottom-[20%] sm:left-4",
+                    pos: "left-1 bottom-[20%] sm:left-2",
                     size: "h-20 w-20 sm:h-24 sm:w-24",
                     onClick: () => { markMenuOpened(); setBuildMenuOpen(true); },
                   },
@@ -5406,14 +5406,14 @@ function GamePage() {
                     label: t("game.leave"),
                     icon: IconExit,
                     pos: "left-[5.5rem] top-1",
-                    size: "h-14 w-14",
+                    size: "h-16 w-16",
                     onClick: () => { setGameMenuOpen(false); navigate({ to: "/characters" }); },
                   },
                   {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
                     icon: IconZoom,
-                    pos: "left-[9.5rem] top-1",
+                    pos: "left-[10.5rem] top-1",
                     size: "h-16 w-16",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
@@ -5451,7 +5451,7 @@ function GamePage() {
               {cameraMenuOpen ? (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute left-[9.5rem] top-[4.5rem] z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm pointer-events-auto" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
+                  className="absolute left-[10.5rem] top-[4.5rem] z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm pointer-events-auto" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
                 >
                   <div className="flex items-center justify-between gap-2 text-[10px] tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
                     <span>🔍</span>
