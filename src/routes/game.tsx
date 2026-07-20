@@ -3484,35 +3484,43 @@ function GamePage() {
           if (cost.bronzeMetal > 0 && bp.deliveredBronzeMetal < cost.bronzeMetal)
             needs.push({ kind: "bronzeMetal", done: bp.deliveredBronzeMetal, total: cost.bronzeMetal });
           if (needs.length > 0) {
-            // Render one crisp 16×16 pixel-art icon per still-missing unit.
-            // Text counters get horribly blurry at the game canvas' low
-            // resolution (nearest-neighbor upscale), so we show the exact
-            // remaining count as a row of miniatures instead.
-            const iconSize = 16;
-            const gap = 1;
+            // Text via ctx.fillText looks terrible on a pixelated-upscaled
+            // canvas (grey subpixels get nearest-neighbor'd into mush), so
+            // we draw counters using a hand-rolled 3×5 pixel-art digit font.
+            const iconSize = 12;
+            const cellGap = 2;
             const groupGap = 4;
-            const remaining = needs.map((n) => Math.max(0, n.total - n.done));
-            const groupWidths = remaining.map((r) => r * iconSize + Math.max(0, r - 1) * gap);
-            const totalW = groupWidths.reduce((a, b) => a + b, 0) + groupGap * (needs.length - 1);
+            const labels = needs.map((n) => `${n.done}/${n.total}`);
+            const charW = 3;
+            const charH = 5;
+            const charGap = 1;
+            const labelWidths = labels.map(
+              (l) => l.length * charW + (l.length - 1) * charGap,
+            );
+            const cellWidths = labelWidths.map((w) => iconSize + cellGap + w);
+            const totalW =
+              cellWidths.reduce((a, b) => a + b, 0) + groupGap * (needs.length - 1);
             const startX = Math.round(sx + 10 - totalW / 2);
-            const boxY = by - 22;
-            ctx.fillStyle = "rgba(0,0,0,0.55)";
+            const boxY = by - 20;
+            ctx.fillStyle = "rgba(0,0,0,0.65)";
             ctx.fillRect(startX - 3, boxY - 2, totalW + 6, iconSize + 4);
             ctx.imageSmoothingEnabled = false;
             let cx = startX;
             for (let i = 0; i < needs.length; i++) {
               const n = needs[i];
               const img = getItemIconImage(n.kind);
-              for (let k = 0; k < remaining[i]; k++) {
-                if (img) {
-                  ctx.drawImage(img, cx, boxY, iconSize, iconSize);
-                } else {
-                  ctx.fillStyle = "#555";
-                  ctx.fillRect(cx, boxY, iconSize, iconSize);
-                }
-                cx += iconSize + (k < remaining[i] - 1 ? gap : 0);
+              if (img) {
+                ctx.drawImage(img, cx, boxY, iconSize, iconSize);
+              } else {
+                ctx.fillStyle = "#555";
+                ctx.fillRect(cx, boxY, iconSize, iconSize);
               }
-              if (i < needs.length - 1) cx += groupGap;
+              const tx = cx + iconSize + cellGap;
+              const ty = boxY + Math.floor((iconSize - charH) / 2);
+              const color =
+                n.done >= n.total ? "#7fff9a" : n.done > 0 ? "#ffe28a" : "#ff8a8a";
+              drawPixelText(ctx, labels[i], tx, ty, color);
+              cx += cellWidths[i] + groupGap;
             }
           }
         }
