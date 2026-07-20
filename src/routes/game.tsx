@@ -550,7 +550,7 @@ function GamePage() {
     // when the player is inside a cave so steps get the same wet tail as
     // one-shot cave sounds.
     const walkCaveLoop: SfxLoop = createReverbLoop(footstepLoopUrl, { playbackRate: 1.0, dry: 0.4, wet: 1.0 });
-    const wormLoop: SfxLoop = createLoop(wormMoveAsset.url);
+    const wormLoop: SfxLoop = createLoop(lacraiaWalkingAsset.url);
     const islandAmbientLoop: SfxLoop = createLoop(islandAmbientUrl);
     caveLoop.setVolume(0);
     waterLoop.setVolume(0);
