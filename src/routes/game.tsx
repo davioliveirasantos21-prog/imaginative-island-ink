@@ -5439,19 +5439,12 @@ function GamePage() {
                     disabled={b.disabled}
                     aria-label={b.label}
                     title={b.label}
-                    className={`group absolute ${b.pos} h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-md border-2 border-[#3a2010] hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
-                    style={{
-                      backgroundImage:
-                        "repeating-linear-gradient(0deg, transparent 0 10px, rgba(0,0,0,0.35) 10px 12px)," +
-                        "repeating-linear-gradient(90deg, rgba(255,235,200,0.06) 0 3px, transparent 3px 7px)," +
-                        "linear-gradient(180deg, #a06a3a 0%, #7a4a24 45%, #5a3416 100%)",
-                      boxShadow: "inset 0 1px 0 rgba(255,220,170,0.35), inset 0 -3px 0 rgba(0,0,0,0.35), 0 3px 0 #2a1608, 0 4px 10px rgba(0,0,0,0.4)",
-                    }}
+                    className={`group absolute ${b.pos} h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
                   >
-                    <span className="w-6 h-6 sm:w-7 sm:h-7 text-[#f4e9c1] group-hover:text-[#ffd166] transition-colors drop-shadow-[0_1px_0_rgba(0,0,0,0.6)] [&_svg]:w-full [&_svg]:h-full">
+                    <span className="w-full h-full flex items-center justify-center [&_svg]:w-full [&_svg]:h-full">
                       {b.icon}
                     </span>
-                    <span className="pointer-events-none absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] tracking-wider uppercase text-[#f4e9c1] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap px-1.5 py-0.5 rounded-sm border border-[#3a2010]" style={{ background: "linear-gradient(180deg, #7a4a24, #5a3416)" }}>
+                    <span className="pointer-events-none absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] tracking-wider uppercase text-[#f4e9c1] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap px-1.5 py-0.5 rounded-sm border border-[#3a2010]" style={{ background: "linear-gradient(180deg, #7a4a24, #5a3416)" }}>
                       {b.label}
                     </span>
                   </button>
