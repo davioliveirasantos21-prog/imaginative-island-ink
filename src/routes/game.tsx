@@ -3514,6 +3514,7 @@ function GamePage() {
             }
           }
         }
+      }
       // Ghost preview of the blueprint being placed — follows player x for now.
       // Also renders the ghost when a built structure is in "move" mode.
       const ghostKind: BuildKind | null = placingKindRef.current
