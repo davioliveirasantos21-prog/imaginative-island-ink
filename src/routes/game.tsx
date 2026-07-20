@@ -5414,8 +5414,8 @@ function GamePage() {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
                     icon: IconZoom,
-                    pos: "left-[10.5rem] top-1",
-                    size: "h-16 w-16",
+                    pos: "left-[10.75rem] -top-1",
+                    size: "h-20 w-20",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
 
