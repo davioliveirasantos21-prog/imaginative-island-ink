@@ -4807,8 +4807,9 @@ function GamePage() {
       }
 
 
-      // 4) Chop a natural tree if we have stones.
-      if (getSelectedHotbarKind() !== "axe") {
+      // 4) Chop a natural tree if we have stones. Overworld only — trees/palms
+      // don't exist in caves, even if getProps() would return stale data.
+      if (getSelectedHotbarKind() !== "axe" && modeRef.current !== "cave" && modeRef.current !== "cave2") {
         const props = getProps();
         let bestTree: Prop | null = null;
         let bestTreeD = 20;
