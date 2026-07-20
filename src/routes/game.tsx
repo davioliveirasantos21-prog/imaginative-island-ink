@@ -575,18 +575,19 @@ function GamePage() {
       walkLoop.setVolume(walking && !onSand && !inCave ? vol * 0.6 : 0);
       walkSandLoop.setVolume(walking && onSand ? vol * 0.45 : 0);
       walkCaveLoop.setVolume(walking && inCave ? vol * 0.55 : 0);
-      // Worm movement loop — distance-based volume from nearest active centipede.
+      // Lacraia walking loop — audible only when player is near any live
+      // centipede (attacking or resting).
       let wormVol = 0;
       if (modeRef.current === "cave2" && s) {
         const playerX = s.x + SPRITE_W / 2;
         let closest = Infinity;
         for (const c of cave2CentipedesRef.current) {
-          if (c.dead || !c.active) continue;
+          if (c.dead) continue;
           const d = Math.abs(c.head.x - playerX);
           if (d < closest) closest = d;
         }
-        if (closest < 320) {
-          const falloff = Math.max(0, 1 - closest / 320);
+        if (closest < 420) {
+          const falloff = Math.max(0, 1 - closest / 420);
           wormVol = vol * 0.55 * falloff;
         }
 
