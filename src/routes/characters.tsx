@@ -365,7 +365,6 @@ function SlotCard({
           {isEmpty ? (
             <div className="flex flex-col items-center gap-1 text-[#f4e9c1]/25">
               <span className="text-4xl leading-none" style={{ color: h.accent, opacity: 0.35 }}>{h.sigil}</span>
-              <span className="text-[8px] tracking-widest">vacante</span>
             </div>
           ) : (
             <SpritePreview appearance={slot.appearance} scale={4} />
