@@ -131,7 +131,7 @@ import centipedeGrowlAsset from "@/assets/centipede-growl.mp3.asset.json";
 import lacraiaDescendoAsset from "@/assets/lacraia-descendo.mp3.asset.json";
 import lacraiaParedeAtacando1Asset from "@/assets/lacraia-parede-atacando.mp3.asset.json";
 import lacraiaParedeAtacando2Asset from "@/assets/lacraia-parede-atacando2.mp3.asset.json";
-import wormMoveAsset from "@/assets/worm-move.mp3.asset.json";
+import lacraiaWalkingAsset from "@/assets/lacraia-walking.mp3.asset.json";
 import lacraiaDeathAsset from "@/assets/lacraia-death.mp3.asset.json";
 import jumpSfxAsset from "@/assets/jump.mp3.asset.json";
 import woodHitSfxAsset from "@/assets/wood-hit.mp3.asset.json";
@@ -549,7 +549,7 @@ function GamePage() {
     // when the player is inside a cave so steps get the same wet tail as
     // one-shot cave sounds.
     const walkCaveLoop: SfxLoop = createReverbLoop(footstepLoopUrl, { playbackRate: 1.0, dry: 0.4, wet: 1.0 });
-    const wormLoop: SfxLoop = createLoop(wormMoveAsset.url);
+    const wormLoop: SfxLoop = createLoop(lacraiaWalkingAsset.url);
     const islandAmbientLoop: SfxLoop = createLoop(islandAmbientUrl);
     caveLoop.setVolume(0);
     waterLoop.setVolume(0);
@@ -575,18 +575,19 @@ function GamePage() {
       walkLoop.setVolume(walking && !onSand && !inCave ? vol * 0.6 : 0);
       walkSandLoop.setVolume(walking && onSand ? vol * 0.45 : 0);
       walkCaveLoop.setVolume(walking && inCave ? vol * 0.55 : 0);
-      // Worm movement loop — distance-based volume from nearest active centipede.
+      // Lacraia walking loop — audible only when player is near any live
+      // centipede (attacking or resting).
       let wormVol = 0;
       if (modeRef.current === "cave2" && s) {
         const playerX = s.x + SPRITE_W / 2;
         let closest = Infinity;
         for (const c of cave2CentipedesRef.current) {
-          if (c.dead || !c.active) continue;
+          if (c.dead) continue;
           const d = Math.abs(c.head.x - playerX);
           if (d < closest) closest = d;
         }
-        if (closest < 320) {
-          const falloff = Math.max(0, 1 - closest / 320);
+        if (closest < 420) {
+          const falloff = Math.max(0, 1 - closest / 420);
           wormVol = vol * 0.55 * falloff;
         }
 
@@ -1982,6 +1983,9 @@ function GamePage() {
 
             }
             // ----- Resting centipede growl (echoing in the dark) -----
+            // Audible anywhere in the cave as long as there is at least one
+            // live, non-attacking lacraia. Distance still shapes the volume
+            // but never drops to zero within the cave.
             if (nowMs >= centipedeGrowlAtRef.current) {
               const playerX = s.x + SPRITE_W / 2;
               const resting = cave2CentipedesRef.current.filter(
@@ -1990,9 +1994,10 @@ function GamePage() {
               if (resting.length > 0) {
                 const pick = resting[Math.floor(Math.random() * resting.length)];
                 const dist = Math.abs(pick.head.x - playerX);
-                // Volume falls off with distance; only audible-ish within ~1200px.
-                const falloff = Math.max(0, 1 - dist / 1200);
-                const baseVol = (ambientVolume / 100) * 0.22 * falloff;
+                // Volume falls off with distance but keeps a floor so a distant
+                // lacraia is still faintly audible from anywhere in the cave.
+                const falloff = Math.max(0.28, 1 - dist / 2800);
+                const baseVol = (ambientVolume / 100) * 0.32 * falloff;
                 if (baseVol > 0.01) {
                   playOneShot(centipedeGrowlAsset.url, baseVol);
                   // Echo — quieter delayed replay, faked reverb in the cave.
