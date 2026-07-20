@@ -351,7 +351,7 @@ function SlotCard({
       )}
 
       <div className="mt-2 text-[9px] italic tracking-[0.25em] text-[#f4e9c1]/50 short:text-[8px]">
-        “{h.motto}”
+        “{houseMotto}”
       </div>
 
       {/* portrait frame — colored by house */}
