@@ -5324,7 +5324,7 @@ function GamePage() {
             onClick={() => setGameMenuOpen((v) => !v)}
             aria-label={t("gameMenu.open")}
             title={t("gameMenu.open")}
-            className="absolute left-3 top-3 sm:left-6 sm:top-6 z-30 h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all"
+            className="absolute left-1 top-1 sm:left-2 sm:top-2 z-30 h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all"
           >
             <img
               src={(gameMenuOpen ? uiSetinhaFecharAsset : uiSetinhaAbrirAsset).url}
@@ -5369,6 +5369,7 @@ function GamePage() {
                   label: string;
                   icon: React.ReactNode;
                   pos: string;
+                  size?: string;
                   onClick: () => void;
                   disabled?: boolean;
                 };
@@ -5377,7 +5378,8 @@ function GamePage() {
                     key: "build",
                     label: t("gameMenu.build"),
                     icon: IconBuild,
-                    pos: "left-3 bottom-24 sm:left-6 sm:bottom-28",
+                    pos: "left-2 bottom-[38%] sm:left-4",
+                    size: "h-20 w-20 sm:h-24 sm:w-24",
                     onClick: () => { setGameMenuOpen(false); markMenuOpened(); setBuildMenuOpen(true); },
                   },
                   {
@@ -5391,7 +5393,7 @@ function GamePage() {
                     key: "look",
                     label: t("game.editLook"),
                     icon: IconLook,
-                    pos: "left-3 top-1/2 -translate-y-1/2 sm:left-6",
+                    pos: "left-2 top-[58%] -translate-y-1/2 sm:left-4",
                     onClick: () => { setGameMenuOpen(false); setEditingLook(true); },
                     disabled: !character,
                   },
@@ -5406,14 +5408,14 @@ function GamePage() {
                     key: "camera",
                     label: t("gameMenu.camera.title"),
                     icon: IconZoom,
-                    pos: "left-1/2 -translate-x-1/2 top-3 sm:top-6",
+                    pos: "left-[5rem] top-1 sm:left-[6rem] sm:top-2",
                     onClick: () => setCameraMenuOpen((v) => !v),
                   },
                   {
                     key: "exit",
                     label: t("game.leave"),
                     icon: IconExit,
-                    pos: "right-3 bottom-3 sm:right-6 sm:bottom-6",
+                    pos: "left-16 top-1 sm:left-20 sm:top-2",
                     onClick: () => { setGameMenuOpen(false); navigate({ to: "/characters" }); },
                   },
 
@@ -5433,7 +5435,7 @@ function GamePage() {
                     disabled={b.disabled}
                     aria-label={b.label}
                     title={b.label}
-                    className={`group absolute ${b.pos} h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
+                    className={`group absolute ${b.pos} ${b.size || "h-16 w-16 sm:h-20 sm:w-20"} flex items-center justify-center bg-transparent border-0 p-0 hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed animate-scale-in`}
                   >
                     <span className="w-full h-full flex items-center justify-center [&_svg]:w-full [&_svg]:h-full">
                       {b.icon}
@@ -5448,7 +5450,7 @@ function GamePage() {
               {cameraMenuOpen ? (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute left-1/2 -translate-x-1/2 top-20 sm:top-24 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
+                  className="absolute left-[5rem] top-16 sm:left-[6rem] sm:top-20 z-10 w-[200px] border-2 border-[#3a2010] p-2 animate-fade-in rounded-sm" style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #2a1608" }}
                 >
                   <div className="flex items-center justify-between gap-2 text-[10px] tracking-widest uppercase text-[#f4e9c1]/80 mb-2">
                     <span>🔍</span>
