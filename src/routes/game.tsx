@@ -5352,59 +5352,23 @@ function GamePage() {
             >
               {(() => {
                 const stroke = "#f4e9c1";
-                const IconBuild = (
-                  <svg viewBox="0 0 16 16" shapeRendering="crispEdges" fill={stroke}>
-                    {/* pixel-art hammer */}
-                    <rect x="6" y="1" width="7" height="1" />
-                    <rect x="5" y="2" width="9" height="1" />
-                    <rect x="4" y="3" width="10" height="2" />
-                    <rect x="5" y="5" width="9" height="1" />
-                    <rect x="6" y="6" width="7" height="1" />
-                    {/* handle */}
-                    <rect x="8" y="7" width="2" height="1" />
-                    <rect x="7" y="8" width="2" height="1" />
-                    <rect x="6" y="9" width="2" height="1" />
-                    <rect x="5" y="10" width="2" height="1" />
-                    <rect x="4" y="11" width="2" height="1" />
-                    <rect x="3" y="12" width="2" height="1" />
-                    <rect x="2" y="13" width="2" height="2" />
-                  </svg>
-                );
-                const IconMap = (
+                const pngIcon = (url: string, alt = "") => (
                   <img
-                    src={mapButtonIconAsset.url}
-                    alt={t("game.map")}
-                    className="w-full h-full object-contain pixelated"
+                    src={url}
+                    alt={alt}
+                    className="w-full h-full object-contain"
                     style={{ imageRendering: "pixelated" }}
+                    draggable={false}
                   />
                 );
-                const IconLook = (
-                  <Pencil strokeWidth={1.8} />
-                );
-                const IconSettings = (
-                  <SettingsIcon strokeWidth={1.8} />
-                );
-
-                const IconZoom = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="6" />
-                    <path d="M20 20l-4-4M8 11h6M11 8v6" />
-                  </svg>
-                );
-                const IconHelp = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4" />
-                    <circle cx="12" cy="17" r="0.6" fill={stroke} />
-                  </svg>
-                );
-                const IconExit = (
-                  <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 4h5a1 1 0 011 1v14a1 1 0 01-1 1h-5" />
-                    <path d="M10 8l-4 4 4 4" />
-                    <path d="M6 12h10" />
-                  </svg>
-                );
+                const IconBuild = pngIcon(uiBuildAsset.url, t("gameMenu.build"));
+                const IconMap = pngIcon(uiMapaAsset.url, t("game.map"));
+                const IconLook = pngIcon(uiCustomAsset.url, t("game.editLook"));
+                const IconSettings = pngIcon(uiConfigAsset.url, t("settings.title"));
+                const IconZoom = pngIcon(uiCameraAsset.url, t("gameMenu.camera.title"));
+                const IconHelp = pngIcon(uiMissoesAsset.url, t("gameMenu.tutorial.title"));
+                const IconExit = pngIcon(uiMenuAsset.url, t("game.leave"));
+                void stroke;
 
                 type CornerBtn = {
                   key: string;
