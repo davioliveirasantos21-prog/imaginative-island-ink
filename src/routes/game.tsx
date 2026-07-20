@@ -376,6 +376,47 @@ const ROCK_MIN_DROP = 3;
 const ROCK_MAX_DROP = 5;
 // Radius of light cast by a single torch, in virtual pixels.
 const TORCH_LIGHT_RADIUS = 78;
+
+// Hand-drawn 3×5 pixel-art digit font for crisp counters on the
+// nearest-neighbor upscaled game canvas. Each glyph is 5 rows of 3-bit
+// masks (top row = index 0). Only characters we actually draw are included.
+const PIXEL_FONT_3x5: Record<string, number[]> = {
+  "0": [0b111, 0b101, 0b101, 0b101, 0b111],
+  "1": [0b010, 0b110, 0b010, 0b010, 0b111],
+  "2": [0b111, 0b001, 0b111, 0b100, 0b111],
+  "3": [0b111, 0b001, 0b111, 0b001, 0b111],
+  "4": [0b101, 0b101, 0b111, 0b001, 0b001],
+  "5": [0b111, 0b100, 0b111, 0b001, 0b111],
+  "6": [0b111, 0b100, 0b111, 0b101, 0b111],
+  "7": [0b111, 0b001, 0b010, 0b010, 0b010],
+  "8": [0b111, 0b101, 0b111, 0b101, 0b111],
+  "9": [0b111, 0b101, 0b111, 0b001, 0b111],
+  "/": [0b001, 0b001, 0b010, 0b100, 0b100],
+};
+function drawPixelText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  color: string,
+) {
+  ctx.fillStyle = color;
+  const charW = 3;
+  const charH = 5;
+  const charGap = 1;
+  for (let i = 0; i < text.length; i++) {
+    const glyph = PIXEL_FONT_3x5[text[i]];
+    if (!glyph) continue;
+    const gx = x + i * (charW + charGap);
+    for (let row = 0; row < charH; row++) {
+      const bits = glyph[row];
+      for (let col = 0; col < charW; col++) {
+        if (bits & (1 << (charW - 1 - col))) ctx.fillRect(gx + col, y + row, 1, 1);
+      }
+    }
+  }
+}
+
 // Deterministic entrance x within the island, far enough from spawn.
 function computeCaveEntranceX(worldSeed: number, spawnX: number): number {
   let s = ((worldSeed ^ 0x1c0ffee) >>> 0) || 7;
