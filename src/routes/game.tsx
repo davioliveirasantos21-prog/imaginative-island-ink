@@ -3587,7 +3587,12 @@ function GamePage() {
         const gx = Math.round(s.x + SPRITE_W / 2 - 10 - camX);
         ctx.save();
         ctx.globalAlpha = 0.35;
-        if (ghostKind === "bench") drawSawBench(ctx, gx, GROUND_Y, 0.6);
+        const ghostOverrideKind: SceneryKind =
+          ghostKind === "furnace" ? "furnaceOff" : ghostKind;
+        const ghostOverride = getSceneryOverride(ghostOverrideKind);
+        if (ghostOverride) {
+          paintSceneryFor(ctx, ghostOverrideKind, Math.round(gx), GROUND_Y);
+        } else if (ghostKind === "bench") drawSawBench(ctx, gx, GROUND_Y, 0.6);
         else if (ghostKind === "workshop") drawWorkshopBench(ctx, gx, GROUND_Y, 0.6);
         else if (ghostKind === "furnace") drawFurnace(ctx, gx, GROUND_Y, 0.6, false);
         else if (ghostKind === "chest") drawChest(ctx, gx, GROUND_Y, 0.6);
