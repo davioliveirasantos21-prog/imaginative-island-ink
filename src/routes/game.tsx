@@ -132,6 +132,7 @@ import lacraiaDescendoAsset from "@/assets/lacraia-descendo.mp3.asset.json";
 import lacraiaParedeAtacando1Asset from "@/assets/lacraia-parede-atacando.mp3.asset.json";
 import lacraiaParedeAtacando2Asset from "@/assets/lacraia-parede-atacando2.mp3.asset.json";
 import wormMoveAsset from "@/assets/worm-move.mp3.asset.json";
+import lacraiaWalkingAsset from "@/assets/lacraia-walking.mp3.asset.json";
 import lacraiaDeathAsset from "@/assets/lacraia-death.mp3.asset.json";
 import jumpSfxAsset from "@/assets/jump.mp3.asset.json";
 import woodHitSfxAsset from "@/assets/wood-hit.mp3.asset.json";
