@@ -970,33 +970,87 @@ export function drawBigSpider(
 ) {
   ctx.save();
   ctx.imageSmoothingEnabled = false;
-  const wig = Math.sin(legPhase) > 0 ? 1 : 0;
-  ctx.fillStyle = "#0a0a0c";
-  // Body
-  ctx.fillRect(cx - 4, cy - 3, 8, 6);
-  ctx.fillRect(cx - 5, cy - 2, 10, 4);
-  ctx.fillRect(cx - 3, cy - 4, 6, 1);
-  // Fangs
-  ctx.fillStyle = "#e0e0e6";
-  ctx.fillRect(cx - 2, cy + 3, 1, 2);
-  ctx.fillRect(cx + 1, cy + 3, 1, 2);
-  // Eyes
-  ctx.fillStyle = "#e04a2a";
-  ctx.fillRect(cx - 3, cy - 2, 1, 1);
-  ctx.fillRect(cx - 1, cy - 2, 1, 1);
-  ctx.fillRect(cx + 1, cy - 2, 1, 1);
-  ctx.fillRect(cx + 3, cy - 2, 1, 1);
-  // Legs — 4 per side
-  ctx.fillStyle = "#0a0a0c";
+  const wig = Math.sin(legPhase * 1.6) > 0 ? 1 : 0;
+  const wig2 = Math.sin(legPhase * 1.6 + 1.2) > 0 ? 1 : 0;
+  const pulse = (Math.sin(legPhase * 3) + 1) * 0.5; // 0..1 for eye glow
+
+  // Menacing red glow halo behind the head
+  ctx.fillStyle = `rgba(200,30,20,${0.15 + pulse * 0.15})`;
+  ctx.fillRect(cx - 10, cy - 8, 20, 14);
+  ctx.fillRect(cx - 12, cy - 6, 24, 10);
+
+  // ---- Legs (drawn first so body sits on top) — 4 per side, jagged jointed ----
+  ctx.fillStyle = "#050506";
   for (let side = -1 as -1 | 1; side <= 1; side = (side + 2) as -1 | 1) {
     for (let i = 0; i < 4; i++) {
-      const jitter = ((i + (side === 1 ? 2 : 0)) % 2) === 0 ? wig : -wig;
-      const y0 = cy - 3 + i * 2;
-      ctx.fillRect(cx + side * 5, y0 + jitter, side * 3, 1);
-      ctx.fillRect(cx + side * 8, y0 + 1 + jitter, side * 3, 1);
+      const j = (i % 2 === 0 ? wig : wig2);
+      const y0 = cy - 4 + i * 2;
+      // upper joint
+      ctx.fillRect(cx + side * 5, y0 - 1 + j, side * 4, 1);
+      ctx.fillRect(cx + side * 8, y0 - 2 + j, 1, 3);
+      // mid segment
+      ctx.fillRect(cx + side * 8, y0 + j, side * 5, 1);
+      ctx.fillRect(cx + side * 12, y0 + 1 + j, 1, 3);
+      // lower claw
+      ctx.fillRect(cx + side * 12, y0 + 3 + j, side * 3, 1);
+      ctx.fillRect(cx + side * 14, y0 + 4 + j, side * 1, 1);
     }
     if (side === 1) break;
   }
+
+  // ---- Abdomen (bulbous, larger) ----
+  ctx.fillStyle = "#0a0a0c";
+  ctx.fillRect(cx - 6, cy - 4, 12, 9);
+  ctx.fillRect(cx - 7, cy - 2, 14, 6);
+  ctx.fillRect(cx - 5, cy - 5, 10, 1);
+  ctx.fillRect(cx - 4, cy + 5, 8, 1);
+
+  // Abdomen markings (blood-red hourglass)
+  ctx.fillStyle = "#8a1010";
+  ctx.fillRect(cx - 2, cy - 1, 4, 1);
+  ctx.fillRect(cx - 1, cy, 2, 1);
+  ctx.fillRect(cx - 2, cy + 1, 4, 1);
+
+  // ---- Head/cephalothorax ----
+  ctx.fillStyle = "#0d0d10";
+  ctx.fillRect(cx - 3, cy + 3, 6, 3);
+  ctx.fillRect(cx - 2, cy + 6, 4, 1);
+
+  // Bristles/hair sticking off body
+  ctx.fillStyle = "#050506";
+  ctx.fillRect(cx - 7, cy - 5, 1, 1);
+  ctx.fillRect(cx + 6, cy - 5, 1, 1);
+  ctx.fillRect(cx - 5, cy - 6, 1, 1);
+  ctx.fillRect(cx + 4, cy - 6, 1, 1);
+
+  // ---- Fangs (larger, dripping) ----
+  ctx.fillStyle = "#f4f4f0";
+  ctx.fillRect(cx - 2, cy + 6, 1, 3);
+  ctx.fillRect(cx + 1, cy + 6, 1, 3);
+  ctx.fillRect(cx - 2, cy + 9, 1, 1);
+  ctx.fillRect(cx + 1, cy + 9, 1, 1);
+  // Venom drip
+  ctx.fillStyle = "#7fd94a";
+  ctx.fillRect(cx - 2, cy + 10, 1, 1);
+  if (wig) ctx.fillRect(cx + 1, cy + 11, 1, 1);
+
+  // ---- Eyes: 8 glowing red eyes, two rows ----
+  const eyeCore = `rgb(${230 + Math.round(pulse * 25)},${40 + Math.round(pulse * 40)},20)`;
+  ctx.fillStyle = eyeCore;
+  // Top row (larger, main eyes)
+  ctx.fillRect(cx - 3, cy - 1, 2, 2);
+  ctx.fillRect(cx + 1, cy - 1, 2, 2);
+  // Bottom row (smaller eyes)
+  ctx.fillStyle = "#ff5a2a";
+  ctx.fillRect(cx - 4, cy + 2, 1, 1);
+  ctx.fillRect(cx - 2, cy + 2, 1, 1);
+  ctx.fillRect(cx + 1, cy + 2, 1, 1);
+  ctx.fillRect(cx + 3, cy + 2, 1, 1);
+  // Eye highlights (pulse)
+  ctx.fillStyle = `rgba(255,220,180,${0.5 + pulse * 0.5})`;
+  ctx.fillRect(cx - 3, cy - 1, 1, 1);
+  ctx.fillRect(cx + 1, cy - 1, 1, 1);
+
   ctx.restore();
 }
 
