@@ -546,16 +546,43 @@ function CreateModal({
           className="pointer-events-none absolute inset-0"
           style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.75) 100%)" }}
         />
-        {/* torches */}
-        <div className="pointer-events-none absolute -top-2 left-4 text-3xl z-10" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
-        <div className="pointer-events-none absolute -top-2 right-4 text-3xl z-10" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
+        {/* Parchment scroll header — curled edges, ink-quill accent */}
+        <div className="relative shrink-0">
+          <div
+            className="relative flex items-center justify-center gap-3 px-6 py-3 short:px-3 short:py-2"
+            style={{
+              background:
+                "linear-gradient(180deg, #e8d5a0 0%, #c8a86a 55%, #8a6a3a 100%)",
+              boxShadow:
+                "inset 0 -3px 0 rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,240,200,0.6), 0 4px 0 rgba(0,0,0,0.5)",
+            }}
+          >
+            {/* curled edges */}
+            <span
+              className="pointer-events-none absolute left-0 top-0 h-full w-6"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(0,0,0,0.35), transparent)",
+              }}
+            />
+            <span
+              className="pointer-events-none absolute right-0 top-0 h-full w-6"
+              style={{
+                background:
+                  "linear-gradient(-90deg, rgba(0,0,0,0.35), transparent)",
+              }}
+            />
+            <span className="text-[#3a1f0a] text-lg" aria-hidden>✎</span>
+            <h2
+              className="text-center text-sm tracking-[0.4em] uppercase text-[#2a1608] short:text-xs"
+              style={{ textShadow: "0 1px 0 rgba(255,240,200,0.6)" }}
+            >
+              {t("create.title")}
+            </h2>
+            <span className="text-[#3a1f0a] text-lg" aria-hidden>✒</span>
+          </div>
+        </div>
 
-        <h2
-          className="relative shrink-0 border-b-2 border-[#1a1a1a] px-5 py-3 text-center text-sm tracking-[0.35em] uppercase text-[#ffd166] short:px-3 short:py-2 short:text-xs"
-          style={{ background: "rgba(0,0,0,0.4)", textShadow: "0 2px 0 #000, 0 0 12px rgba(255,140,66,0.55)" }}
-        >
-          ⚔ {t("create.title")} ⚔
-        </h2>
 
         <div className="relative min-h-0 flex-1 overflow-y-auto px-5 py-4 short:px-3 short:py-2">
           <div className="grid grid-cols-[6rem,1fr] gap-5 md:grid-cols-[7rem,1fr] short:gap-3">
