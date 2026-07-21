@@ -75,6 +75,7 @@ export const Route = createFileRoute("/api/ai-pixel")({
         const result = streamText({
           model: provider(MODEL),
           system,
+          temperature: 0,
           messages: await convertToModelMessages(messages as UIMessage[]),
         });
 
