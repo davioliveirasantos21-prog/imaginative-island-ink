@@ -42,7 +42,11 @@ export function NpcChat({
     () =>
       new DefaultChatTransport({
         api: "/api/ai-pixel",
-        body: { npcName: npc.name, personality: npc.personality },
+        body: () => ({
+          npcName: npc.name,
+          personality: npc.personality,
+          phrases: loadNpcPhrases(),
+        }),
       }),
     [npc.name, npc.personality],
   );
