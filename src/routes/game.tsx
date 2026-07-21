@@ -447,7 +447,7 @@ function computeCaveOres(worldSeed: number): CaveOre[] {
   };
   const lo = CAVE_EXIT_X + 90;
   const hi = CAVE_WALL_X - 40;
-  const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
+  const kinds: OreKind[] = ["coal", "copper", "bronze"];
   const ores: CaveOre[] = [];
   // 2 of each ore type, spaced apart so they don't overlap visually.
   for (const kind of kinds) {
@@ -2293,7 +2293,7 @@ function GamePage() {
             flashPickup(t("cave2.safe"));
             // Ore spawn: only on walkable ground within the segment —
             // never over the water pool or pit gap.
-            const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
+            const baseKinds: OreKind[] = ["coal", "copper", "bronze"];
             let placed = 0;
             let attempts = 0;
             while (placed < 2 && attempts < 20) {
@@ -2312,7 +2312,7 @@ function GamePage() {
                 }
               }
               if (blocked) continue;
-              const kind = kinds[Math.floor(Math.random() * kinds.length)];
+              const kind = Math.random() < 0.1 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
               cave2OresRef.current = [
                 ...cave2OresRef.current,
                 { id: `c2-${segNow.index}-${placed}-${nx}`, x: nx, kind },
@@ -2857,7 +2857,7 @@ function GamePage() {
           let dirty = false;
           const lo = CAVE_EXIT_X + 90;
           const hi = CAVE_WALL_X - 40;
-          const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
+          const kinds: OreKind[] = ["coal", "copper", "bronze"];
           for (const [id, t] of minedOresRef.current) {
             if (wallClockMs < t) continue;
             // Pick a random empty spot away from every existing UNMINED ore
@@ -3026,7 +3026,7 @@ function GamePage() {
         if (cave2MinedOresRef.current.size > 0) {
           const wallClockMs = Date.now();
           let dirty = false;
-          const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
+          const baseKinds: OreKind[] = ["coal", "copper", "bronze"];
           const clearedSegs = cave2SegsRef.current.filter(
             (seg) =>
               seg.kind !== "start" &&
@@ -3065,7 +3065,7 @@ function GamePage() {
               cave2MinedOresRef.current.set(id, wallClockMs + 2000);
               continue;
             }
-            const nkind = kinds[Math.floor(Math.random() * kinds.length)];
+            const nkind = Math.random() < 0.1 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
             const nid = `c2-r-${nx}-${wallClockMs}-${Math.floor(Math.random() * 1000)}`;
             cave2OresRef.current = [
               ...cave2OresRef.current.filter((o) => o.id !== id),
