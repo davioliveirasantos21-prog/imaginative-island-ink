@@ -1,6 +1,19 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { LANGUAGES, useI18n, type Lang } from "@/lib/i18n";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message";
 
 const AdminPanel = lazy(() => import("@/components/AdminPanel").then((m) => ({ default: m.AdminPanel })));
 import {
@@ -268,16 +281,7 @@ function MainMenu() {
         </Modal>
       )}
 
-      {modal === "ia-pixel" && (
-        <Modal title="IA PIXEL" onClose={() => setModal(null)}>
-          <div className="text-[11px] leading-relaxed tracking-wider text-[#f4e9c1]/80">
-            🤖 Em breve! A IA Pixel vai te ajudar dentro do jogo.
-          </div>
-          <div className="mt-4 flex justify-end">
-            <PixelButton onClick={() => setModal(null)}>OK</PixelButton>
-          </div>
-        </Modal>
-      )}
+      {modal === "ia-pixel" && <IaPixelChat onClose={() => setModal(null)} />}
 
       {adminOpen && (
         <Suspense fallback={null}>
@@ -344,6 +348,114 @@ function Modal({
           {title}
         </h2>
         {children}
+      </div>
+    </div>
+  );
+}
+
+function IaPixelChat({ onClose }: { onClose: () => void }) {
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: "/api/ai-pixel" }),
+    []
+  );
+  const { messages, sendMessage, status, stop } = useChat({ transport });
+  const [input, setInput] = useState("");
+  const isLoading = status === "submitted" || status === "streaming";
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const text = input.trim();
+    if (!text || isLoading) return;
+    setInput("");
+    await sendMessage({ text });
+  };
+
+  const messageText = (m: (typeof messages)[number]) =>
+    m.parts
+      .filter((p) => p.type === "text")
+      .map((p) => p.text)
+      .join("");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="flex h-[80vh] w-full max-w-2xl flex-col border-4 border-[#f4e9c1] bg-[#1b2a3a] font-pixel text-[#f4e9c1]"
+        style={{ boxShadow: "0 8px 0 #0a141f, 0 12px 0 rgba(0,0,0,0.5)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b-4 border-[#f4e9c1]/30 px-4 py-3">
+          <h2 className="text-sm tracking-widest text-[#ffd166]">
+            🤖 IA PIXEL
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-[#f4e9c1]/70 hover:text-[#f4e9c1]"
+            aria-label="Fechar"
+          >
+            ✕
+          </button>
+        </div>
+
+        <Conversation className="flex-1">
+          <ConversationContent>
+            {messages.length === 0 && (
+              <ConversationEmptyState
+                title="IA Pixel"
+                description="Pergunte qualquer coisa sobre Pixel Islands!"
+                icon={<span className="text-2xl">🏝️</span>}
+              />
+            )}
+            {messages.map((m) => (
+              <Message key={m.id} from={m.role}>
+                <div
+                  className={
+                    m.role === "user"
+                      ? "ml-auto rounded-lg px-4 py-3"
+                      : "rounded-lg border-2 border-[#f4e9c1]/30 px-4 py-3"
+                  }
+                  style={
+                    m.role === "user"
+                      ? { backgroundColor: "#ffd166", color: "#0d1b2a" }
+                      : { backgroundColor: "#0d1b2a", color: "#f4e9c1" }
+                  }
+                >
+                  <MessageResponse>{messageText(m)}</MessageResponse>
+                </div>
+              </Message>
+            ))}
+          </ConversationContent>
+          <ConversationScrollButton />
+        </Conversation>
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-end gap-2 border-t-4 border-[#f4e9c1]/30 bg-[#0d1b2a] p-3"
+        >
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void handleSubmit();
+              }
+            }}
+            placeholder="Digite sua pergunta..."
+            rows={1}
+            className="max-h-32 flex-1 resize-none border-4 border-[#f4e9c1]/50 bg-[#1b2a3a] px-3 py-2 text-sm text-[#f4e9c1] outline-none focus:border-[#ffd166]"
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            className="border-4 border-[#ffd166] bg-[#ffd166] px-4 py-2 text-sm font-bold uppercase text-[#0d1b2a] transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {isLoading ? "..." : "Enviar"}
+          </button>
+        </form>
       </div>
     </div>
   );
