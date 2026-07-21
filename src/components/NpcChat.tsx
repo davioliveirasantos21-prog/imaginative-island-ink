@@ -123,19 +123,22 @@ export function NpcChat({
   const [playerPos, setPlayerPos] = useState<ScreenPos | null>(null);
   const [scale, setScale] = useState(1);
 
+  const [rect, setRect] = useState<{ left: number; top: number; width: number; height: number }>({ left: 0, top: 0, width: 0, height: 0 });
+
   useEffect(() => {
     let raf = 0;
     const tick = () => {
       const canvas = canvasRef.current;
       if (canvas) {
-        const rect = canvas.getBoundingClientRect();
-        const sx = rect.width / viewW;
-        const sy = rect.height / viewH;
+        const r = canvas.getBoundingClientRect();
+        const sx = r.width / viewW;
+        const sy = r.height / viewH;
         setScale(sx);
+        setRect({ left: r.left, top: r.top, width: r.width, height: r.height });
         const nRaw = getNpcScreen();
-        if (nRaw) setNpcPos({ x: nRaw.x * sx, y: nRaw.y * sy });
+        if (nRaw) setNpcPos({ x: r.left + nRaw.x * sx, y: r.top + nRaw.y * sy });
         const pRaw = getPlayerScreen();
-        setPlayerPos({ x: pRaw.x * sx, y: pRaw.y * sy });
+        setPlayerPos({ x: r.left + pRaw.x * sx, y: r.top + pRaw.y * sy });
       }
       raf = requestAnimationFrame(tick);
     };
@@ -144,7 +147,7 @@ export function NpcChat({
   }, [canvasRef, viewW, viewH, getNpcScreen, getPlayerScreen]);
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-40 font-pixel">
+    <div className="pointer-events-none fixed inset-0 z-40 font-pixel">
       {/* NPC balloon (above the NPC's head) */}
       {npcPos && npcText ? (
         <Balloon
@@ -176,7 +179,8 @@ export function NpcChat({
       {/* Close (X) — top-right of the canvas overlay */}
       <button
         onClick={onClose}
-        className="pointer-events-auto absolute top-2 right-2 border-2 border-[#f4e9c1] bg-[#0d1b2a]/90 px-2 py-1 text-[10px] uppercase tracking-widest text-[#f4e9c1] hover:bg-[#1b2a3a]"
+        style={{ position: "fixed", top: rect.top + 8, left: rect.left + rect.width - 8, transform: "translateX(-100%)" }}
+        className="pointer-events-auto border-2 border-[#f4e9c1] bg-[#0d1b2a]/90 px-2 py-1 text-[10px] uppercase tracking-widest text-[#f4e9c1] hover:bg-[#1b2a3a]"
         aria-label="Fechar conversa"
       >
         ✕ Sair
@@ -185,7 +189,8 @@ export function NpcChat({
       {messages.length > 0 ? (
         <button
           onClick={handleClear}
-          className="pointer-events-auto absolute top-2 right-20 border-2 border-[#f4e9c1]/60 bg-[#0d1b2a]/80 px-2 py-1 text-[10px] uppercase tracking-widest text-[#f4e9c1]/80 hover:bg-[#1b2a3a]"
+          style={{ position: "fixed", top: rect.top + 8, left: rect.left + rect.width - 80, transform: "translateX(-100%)" }}
+          className="pointer-events-auto border-2 border-[#f4e9c1]/60 bg-[#0d1b2a]/80 px-2 py-1 text-[10px] uppercase tracking-widest text-[#f4e9c1]/80 hover:bg-[#1b2a3a]"
           aria-label="Limpar conversa"
         >
           Limpar
@@ -195,8 +200,8 @@ export function NpcChat({
       {/* Speech input at the bottom */}
       <form
         onSubmit={handleSubmit}
-        className="pointer-events-auto absolute bottom-3 left-1/2 -translate-x-1/2 flex w-[min(92%,520px)] items-center gap-2 border-4 border-[#f4e9c1] bg-[#1b2a3a] px-2 py-2"
-        style={{ boxShadow: "0 4px 0 #0a141f" }}
+        style={{ position: "fixed", left: rect.left + rect.width / 2, top: rect.top + rect.height - 12, transform: "translate(-50%, -100%)", boxShadow: "0 4px 0 #0a141f" }}
+        className="pointer-events-auto flex w-[min(92%,520px)] items-center gap-2 border-4 border-[#f4e9c1] bg-[#1b2a3a] px-2 py-2"
       >
         <span className="hidden sm:inline text-[10px] uppercase tracking-widest text-[#ffd166]">
           Você:
