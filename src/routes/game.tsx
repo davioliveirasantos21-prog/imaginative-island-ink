@@ -3699,10 +3699,15 @@ function GamePage() {
             const off = npc.x - w.homeX;
             if (off > 140) w.dir = -1;
             else if (off < -140) w.dir = 1;
-            if (w.moving && modeRef.current === "world") {
+            const frozen = chatOpenRef.current;
+            const canMove = w.moving && modeRef.current === "world" && !frozen;
+            if (canMove) {
               const speed = 18; // px/sec
               npc.x += w.dir * speed * dt;
               w.facing = w.dir;
+              npcAnimTRef.current += dt;
+            } else {
+              npcAnimTRef.current = 0;
             }
             const npcGroundY2 =
               GROUND_Y + beachSurfaceOffset(npc.x + SPRITE_W / 2);
@@ -3713,15 +3718,15 @@ function GamePage() {
             ctx.fillRect(npcScreenX2 + 2, npcGroundY2 + 3, SPRITE_W - 4, 2);
             // Gentle idle bob so it doesn't feel like a statue.
             const bob = Math.round(Math.sin(performance.now() * 0.0016) * 0.5);
-            // If the player is very close, face the player; otherwise face
-            // the movement direction.
+            // If the player is very close (or chatting), face the player;
+            // otherwise face the movement direction.
             const dxToPlayer = s.x + SPRITE_W / 2 - (npc.x + SPRITE_W / 2);
-            const facing: 1 | -1 =
-              Math.abs(dxToPlayer) <= 28
-                ? (dxToPlayer < 0 ? -1 : 1)
-                : (w.facing as 1 | -1);
+            const facing: 1 | -1 = frozen || Math.abs(dxToPlayer) <= 28
+              ? (dxToPlayer < 0 ? -1 : 1)
+              : (w.facing as 1 | -1);
             drawCharacter(ctx, npcScreenX2, npcY2 + bob, npc.appearance, {
               facing,
+              animT: npcAnimTRef.current,
               grounded: true,
             });
             // Name tag above the head.
