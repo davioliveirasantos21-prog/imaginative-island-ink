@@ -353,6 +353,98 @@ function Modal({
   );
 }
 
+function IaPixelChat({ onClose }: { onClose: () => void }) {
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: "/api/ai-pixel" }),
+    []
+  );
+  const { messages, input, handleInputChange, handleSubmit, status } = useChat(
+    {
+      transport,
+    }
+  );
+  const isLoading = status === "submitted" || status === "streaming";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="flex h-[80vh] w-full max-w-2xl flex-col border-4 border-[#f4e9c1] bg-[#1b2a3a] font-pixel text-[#f4e9c1]"
+        style={{ boxShadow: "0 8px 0 #0a141f, 0 12px 0 rgba(0,0,0,0.5)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b-4 border-[#f4e9c1]/30 px-4 py-3">
+          <h2 className="text-sm tracking-widest text-[#ffd166]">
+            🤖 IA PIXEL
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-[#f4e9c1]/70 hover:text-[#f4e9c1]"
+            aria-label="Fechar"
+          >
+            ✕
+          </button>
+        </div>
+
+        <Conversation className="flex-1">
+          <ConversationContent>
+            {messages.length === 0 && (
+              <ConversationEmptyState
+                title="IA Pixel"
+                description="Pergunte qualquer coisa sobre Pixel Islands!"
+                icon={<span className="text-2xl">🏝️</span>}
+              />
+            )}
+            {messages.map((m) => (
+              <Message key={m.id} from={m.role}>
+                <MessageContent
+                  className={
+                    m.role === "user"
+                      ? "rounded-lg bg-[#ffd166]/90 px-4 py-3 text-[#0d1b2a]"
+                      : "rounded-lg border-2 border-[#f4e9c1]/30 bg-[#0d1b2a] px-4 py-3 text-[#f4e9c1]"
+                  }
+                >
+                  <MessageResponse>{m.content}</MessageResponse>
+                </MessageContent>
+              </Message>
+            ))}
+          </ConversationContent>
+          <ConversationScrollButton />
+        </Conversation>
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-end gap-2 border-t-4 border-[#f4e9c1]/30 bg-[#0d1b2a] p-3"
+        >
+          <textarea
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
+              }
+            }}
+            placeholder="Digite sua pergunta..."
+            rows={1}
+            className="max-h-32 flex-1 resize-none border-4 border-[#f4e9c1]/50 bg-[#1b2a3a] px-3 py-2 text-sm text-[#f4e9c1] outline-none focus:border-[#ffd166]"
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            className="border-4 border-[#ffd166] bg-[#ffd166] px-4 py-2 text-sm font-bold uppercase text-[#0d1b2a] transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {isLoading ? "..." : "Enviar"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function SliderRow({
   label,
   value,
