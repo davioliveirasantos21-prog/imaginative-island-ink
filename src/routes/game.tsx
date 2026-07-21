@@ -6911,6 +6911,24 @@ function GamePage() {
           npc={npcRef.current}
           slot={slotIdRef.current ?? 0}
           onClose={() => setNpcChatOpen(false)}
+          canvasRef={canvasRef}
+          viewW={VW}
+          viewH={VH}
+          getNpcScreen={() => {
+            const n = npcRef.current;
+            if (!n) return null;
+            const cx = n.x - camXRef.current + SPRITE_W / 2;
+            const groundY =
+              GROUND_Y + beachSurfaceOffset(n.x + SPRITE_W / 2);
+            const topY = groundY - SPRITE_H + FOOT_OFFSET;
+            return { x: cx, y: topY };
+          }}
+          getPlayerScreen={() => {
+            const s = stateRef.current;
+            const px = Math.round(s.x) - camXRef.current + SPRITE_W / 2;
+            const py = Math.floor(s.y);
+            return { x: px, y: py };
+          }}
         />
       ) : null}
     </div>
