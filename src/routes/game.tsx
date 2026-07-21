@@ -1779,6 +1779,21 @@ function GamePage() {
     };
   }, [navigate]);
 
+  // Open the NPC chat when the player is close and presses "E".
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "e" && e.key !== "E") return;
+      if (!npcNearbyRef.current) return;
+      if (npcChatOpen) return;
+      e.preventDefault();
+      setNpcChatOpen(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [npcChatOpen]);
+
+
+
 
   useEffect(() => {
     const map: Record<string, string> = {
