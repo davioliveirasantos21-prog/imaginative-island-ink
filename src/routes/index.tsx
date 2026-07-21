@@ -281,16 +281,7 @@ function MainMenu() {
         </Modal>
       )}
 
-      {modal === "ia-pixel" && (
-        <Modal title="IA PIXEL" onClose={() => setModal(null)}>
-          <div className="text-[11px] leading-relaxed tracking-wider text-[#f4e9c1]/80">
-            🤖 Em breve! A IA Pixel vai te ajudar dentro do jogo.
-          </div>
-          <div className="mt-4 flex justify-end">
-            <PixelButton onClick={() => setModal(null)}>OK</PixelButton>
-          </div>
-        </Modal>
-      )}
+      {modal === "ia-pixel" && <IaPixelChat onClose={() => setModal(null)} />}
 
       {adminOpen && (
         <Suspense fallback={null}>
