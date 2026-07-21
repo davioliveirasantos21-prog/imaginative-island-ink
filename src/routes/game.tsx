@@ -174,7 +174,7 @@ type SlotIconKind =
   | "stone" | "wood" | "seed"
   | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
   | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-  | "coal" | "copper" | "bronze" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
+  | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
 
 function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md" | "lg" }) {
   const dim =
@@ -367,6 +367,7 @@ const CAVE_ENTRANCE_DRAW_H = 70;
 const CAVE_ENTRANCE_CLEAR = CAVE_ENTRANCE_DRAW_W / 2 + 5;
 // Ore mining: 10 HP each, regenerates 2 min after being fully mined.
 const ORE_MAX_HP = 10;
+const oreMaxHp = (kind: OreKind): number => (kind === "iron" ? 16 : ORE_MAX_HP);
 // Regen delay is randomized per mined ore between MIN and MAX (ms).
 const ORE_REGEN_MIN_MS = 90000;
 const ORE_REGEN_MAX_MS = 90000;
@@ -436,7 +437,7 @@ function computeCaveEntranceX(worldSeed: number, spawnX: number): number {
 }
 
 // ----- Cave ores (deterministic layout per world seed) -----
-export type OreKind = "coal" | "copper" | "bronze";
+export type OreKind = "coal" | "copper" | "bronze" | "iron";
 export type CaveOre = { id: string; x: number; kind: OreKind };
 function computeCaveOres(worldSeed: number): CaveOre[] {
   let s = ((worldSeed ^ 0x0b1e5) >>> 0) || 13;
@@ -446,7 +447,7 @@ function computeCaveOres(worldSeed: number): CaveOre[] {
   };
   const lo = CAVE_EXIT_X + 90;
   const hi = CAVE_WALL_X - 40;
-  const kinds: OreKind[] = ["coal", "copper", "bronze"];
+  const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
   const ores: CaveOre[] = [];
   // 2 of each ore type, spaced apart so they don't overlap visually.
   for (const kind of kinds) {
@@ -793,11 +794,11 @@ function GamePage() {
     stones: number; wood: number; seeds: number;
     axe: number; hoe: number; pick: number; copperPick: number; copperHammer: number; spear: number;
     berrySeeds: number; palmSeeds: number; mushrooms: number; herbs: number;
-    coal: number; copper: number; bronze: number; copperMetal: number; bronzeMetal: number; copperBar: number; bronzeBar: number; torches: number;
+    coal: number; copper: number; bronze: number; iron: number; copperMetal: number; bronzeMetal: number; copperBar: number; bronzeBar: number; torches: number;
   }>({
     stones: 0, wood: 0, seeds: 0, axe: 0, hoe: 0, pick: 0, copperPick: 0, copperHammer: 0, spear: 0,
     berrySeeds: 0, palmSeeds: 0, mushrooms: 0, herbs: 0,
-    coal: 0, copper: 0, bronze: 0, copperMetal: 0, bronzeMetal: 0, copperBar: 0, bronzeBar: 0, torches: 0,
+    coal: 0, copper: 0, bronze: 0, iron: 0, copperMetal: 0, bronzeMetal: 0, copperBar: 0, bronzeBar: 0, torches: 0,
   });
 
   type Inv = typeof inventory;
@@ -812,7 +813,7 @@ function GamePage() {
     | "stone" | "wood" | "seed"
     | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
     | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-    | "coal" | "copper" | "bronze" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
+    | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
   // Hotbar has exactly 10 slots. We surface only the items the player
   // actually owns, in a fixed priority order, and pad the rest with empty
   // slots so the UI always shows 10 boxes.
@@ -820,7 +821,7 @@ function GamePage() {
   const HOTBAR_PRIORITY: SlotKind[] = [
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
     "berrySeed", "palmSeed", "mushroom", "herb",
-    "coal", "copper", "bronze", "copperMetal", "bronzeMetal", "copperBar", "bronzeBar", "torch",
+    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "copperBar", "bronzeBar", "torch",
   ];
   const countFor = (k: SlotKind): number => {
     switch (k) {
@@ -840,6 +841,7 @@ function GamePage() {
       case "coal": return inventory.coal;
       case "copper": return inventory.copper;
       case "bronze": return inventory.bronze;
+      case "iron": return inventory.iron;
       case "copperMetal": return inventory.copperMetal;
       case "bronzeMetal": return inventory.bronzeMetal;
       case "copperBar": return inventory.copperBar;
@@ -1159,6 +1161,7 @@ function GamePage() {
       case "coal": return inv.coal;
       case "copper": return inv.copper;
       case "bronze": return inv.bronze;
+      case "iron": return inv.iron;
       case "copperMetal": return inv.copperMetal;
       case "bronzeMetal": return inv.bronzeMetal;
       case "copperBar": return inv.copperBar;
@@ -1392,6 +1395,7 @@ function GamePage() {
         coal?: number;
         copper?: number;
         bronze?: number;
+        iron?: number;
         copperMetal?: number;
         bronzeMetal?: number;
         copperBar?: number;
@@ -1445,6 +1449,7 @@ function GamePage() {
         coal: data.coal ?? 0,
         copper: data.copper ?? 0,
         bronze: data.bronze ?? 0,
+        iron: data.iron ?? 0,
         copperMetal: data.copperMetal ?? 0,
         bronzeMetal: data.bronzeMetal ?? 0,
         copperBar: data.copperBar ?? 0,
@@ -1640,6 +1645,7 @@ function GamePage() {
           coal: inventoryRef.current.coal,
           copper: inventoryRef.current.copper,
           bronze: inventoryRef.current.bronze,
+          iron: inventoryRef.current.iron,
           copperMetal: inventoryRef.current.copperMetal,
           bronzeMetal: inventoryRef.current.bronzeMetal,
           copperBar: inventoryRef.current.copperBar,
@@ -2287,7 +2293,7 @@ function GamePage() {
             flashPickup(t("cave2.safe"));
             // Ore spawn: only on walkable ground within the segment —
             // never over the water pool or pit gap.
-            const kinds: OreKind[] = ["coal", "copper", "bronze"];
+            const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
             let placed = 0;
             let attempts = 0;
             while (placed < 2 && attempts < 20) {
@@ -2568,7 +2574,8 @@ function GamePage() {
             if (bestOre) {
               ts.hasHit = true;
               const ore = bestOre;
-              const prevHP = currentHP.get(ore.id) ?? ORE_MAX_HP;
+              const oreMax = oreMaxHp(bestOre.kind);
+              const prevHP = currentHP.get(ore.id) ?? oreMax;
               playOneShotReverb(pickSfxAsset.url, Math.min(1, (ambientVolume / 100) * 1.6), 0, {
                 dry: 1.4,
                 wet: 0.45,
@@ -2577,7 +2584,7 @@ function GamePage() {
               const nextHP = prevHP - damage;
               if (nextHP > 0) {
                 currentHP.set(ore.id, nextHP);
-                flashPickup(t("msg.ore", { n: nextHP, max: ORE_MAX_HP }));
+                flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
               } else {
                 currentHP.delete(ore.id);
                 const nextMined = new Map(currentMined);
@@ -2850,7 +2857,7 @@ function GamePage() {
           let dirty = false;
           const lo = CAVE_EXIT_X + 90;
           const hi = CAVE_WALL_X - 40;
-          const kinds: OreKind[] = ["coal", "copper", "bronze"];
+          const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
           for (const [id, t] of minedOresRef.current) {
             if (wallClockMs < t) continue;
             // Pick a random empty spot away from every existing UNMINED ore
@@ -2937,9 +2944,10 @@ function GamePage() {
           for (const ore of caveOresRef.current) {
             if (minedOresRef.current.has(ore.id)) continue;
             const hp = caveOreHPRef.current.get(ore.id);
-            if (hp == null || hp >= ORE_MAX_HP) continue;
+            const oreMax = oreMaxHp(ore.kind);
+            if (hp == null || hp >= oreMax) continue;
             if (Math.abs(ore.x - playerCX2) > HP_BAR_VIEW_RANGE) continue;
-            const pct = Math.max(0, Math.min(1, hp / ORE_MAX_HP));
+            const pct = Math.max(0, Math.min(1, hp / oreMax));
             const bx = Math.round(ore.x - 7 - camX);
             const by = GROUND_Y - 22;
             ctx.fillStyle = "rgba(0,0,0,0.55)";
@@ -3018,7 +3026,7 @@ function GamePage() {
         if (cave2MinedOresRef.current.size > 0) {
           const wallClockMs = Date.now();
           let dirty = false;
-          const kinds: OreKind[] = ["coal", "copper", "bronze"];
+          const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
           const clearedSegs = cave2SegsRef.current.filter(
             (seg) =>
               seg.kind !== "start" &&
@@ -3164,9 +3172,10 @@ function GamePage() {
           for (const ore of cave2OresRef.current) {
             if (cave2MinedOresRef.current.has(ore.id)) continue;
             const hp = cave2OreHPRef.current.get(ore.id);
-            if (hp == null || hp >= ORE_MAX_HP) continue;
+            const oreMax = oreMaxHp(ore.kind);
+            if (hp == null || hp >= oreMax) continue;
             if (Math.abs(ore.x - playerCX2) > HP_BAR_VIEW_RANGE) continue;
-            const pct = Math.max(0, Math.min(1, hp / ORE_MAX_HP));
+            const pct = Math.max(0, Math.min(1, hp / oreMax));
             const bx = Math.round(ore.x - 7 - camX);
             const by = GROUND_Y - 22;
             ctx.fillStyle = "rgba(0,0,0,0.55)";
@@ -4201,12 +4210,13 @@ function GamePage() {
             }
             // Pick deals 1 damage per hit; ore has ORE_MAX_HP.
             const ore = bestOre;
-            const prevHP = caveOreHPRef.current.get(ore.id) ?? ORE_MAX_HP;
+            const oreMax = oreMaxHp(ore.kind);
+            const prevHP = caveOreHPRef.current.get(ore.id) ?? oreMax;
             playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               caveOreHPRef.current.set(ore.id, nextHP);
-              flashPickup(t("msg.ore", { n: nextHP, max: ORE_MAX_HP }));
+              flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
               saveWorld();
               return;
             }
@@ -4375,12 +4385,13 @@ function GamePage() {
               return;
             }
             const ore = bestOre;
-            const prevHP = cave2OreHPRef.current.get(ore.id) ?? ORE_MAX_HP;
+            const oreMax = oreMaxHp(ore.kind);
+            const prevHP = cave2OreHPRef.current.get(ore.id) ?? oreMax;
             playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               cave2OreHPRef.current.set(ore.id, nextHP);
-              flashPickup(t("msg.ore", { n: nextHP, max: ORE_MAX_HP }));
+              flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
               saveWorld();
               return;
             }
@@ -7191,6 +7202,7 @@ function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kin
     coal:   { rock: "#3a3f47", rockHi: "#4a4f57", core: "#0a0608", hi: "#f2f2f2" },
     copper: { rock: "#3a3f47", rockHi: "#4a4f57", core: "#d67a3e", hi: "#ffc98a" },
     bronze: { rock: "#3a3f47", rockHi: "#4a4f57", core: "#b8933e", hi: "#f0d787" },
+    iron:   { rock: "#2f3a2c", rockHi: "#465443", core: "#c2743a", hi: "#ffb872" },
   };
   const p = palette[kind];
   // Rocky base — flat 16x10 block with a 12x2 cap on top forming the "bump".
