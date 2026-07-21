@@ -3630,7 +3630,7 @@ function GamePage() {
             // Face the player so it feels alive.
             const facing: 1 | -1 = s.x + SPRITE_W / 2 < npc.x + SPRITE_W / 2 ? -1 : 1;
             // Gentle idle bob so it doesn't feel like a statue.
-            const bob = Math.round(Math.sin(t * 1.6) * 0.5);
+            const bob = Math.round(Math.sin(performance.now() * 0.0016) * 0.5);
             drawCharacter(ctx, npcScreenX, npcY + bob, npc.appearance, {
               facing,
               grounded: true,
