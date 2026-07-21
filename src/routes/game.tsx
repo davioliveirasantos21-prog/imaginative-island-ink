@@ -6790,6 +6790,24 @@ function GamePage() {
           }}
         />
       ) : null}
+      {npcNearby && !npcChatOpen ? (
+        <div className="pointer-events-none fixed bottom-24 left-1/2 -translate-x-1/2 z-40 border-2 border-[#ffd166] bg-[#0d1b2a]/90 text-[#ffd166] text-[10px] sm:text-xs tracking-widest uppercase px-3 py-1.5">
+          {npcRef.current?.name} — pressione E ou{" "}
+          <button
+            className="pointer-events-auto underline"
+            onClick={() => setNpcChatOpen(true)}
+          >
+            toque aqui
+          </button>{" "}
+          para conversar
+        </div>
+      ) : null}
+      {npcChatOpen && npcRef.current ? (
+        <NpcChat
+          npc={npcRef.current}
+          onClose={() => setNpcChatOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }
