@@ -1373,6 +1373,7 @@ function GamePage() {
       cave2BatsRef.current = generateBats(cave2SegsRef.current, seed);
       cave2FloorWebsRef.current = generateFloorWebs(cave2SegsRef.current, seed);
       cave2CentipedesRef.current = generateCentipedes(cave2SegsRef.current, seed);
+      npcRef.current = generateNpc(seed, spawnX);
 
     } catch {
       /* ignore */
