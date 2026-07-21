@@ -1446,6 +1446,7 @@ function GamePage() {
         coal: data.coal ?? 0,
         copper: data.copper ?? 0,
         bronze: data.bronze ?? 0,
+        iron: data.iron ?? 0,
         copperMetal: data.copperMetal ?? 0,
         bronzeMetal: data.bronzeMetal ?? 0,
         copperBar: data.copperBar ?? 0,
