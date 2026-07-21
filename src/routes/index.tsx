@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
   component: MainMenu,
 });
 
-type Modal = null | "settings" | "language" | "admin-login" | "ia-pixel";
+type Modal = null | "settings" | "language" | "admin-login";
 
 function MainMenu() {
   const { t, lang, setLang } = useI18n();
@@ -124,9 +124,6 @@ function MainMenu() {
             }
           >
             {t("menu.play")}
-          </PixelButton>
-          <PixelButton onClick={() => setModal("ia-pixel")}>
-            🤖 IA Pixel
           </PixelButton>
           <PixelButton onClick={() => setModal("settings")}>
             {t("menu.settings")}
@@ -264,17 +261,6 @@ function MainMenu() {
             <PixelButton variant="primary" onClick={() => void submitAdminAuth()}>
               {adminBusy ? "..." : adminMode === "signin" ? "Entrar" : "Criar"}
             </PixelButton>
-          </div>
-        </Modal>
-      )}
-
-      {modal === "ia-pixel" && (
-        <Modal title="IA PIXEL" onClose={() => setModal(null)}>
-          <div className="text-[11px] leading-relaxed tracking-wider text-[#f4e9c1]/80">
-            🤖 Em breve! A IA Pixel vai te ajudar dentro do jogo.
-          </div>
-          <div className="mt-4 flex justify-end">
-            <PixelButton onClick={() => setModal(null)}>OK</PixelButton>
           </div>
         </Modal>
       )}
