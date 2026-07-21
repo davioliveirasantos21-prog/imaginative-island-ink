@@ -840,6 +840,7 @@ function GamePage() {
       case "coal": return inventory.coal;
       case "copper": return inventory.copper;
       case "bronze": return inventory.bronze;
+      case "iron": return inventory.iron;
       case "copperMetal": return inventory.copperMetal;
       case "bronzeMetal": return inventory.bronzeMetal;
       case "copperBar": return inventory.copperBar;
