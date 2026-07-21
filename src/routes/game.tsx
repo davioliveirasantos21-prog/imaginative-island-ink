@@ -1349,6 +1349,14 @@ function GamePage() {
   const worldStorageKey = (slot: number) => `pixel-realms.world.${slot}`;
   const worldSeedRef = useRef<number>(1337);
   const npcRef = useRef<Npc | null>(null);
+  const npcWanderRef = useRef<{
+    homeX: number;
+    dir: 1 | -1;
+    changeAt: number;
+    lastMs: number;
+    facing: 1 | -1;
+    moving: boolean;
+  } | null>(null);
   const npcNearbyRef = useRef(false);
   const [npcNearby, setNpcNearby] = useState(false);
   const [npcChatOpen, setNpcChatOpen] = useState(false);
@@ -1375,6 +1383,14 @@ function GamePage() {
       cave2FloorWebsRef.current = generateFloorWebs(cave2SegsRef.current, seed);
       cave2CentipedesRef.current = generateCentipedes(cave2SegsRef.current, seed);
       npcRef.current = generateNpc(seed, spawnX);
+      npcWanderRef.current = {
+        homeX: npcRef.current.x,
+        dir: 1,
+        changeAt: performance.now() + 1200,
+        lastMs: performance.now(),
+        facing: 1,
+        moving: false,
+      };
 
     } catch {
       /* ignore */
@@ -1782,6 +1798,8 @@ function GamePage() {
   // Open the NPC chat when the player is close and presses "E".
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
       if (e.key !== "e" && e.key !== "E") return;
       if (!npcNearbyRef.current) return;
       if (npcChatOpen) return;
@@ -1809,7 +1827,19 @@ function GamePage() {
       " ": "jump",
       Spacebar: "jump",
     };
+    const isTypingTarget = (t: EventTarget | null) => {
+      const el = t as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        el.isContentEditable === true
+      );
+    };
     const kd = (e: KeyboardEvent) => {
+      if (isTypingTarget(e.target)) return;
       if (e.key === "i" || e.key === "I") {
         e.preventDefault();
         zoomIn();
@@ -1846,6 +1876,7 @@ function GamePage() {
     };
 
     const ku = (e: KeyboardEvent) => {
+      if (isTypingTarget(e.target)) return;
       const dir = map[e.key];
       if (!dir) return;
       e.preventDefault();
@@ -3637,35 +3668,68 @@ function GamePage() {
         if (npc) {
           const npcScreenX = Math.round(npc.x - camX);
           if (npcScreenX > -SPRITE_W - 8 && npcScreenX < VW + SPRITE_W + 8) {
-            const npcGroundY =
+          // Wander: change direction occasionally, pause sometimes, and stay
+          // within a comfortable radius of the NPC's home.
+          const w = npcWanderRef.current;
+          if (w) {
+            const nowMs = performance.now();
+            const dt = Math.min(64, nowMs - w.lastMs) / 1000;
+            w.lastMs = nowMs;
+            if (nowMs >= w.changeAt) {
+              const r = Math.random();
+              if (r < 0.35) {
+                w.moving = false;
+                w.changeAt = nowMs + 900 + Math.random() * 1800;
+              } else {
+                w.moving = true;
+                w.dir = Math.random() < 0.5 ? -1 : 1;
+                w.changeAt = nowMs + 1400 + Math.random() * 2400;
+              }
+            }
+            // Keep within ~140 px of home.
+            const off = npc.x - w.homeX;
+            if (off > 140) w.dir = -1;
+            else if (off < -140) w.dir = 1;
+            if (w.moving && modeRef.current === "world") {
+              const speed = 18; // px/sec
+              npc.x += w.dir * speed * dt;
+              w.facing = w.dir;
+            }
+            const npcGroundY2 =
               GROUND_Y + beachSurfaceOffset(npc.x + SPRITE_W / 2);
-            const npcY = npcGroundY - SPRITE_H + FOOT_OFFSET;
-            // Soft shadow under the NPC's feet.
+            const npcY2 = npcGroundY2 - SPRITE_H + FOOT_OFFSET;
+            // Soft shadow
             ctx.fillStyle = "rgba(0,0,0,0.28)";
-            ctx.fillRect(npcScreenX + 2, npcGroundY + 3, SPRITE_W - 4, 2);
-            // Face the player so it feels alive.
-            const facing: 1 | -1 = s.x + SPRITE_W / 2 < npc.x + SPRITE_W / 2 ? -1 : 1;
+            const npcScreenX2 = Math.round(npc.x - camX);
+            ctx.fillRect(npcScreenX2 + 2, npcGroundY2 + 3, SPRITE_W - 4, 2);
             // Gentle idle bob so it doesn't feel like a statue.
             const bob = Math.round(Math.sin(performance.now() * 0.0016) * 0.5);
-            drawCharacter(ctx, npcScreenX, npcY + bob, npc.appearance, {
+            // If the player is very close, face the player; otherwise face
+            // the movement direction.
+            const dxToPlayer = s.x + SPRITE_W / 2 - (npc.x + SPRITE_W / 2);
+            const facing: 1 | -1 =
+              Math.abs(dxToPlayer) <= 28
+                ? (dxToPlayer < 0 ? -1 : 1)
+                : (w.facing as 1 | -1);
+            drawCharacter(ctx, npcScreenX2, npcY2 + bob, npc.appearance, {
               facing,
               grounded: true,
             });
             // Name tag above the head.
             const label = npc.name;
             const labelW = label.length * 4 + 6;
-            const labelX = npcScreenX + Math.floor(SPRITE_W / 2 - labelW / 2);
-            const labelY = npcY - 10;
+            const labelX = npcScreenX2 + Math.floor(SPRITE_W / 2 - labelW / 2);
+            const labelY = npcY2 - 10;
             ctx.fillStyle = "rgba(0,0,0,0.65)";
             ctx.fillRect(labelX, labelY, labelW, 8);
             drawPixelText(ctx, label, labelX + 3, labelY + 2, "#ffd166");
             // Interaction hint when the player is close enough.
-            const dx = Math.abs(s.x + SPRITE_W / 2 - (npc.x + SPRITE_W / 2));
-            const close = dx <= 28 && modeRef.current === "world";
+            const close = Math.abs(dxToPlayer) <= 28 && modeRef.current === "world";
             if (close !== npcNearbyRef.current) {
               npcNearbyRef.current = close;
               setNpcNearby(close);
             }
+          }
           } else if (npcNearbyRef.current) {
             npcNearbyRef.current = false;
             setNpcNearby(false);
