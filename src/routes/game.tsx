@@ -447,7 +447,7 @@ function computeCaveOres(worldSeed: number): CaveOre[] {
   };
   const lo = CAVE_EXIT_X + 90;
   const hi = CAVE_WALL_X - 40;
-  const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
+  const kinds: OreKind[] = ["coal", "copper", "bronze"];
   const ores: CaveOre[] = [];
   // 2 of each ore type, spaced apart so they don't overlap visually.
   for (const kind of kinds) {
