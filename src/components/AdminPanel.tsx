@@ -101,12 +101,6 @@ import {
   type SceneryOverrides,
 } from "@/lib/scenery";
 import { dictionaries, useI18n, type Lang } from "@/lib/i18n";
-import {
-  addNpcPhrases,
-  clearNpcPhrases,
-  loadNpcPhrases,
-  removeNpcPhrase,
-} from "@/lib/npc-phrases";
 
 /**
  * Build a LocalizedName {pt,en,es} from an i18n key so the admin editor
@@ -178,7 +172,7 @@ function toHairPixels(m: Record<string, PixelTone>): HairPixels {
   return out;
 }
 
-type Tab = "hairs" | "clothes" | "items" | "scenery" | "phrases";
+type Tab = "hairs" | "clothes" | "items" | "scenery";
 
 type HairEdit = { kind: "hair"; editing?: CustomHair };
 type BuiltinHairEdit = { kind: "builtin-hair"; style: HairStyle };
@@ -237,8 +231,6 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
   const [editingItemInitial, setEditingItemInitial] = useState<ItemPixels | null>(null);
   const [sceneryOverrides, setSceneryOverrides] = useState<SceneryOverrides>({});
   const [editingScenery, setEditingScenery] = useState<SceneryKind | null>(null);
-  const [phrases, setPhrases] = useState<string[]>([]);
-  const [phraseInput, setPhraseInput] = useState("");
   const [confirmingWipe, setConfirmingWipe] = useState(false);
   const [modal, setModal] = useState<Modal>(null);
   const [hairBase, setHairBase] = useState(HAIR_COLORS[0]);
@@ -299,7 +291,6 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
     setBeardOverrides(loadBeardOverrides());
     setItemOverrides(loadItemOverrides());
     setSceneryOverrides(loadSceneryOverrides());
-    setPhrases(loadNpcPhrases());
   }, []);
 
 
@@ -333,7 +324,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex gap-1 border-b-4 border-[#f4e9c1]/20 px-4 py-2">
-          {(["hairs", "clothes", "items", "scenery", "phrases"] as Tab[]).map((k) => (
+          {(["hairs", "clothes", "items", "scenery"] as Tab[]).map((k) => (
             <button
               key={k}
               onClick={() => setTab(k)}
@@ -349,9 +340,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                   ? t("admin.tab.clothes")
                   : k === "items"
                     ? t("admin.tab.items")
-                    : k === "scenery"
-                      ? t("admin.tab.scenery")
-                      : "Falas"}
+                    : t("admin.tab.scenery")}
             </button>
           ))}
           <div className="ml-auto flex items-center">
@@ -842,77 +831,6 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                     </div>
                   );
                 })}
-              </div>
-            </div>
-          )}
-
-          {tab === "phrases" && (
-            <div className="flex flex-col gap-4">
-              <div className="text-[10px] tracking-widest text-[#ffd166]">
-                FALAS DOS NPCS
-              </div>
-              <p className="text-[10px] text-[#f4e9c1]/60">
-                Cole aqui as frases que os NPCs podem dizer. Separe várias
-                frases com barra ( / ). A IA escolhe a que mais combina com o
-                que o jogador falou. Ex.:{" "}
-                <span className="text-[#ffd166]">frase 1/frase 2/frase 3</span>
-              </p>
-              <div className="flex flex-col gap-2">
-                <textarea
-                  value={phraseInput}
-                  onChange={(e) => setPhraseInput(e.target.value)}
-                  placeholder="Digite ou cole aqui: frase 1/frase 2/frase 3"
-                  rows={4}
-                  className="w-full resize-y border-2 border-[#f4e9c1]/40 bg-[#0a141f] p-2 text-xs text-[#f4e9c1] outline-none focus:border-[#ffd166]"
-                />
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      const next = addNpcPhrases(phraseInput);
-                      setPhrases(next);
-                      setPhraseInput("");
-                    }}
-                    disabled={!phraseInput.trim()}
-                    className="border-2 border-[#ffd166] bg-[#ffd166]/10 px-3 py-2 text-[10px] uppercase text-[#ffd166] disabled:opacity-50"
-                  >
-                    Adicionar
-                  </button>
-                  {phrases.length > 0 && (
-                    <button
-                      onClick={() => setPhrases(clearNpcPhrases())}
-                      className="border-2 border-[#e94560]/60 px-3 py-2 text-[10px] uppercase text-[#e94560]"
-                    >
-                      Limpar tudo
-                    </button>
-                  )}
-                  <span className="ml-auto text-[10px] text-[#f4e9c1]/50">
-                    {phrases.length} {phrases.length === 1 ? "frase" : "frases"}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                {phrases.map((p, i) => (
-                  <div
-                    key={`${i}-${p}`}
-                    className="flex items-start justify-between gap-2 border-2 border-[#f4e9c1]/30 px-3 py-2 text-xs"
-                  >
-                    <span className="flex-1 whitespace-pre-wrap text-[#f4e9c1]">
-                      {p}
-                    </span>
-                    <button
-                      onClick={() => setPhrases(removeNpcPhrase(i))}
-                      className="shrink-0 border-2 border-[#e94560]/60 px-2 py-1 text-[9px] text-[#e94560]"
-                      title="Remover"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-                {phrases.length === 0 && (
-                  <div className="text-center text-[10px] text-[#f4e9c1]/50">
-                    Nenhuma frase cadastrada ainda.
-                  </div>
-                )}
               </div>
             </div>
           )}

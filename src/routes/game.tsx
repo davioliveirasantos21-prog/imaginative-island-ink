@@ -1,7 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { generateNpc, type Npc } from "@/lib/npc";
-import { NpcChat } from "@/components/NpcChat";
 
 
 import { useI18n } from "@/lib/i18n";
@@ -1348,20 +1346,6 @@ function GamePage() {
   const slotIdRef = useRef<number | null>(null);
   const worldStorageKey = (slot: number) => `pixel-realms.world.${slot}`;
   const worldSeedRef = useRef<number>(1337);
-  const npcRef = useRef<Npc | null>(null);
-  const npcWanderRef = useRef<{
-    homeX: number;
-    dir: 1 | -1;
-    changeAt: number;
-    lastMs: number;
-    facing: 1 | -1;
-    moving: boolean;
-  } | null>(null);
-  const npcNearbyRef = useRef(false);
-  const [npcNearby, setNpcNearby] = useState(false);
-  const [npcChatOpen, setNpcChatOpen] = useState(false);
-  const chatOpenRef = useRef(false);
-  const npcAnimTRef = useRef(0);
 
   const loadWorld = (slot: number) => {
     // Ensure a per-slot random world seed exists BEFORE reading anything
@@ -1384,15 +1368,6 @@ function GamePage() {
       cave2BatsRef.current = generateBats(cave2SegsRef.current, seed);
       cave2FloorWebsRef.current = generateFloorWebs(cave2SegsRef.current, seed);
       cave2CentipedesRef.current = generateCentipedes(cave2SegsRef.current, seed);
-      npcRef.current = generateNpc(seed, spawnX);
-      npcWanderRef.current = {
-        homeX: npcRef.current.x,
-        dir: 1,
-        changeAt: performance.now() + 1200,
-        lastMs: performance.now(),
-        facing: 1,
-        moving: false,
-      };
 
     } catch {
       /* ignore */
@@ -1797,34 +1772,6 @@ function GamePage() {
     };
   }, [navigate]);
 
-  // Open the NPC chat when the player is close and presses "E".
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const el = e.target as HTMLElement | null;
-      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
-      if (e.key !== "e" && e.key !== "E") return;
-      if (!npcNearbyRef.current) return;
-      if (npcChatOpen) return;
-      e.preventDefault();
-      setNpcChatOpen(true);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [npcChatOpen]);
-
-  // Keep the ref in sync so the game loop can freeze player/NPC while chatting.
-  useEffect(() => {
-    chatOpenRef.current = npcChatOpen;
-    if (npcChatOpen) {
-      keysRef.current.clear();
-      const s = stateRef.current;
-      s.vx = 0;
-      s.animT = 0;
-    }
-  }, [npcChatOpen]);
-
-
-
 
   useEffect(() => {
     const map: Record<string, string> = {
@@ -1840,19 +1787,7 @@ function GamePage() {
       " ": "jump",
       Spacebar: "jump",
     };
-    const isTypingTarget = (t: EventTarget | null) => {
-      const el = t as HTMLElement | null;
-      if (!el) return false;
-      const tag = el.tagName;
-      return (
-        tag === "INPUT" ||
-        tag === "TEXTAREA" ||
-        tag === "SELECT" ||
-        el.isContentEditable === true
-      );
-    };
     const kd = (e: KeyboardEvent) => {
-      if (isTypingTarget(e.target)) return;
       if (e.key === "i" || e.key === "I") {
         e.preventDefault();
         zoomIn();
@@ -1889,7 +1824,6 @@ function GamePage() {
     };
 
     const ku = (e: KeyboardEvent) => {
-      if (isTypingTarget(e.target)) return;
       const dir = map[e.key];
       if (!dir) return;
       e.preventDefault();
@@ -1929,14 +1863,7 @@ function GamePage() {
 
     const step = (dt: number) => {
       const s = stateRef.current;
-      // Freeze player input while conversing with an NPC.
-      const keys = chatOpenRef.current
-        ? (new Set<string>() as Set<string>)
-        : keysRef.current;
-      if (chatOpenRef.current) {
-        s.vx = 0;
-        if (s.grounded) s.animT = 0;
-      }
+      const keys = keysRef.current;
 
       // ----- Cave mode: simple side-scroller physics, no water/shark -----
       if (modeRef.current === "cave") {
@@ -3680,86 +3607,6 @@ function GamePage() {
         else if (ghostKind === "chest") drawChest(ctx, gx, GROUND_Y, 0.6);
         else if (ghostKind === "anvil") drawAnvil(ctx, gx, GROUND_Y, 0.6);
         ctx.restore();
-      }
-      // NPC — wanders in the forest to the east of spawn. Draws in world mode
-      // only; we also track proximity for the interact prompt.
-      {
-        const npc = npcRef.current;
-        if (npc) {
-          const npcScreenX = Math.round(npc.x - camX);
-          if (npcScreenX > -SPRITE_W - 8 && npcScreenX < VW + SPRITE_W + 8) {
-          // Wander: change direction occasionally, pause sometimes, and stay
-          // within a comfortable radius of the NPC's home.
-          const w = npcWanderRef.current;
-          if (w) {
-            const nowMs = performance.now();
-            const dt = Math.min(64, nowMs - w.lastMs) / 1000;
-            w.lastMs = nowMs;
-            if (nowMs >= w.changeAt) {
-              const r = Math.random();
-              if (r < 0.35) {
-                w.moving = false;
-                w.changeAt = nowMs + 900 + Math.random() * 1800;
-              } else {
-                w.moving = true;
-                w.dir = Math.random() < 0.5 ? -1 : 1;
-                w.changeAt = nowMs + 1400 + Math.random() * 2400;
-              }
-            }
-            // Keep within ~140 px of home.
-            const off = npc.x - w.homeX;
-            if (off > 140) w.dir = -1;
-            else if (off < -140) w.dir = 1;
-            const frozen = chatOpenRef.current;
-            const canMove = w.moving && modeRef.current === "world" && !frozen;
-            if (canMove) {
-              const speed = 18; // px/sec
-              npc.x += w.dir * speed * dt;
-              w.facing = w.dir;
-              npcAnimTRef.current += dt;
-            } else {
-              npcAnimTRef.current = 0;
-            }
-            const npcGroundY2 =
-              GROUND_Y + beachSurfaceOffset(npc.x + SPRITE_W / 2);
-            const npcY2 = npcGroundY2 - SPRITE_H + FOOT_OFFSET;
-            // Soft shadow
-            ctx.fillStyle = "rgba(0,0,0,0.28)";
-            const npcScreenX2 = Math.round(npc.x - camX);
-            ctx.fillRect(npcScreenX2 + 2, npcGroundY2 + 3, SPRITE_W - 4, 2);
-            // Gentle idle bob so it doesn't feel like a statue.
-            const bob = Math.round(Math.sin(performance.now() * 0.0016) * 0.5);
-            // If the player is very close (or chatting), face the player;
-            // otherwise face the movement direction.
-            const dxToPlayer = s.x + SPRITE_W / 2 - (npc.x + SPRITE_W / 2);
-            const facing: 1 | -1 = frozen || Math.abs(dxToPlayer) <= 28
-              ? (dxToPlayer < 0 ? -1 : 1)
-              : (w.facing as 1 | -1);
-            drawCharacter(ctx, npcScreenX2, npcY2 + bob, npc.appearance, {
-              facing,
-              animT: npcAnimTRef.current,
-              grounded: true,
-            });
-            // Name tag above the head.
-            const label = npc.name;
-            const labelW = label.length * 4 + 6;
-            const labelX = npcScreenX2 + Math.floor(SPRITE_W / 2 - labelW / 2);
-            const labelY = npcY2 - 10;
-            ctx.fillStyle = "rgba(0,0,0,0.65)";
-            ctx.fillRect(labelX, labelY, labelW, 8);
-            drawPixelText(ctx, label, labelX + 3, labelY + 2, "#ffd166");
-            // Interaction hint when the player is close enough.
-            const close = Math.abs(dxToPlayer) <= 28 && modeRef.current === "world";
-            if (close !== npcNearbyRef.current) {
-              npcNearbyRef.current = close;
-              setNpcNearby(close);
-            }
-          }
-          } else if (npcNearbyRef.current) {
-            npcNearbyRef.current = false;
-            setNpcNearby(false);
-          }
-        }
       }
       } // end else (world drawing)
 
@@ -6891,43 +6738,6 @@ function GamePage() {
               appearanceRef.current = next.appearance;
             }
             setEditingLook(false);
-          }}
-        />
-      ) : null}
-      {npcNearby && !npcChatOpen ? (
-        <div className="pointer-events-none fixed bottom-24 left-1/2 -translate-x-1/2 z-40 border-2 border-[#ffd166] bg-[#0d1b2a]/90 text-[#ffd166] text-[10px] sm:text-xs tracking-widest uppercase px-3 py-1.5">
-          {npcRef.current?.name} — pressione E ou{" "}
-          <button
-            className="pointer-events-auto underline"
-            onClick={() => setNpcChatOpen(true)}
-          >
-            toque aqui
-          </button>{" "}
-          para conversar
-        </div>
-      ) : null}
-      {npcChatOpen && npcRef.current ? (
-        <NpcChat
-          npc={npcRef.current}
-          slot={slotIdRef.current ?? 0}
-          onClose={() => setNpcChatOpen(false)}
-          canvasRef={canvasRef}
-          viewW={VW}
-          viewH={VH}
-          getNpcScreen={() => {
-            const n = npcRef.current;
-            if (!n) return null;
-            const cx = n.x - camXRef.current + SPRITE_W / 2;
-            const groundY =
-              GROUND_Y + beachSurfaceOffset(n.x + SPRITE_W / 2);
-            const topY = groundY - SPRITE_H + FOOT_OFFSET;
-            return { x: cx, y: topY };
-          }}
-          getPlayerScreen={() => {
-            const s = stateRef.current;
-            const px = Math.round(s.x) - camXRef.current + SPRITE_W / 2;
-            const py = Math.floor(s.y);
-            return { x: px, y: py };
           }}
         />
       ) : null}
