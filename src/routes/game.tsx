@@ -2292,7 +2292,7 @@ function GamePage() {
             flashPickup(t("cave2.safe"));
             // Ore spawn: only on walkable ground within the segment —
             // never over the water pool or pit gap.
-            const kinds: OreKind[] = ["coal", "copper", "bronze"];
+            const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
             let placed = 0;
             let attempts = 0;
             while (placed < 2 && attempts < 20) {
