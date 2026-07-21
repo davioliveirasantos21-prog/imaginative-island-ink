@@ -1360,6 +1360,8 @@ function GamePage() {
   const npcNearbyRef = useRef(false);
   const [npcNearby, setNpcNearby] = useState(false);
   const [npcChatOpen, setNpcChatOpen] = useState(false);
+  const chatOpenRef = useRef(false);
+  const npcAnimTRef = useRef(0);
 
   const loadWorld = (slot: number) => {
     // Ensure a per-slot random world seed exists BEFORE reading anything
@@ -1810,6 +1812,17 @@ function GamePage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [npcChatOpen]);
 
+  // Keep the ref in sync so the game loop can freeze player/NPC while chatting.
+  useEffect(() => {
+    chatOpenRef.current = npcChatOpen;
+    if (npcChatOpen) {
+      keysRef.current.clear();
+      const s = stateRef.current;
+      s.vx = 0;
+      s.animT = 0;
+    }
+  }, [npcChatOpen]);
+
 
 
 
@@ -1916,7 +1929,14 @@ function GamePage() {
 
     const step = (dt: number) => {
       const s = stateRef.current;
-      const keys = keysRef.current;
+      // Freeze player input while conversing with an NPC.
+      const keys = chatOpenRef.current
+        ? (new Set<string>() as Set<string>)
+        : keysRef.current;
+      if (chatOpenRef.current) {
+        s.vx = 0;
+        if (s.grounded) s.animT = 0;
+      }
 
       // ----- Cave mode: simple side-scroller physics, no water/shark -----
       if (modeRef.current === "cave") {
@@ -3690,10 +3710,15 @@ function GamePage() {
             const off = npc.x - w.homeX;
             if (off > 140) w.dir = -1;
             else if (off < -140) w.dir = 1;
-            if (w.moving && modeRef.current === "world") {
+            const frozen = chatOpenRef.current;
+            const canMove = w.moving && modeRef.current === "world" && !frozen;
+            if (canMove) {
               const speed = 18; // px/sec
               npc.x += w.dir * speed * dt;
               w.facing = w.dir;
+              npcAnimTRef.current += dt;
+            } else {
+              npcAnimTRef.current = 0;
             }
             const npcGroundY2 =
               GROUND_Y + beachSurfaceOffset(npc.x + SPRITE_W / 2);
@@ -3704,15 +3729,15 @@ function GamePage() {
             ctx.fillRect(npcScreenX2 + 2, npcGroundY2 + 3, SPRITE_W - 4, 2);
             // Gentle idle bob so it doesn't feel like a statue.
             const bob = Math.round(Math.sin(performance.now() * 0.0016) * 0.5);
-            // If the player is very close, face the player; otherwise face
-            // the movement direction.
+            // If the player is very close (or chatting), face the player;
+            // otherwise face the movement direction.
             const dxToPlayer = s.x + SPRITE_W / 2 - (npc.x + SPRITE_W / 2);
-            const facing: 1 | -1 =
-              Math.abs(dxToPlayer) <= 28
-                ? (dxToPlayer < 0 ? -1 : 1)
-                : (w.facing as 1 | -1);
+            const facing: 1 | -1 = frozen || Math.abs(dxToPlayer) <= 28
+              ? (dxToPlayer < 0 ? -1 : 1)
+              : (w.facing as 1 | -1);
             drawCharacter(ctx, npcScreenX2, npcY2 + bob, npc.appearance, {
               facing,
+              animT: npcAnimTRef.current,
               grounded: true,
             });
             // Name tag above the head.
@@ -6886,6 +6911,24 @@ function GamePage() {
           npc={npcRef.current}
           slot={slotIdRef.current ?? 0}
           onClose={() => setNpcChatOpen(false)}
+          canvasRef={canvasRef}
+          viewW={VW}
+          viewH={VH}
+          getNpcScreen={() => {
+            const n = npcRef.current;
+            if (!n) return null;
+            const cx = n.x - camXRef.current + SPRITE_W / 2;
+            const groundY =
+              GROUND_Y + beachSurfaceOffset(n.x + SPRITE_W / 2);
+            const topY = groundY - SPRITE_H + FOOT_OFFSET;
+            return { x: cx, y: topY };
+          }}
+          getPlayerScreen={() => {
+            const s = stateRef.current;
+            const px = Math.round(s.x) - camXRef.current + SPRITE_W / 2;
+            const py = Math.floor(s.y);
+            return { x: px, y: py };
+          }}
         />
       ) : null}
     </div>
