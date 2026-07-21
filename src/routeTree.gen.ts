@@ -13,6 +13,7 @@ import { Route as GameRouteImport } from './routes/game'
 import { Route as CharactersRouteImport } from './routes/characters'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiAiPixelRouteImport } from './routes/api/ai-pixel'
 
 const GameRoute = GameRouteImport.update({
   id: '/game',
@@ -34,18 +35,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiPixelRoute = ApiAiPixelRouteImport.update({
+  id: '/api/ai-pixel',
+  path: '/api/ai-pixel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRoute
+  '/api/ai-pixel': typeof ApiAiPixelRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRoute
+  '/api/ai-pixel': typeof ApiAiPixelRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRoute
+  '/api/ai-pixel': typeof ApiAiPixelRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/characters' | '/game'
+  fullPaths: '/' | '/auth' | '/characters' | '/game' | '/api/ai-pixel'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/characters' | '/game'
-  id: '__root__' | '/' | '/auth' | '/characters' | '/game'
+  to: '/' | '/auth' | '/characters' | '/game' | '/api/ai-pixel'
+  id: '__root__' | '/' | '/auth' | '/characters' | '/game' | '/api/ai-pixel'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +76,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CharactersRoute: typeof CharactersRoute
   GameRoute: typeof GameRoute
+  ApiAiPixelRoute: typeof ApiAiPixelRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-pixel': {
+      id: '/api/ai-pixel'
+      path: '/api/ai-pixel'
+      fullPath: '/api/ai-pixel'
+      preLoaderRoute: typeof ApiAiPixelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CharactersRoute: CharactersRoute,
   GameRoute: GameRoute,
+  ApiAiPixelRoute: ApiAiPixelRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
