@@ -333,7 +333,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex gap-1 border-b-4 border-[#f4e9c1]/20 px-4 py-2">
-          {(["hairs", "clothes", "items", "scenery"] as Tab[]).map((k) => (
+          {(["hairs", "clothes", "items", "scenery", "phrases"] as Tab[]).map((k) => (
             <button
               key={k}
               onClick={() => setTab(k)}
@@ -349,7 +349,9 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                   ? t("admin.tab.clothes")
                   : k === "items"
                     ? t("admin.tab.items")
-                    : t("admin.tab.scenery")}
+                    : k === "scenery"
+                      ? t("admin.tab.scenery")
+                      : "Falas"}
             </button>
           ))}
           <div className="ml-auto flex items-center">
