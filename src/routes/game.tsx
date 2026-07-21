@@ -2855,7 +2855,7 @@ function GamePage() {
           let dirty = false;
           const lo = CAVE_EXIT_X + 90;
           const hi = CAVE_WALL_X - 40;
-          const kinds: OreKind[] = ["coal", "copper", "bronze"];
+          const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
           for (const [id, t] of minedOresRef.current) {
             if (wallClockMs < t) continue;
             // Pick a random empty spot away from every existing UNMINED ore
