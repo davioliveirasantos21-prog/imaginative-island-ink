@@ -812,7 +812,7 @@ function GamePage() {
     | "stone" | "wood" | "seed"
     | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
     | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-    | "coal" | "copper" | "bronze" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
+    | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
   // Hotbar has exactly 10 slots. We surface only the items the player
   // actually owns, in a fixed priority order, and pad the rest with empty
   // slots so the UI always shows 10 boxes.
@@ -820,7 +820,7 @@ function GamePage() {
   const HOTBAR_PRIORITY: SlotKind[] = [
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
     "berrySeed", "palmSeed", "mushroom", "herb",
-    "coal", "copper", "bronze", "copperMetal", "bronzeMetal", "copperBar", "bronzeBar", "torch",
+    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "copperBar", "bronzeBar", "torch",
   ];
   const countFor = (k: SlotKind): number => {
     switch (k) {
