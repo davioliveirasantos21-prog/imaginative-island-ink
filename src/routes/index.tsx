@@ -358,12 +358,23 @@ function IaPixelChat({ onClose }: { onClose: () => void }) {
     () => new DefaultChatTransport({ api: "/api/ai-pixel" }),
     []
   );
-  const { messages, input, handleInputChange, handleSubmit, status } = useChat(
-    {
-      transport,
-    }
-  );
+  const { messages, sendMessage, status, stop } = useChat({ transport });
+  const [input, setInput] = useState("");
   const isLoading = status === "submitted" || status === "streaming";
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const text = input.trim();
+    if (!text || isLoading) return;
+    setInput("");
+    await sendMessage({ text });
+  };
+
+  const messageText = (m: (typeof messages)[number]) =>
+    m.parts
+      .filter((p) => p.type === "text")
+      .map((p) => p.text)
+      .join("");
 
   return (
     <div
@@ -406,7 +417,7 @@ function IaPixelChat({ onClose }: { onClose: () => void }) {
                       : "rounded-lg border-2 border-[#f4e9c1]/30 bg-[#0d1b2a] px-4 py-3 text-[#f4e9c1]"
                   }
                 >
-                  <MessageResponse>{m.content}</MessageResponse>
+                  <MessageResponse>{messageText(m)}</MessageResponse>
                 </MessageContent>
               </Message>
             ))}
@@ -420,11 +431,11 @@ function IaPixelChat({ onClose }: { onClose: () => void }) {
         >
           <textarea
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
+                void handleSubmit();
               }
             }}
             placeholder="Digite sua pergunta..."
