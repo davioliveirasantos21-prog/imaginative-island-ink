@@ -4385,12 +4385,13 @@ function GamePage() {
               return;
             }
             const ore = bestOre;
-            const prevHP = cave2OreHPRef.current.get(ore.id) ?? ORE_MAX_HP;
+            const oreMax = oreMaxHp(ore.kind);
+            const prevHP = cave2OreHPRef.current.get(ore.id) ?? oreMax;
             playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               cave2OreHPRef.current.set(ore.id, nextHP);
-              flashPickup(t("msg.ore", { n: nextHP, max: ORE_MAX_HP }));
+              flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
               saveWorld();
               return;
             }
