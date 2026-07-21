@@ -1392,6 +1392,7 @@ function GamePage() {
         coal?: number;
         copper?: number;
         bronze?: number;
+        iron?: number;
         copperMetal?: number;
         bronzeMetal?: number;
         copperBar?: number;
