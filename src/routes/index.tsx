@@ -167,6 +167,23 @@ function MainMenu() {
         >
           🛠 Admin
         </button>
+
+        {playerSession ? (
+          <button
+            onClick={() => void playerSignOut()}
+            className="absolute bottom-11 right-3 border-2 border-[#f4e9c1]/50 bg-[#1b2a3a]/80 px-2 py-1 text-[9px] uppercase tracking-widest text-[#f4e9c1] hover:border-[#f4e9c1] max-w-[160px] truncate"
+            title={`Sair (${playerSession.username})`}
+          >
+            🚪 {playerSession.username}
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate({ to: "/auth" })}
+            className="absolute bottom-11 right-3 border-2 border-[#f4e9c1]/50 bg-[#1b2a3a]/80 px-2 py-1 text-[9px] uppercase tracking-widest text-[#f4e9c1] hover:border-[#f4e9c1]"
+          >
+            🔑 Entrar
+          </button>
+        )}
       </main>
 
 
