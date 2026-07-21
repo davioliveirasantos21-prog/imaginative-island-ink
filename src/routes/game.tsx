@@ -1782,6 +1782,8 @@ function GamePage() {
   // Open the NPC chat when the player is close and presses "E".
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
       if (e.key !== "e" && e.key !== "E") return;
       if (!npcNearbyRef.current) return;
       if (npcChatOpen) return;
