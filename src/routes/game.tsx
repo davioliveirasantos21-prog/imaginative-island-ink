@@ -3668,9 +3668,6 @@ function GamePage() {
         if (npc) {
           const npcScreenX = Math.round(npc.x - camX);
           if (npcScreenX > -SPRITE_W - 8 && npcScreenX < VW + SPRITE_W + 8) {
-            const npcGroundY =
-              GROUND_Y + beachSurfaceOffset(npc.x + SPRITE_W / 2);
-            const npcY = npcGroundY - SPRITE_H + FOOT_OFFSET;
           // Wander: change direction occasionally, pause sometimes, and stay
           // within a comfortable radius of the NPC's home.
           const w = npcWanderRef.current;
