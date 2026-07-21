@@ -1383,6 +1383,14 @@ function GamePage() {
       cave2FloorWebsRef.current = generateFloorWebs(cave2SegsRef.current, seed);
       cave2CentipedesRef.current = generateCentipedes(cave2SegsRef.current, seed);
       npcRef.current = generateNpc(seed, spawnX);
+      npcWanderRef.current = {
+        homeX: npcRef.current.x,
+        dir: 1,
+        changeAt: performance.now() + 1200,
+        lastMs: performance.now(),
+        facing: 1,
+        moving: false,
+      };
 
     } catch {
       /* ignore */
