@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
   component: MainMenu,
 });
 
-type Modal = null | "settings" | "language" | "admin-login";
+type Modal = null | "settings" | "language" | "admin-login" | "ia-pixel";
 
 function MainMenu() {
   const { t, lang, setLang } = useI18n();
@@ -125,15 +125,9 @@ function MainMenu() {
           >
             {t("menu.play")}
           </PixelButton>
-          {playerSession ? (
-            <PixelButton onClick={() => void playerSignOut()}>
-              🚪 Sair ({playerSession.username})
-            </PixelButton>
-          ) : (
-            <PixelButton onClick={() => navigate({ to: "/auth" })}>
-              🔑 Entrar / Criar Conta
-            </PixelButton>
-          )}
+          <PixelButton onClick={() => setModal("ia-pixel")}>
+            🤖 IA Pixel
+          </PixelButton>
           <PixelButton onClick={() => setModal("settings")}>
             {t("menu.settings")}
           </PixelButton>
@@ -173,6 +167,23 @@ function MainMenu() {
         >
           🛠 Admin
         </button>
+
+        {playerSession ? (
+          <button
+            onClick={() => void playerSignOut()}
+            className="absolute bottom-11 right-3 border-2 border-[#f4e9c1]/50 bg-[#1b2a3a]/80 px-2 py-1 text-[9px] uppercase tracking-widest text-[#f4e9c1] hover:border-[#f4e9c1] max-w-[160px] truncate"
+            title={`Sair (${playerSession.username})`}
+          >
+            🚪 {playerSession.username}
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate({ to: "/auth" })}
+            className="absolute bottom-11 right-3 border-2 border-[#f4e9c1]/50 bg-[#1b2a3a]/80 px-2 py-1 text-[9px] uppercase tracking-widest text-[#f4e9c1] hover:border-[#f4e9c1]"
+          >
+            🔑 Entrar
+          </button>
+        )}
       </main>
 
 
@@ -253,6 +264,17 @@ function MainMenu() {
             <PixelButton variant="primary" onClick={() => void submitAdminAuth()}>
               {adminBusy ? "..." : adminMode === "signin" ? "Entrar" : "Criar"}
             </PixelButton>
+          </div>
+        </Modal>
+      )}
+
+      {modal === "ia-pixel" && (
+        <Modal title="IA PIXEL" onClose={() => setModal(null)}>
+          <div className="text-[11px] leading-relaxed tracking-wider text-[#f4e9c1]/80">
+            🤖 Em breve! A IA Pixel vai te ajudar dentro do jogo.
+          </div>
+          <div className="mt-4 flex justify-end">
+            <PixelButton onClick={() => setModal(null)}>OK</PixelButton>
           </div>
         </Modal>
       )}
