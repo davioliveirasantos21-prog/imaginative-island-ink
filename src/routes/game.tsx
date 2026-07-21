@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { generateNpc, type Npc } from "@/lib/npc";
+import { NpcChat } from "@/components/NpcChat";
 
 
 import { useI18n } from "@/lib/i18n";
