@@ -125,15 +125,9 @@ function MainMenu() {
           >
             {t("menu.play")}
           </PixelButton>
-          {playerSession ? (
-            <PixelButton onClick={() => void playerSignOut()}>
-              🚪 Sair ({playerSession.username})
-            </PixelButton>
-          ) : (
-            <PixelButton onClick={() => navigate({ to: "/auth" })}>
-              🔑 Entrar / Criar Conta
-            </PixelButton>
-          )}
+          <PixelButton onClick={() => setModal("ia-pixel")}>
+            🤖 IA Pixel
+          </PixelButton>
           <PixelButton onClick={() => setModal("settings")}>
             {t("menu.settings")}
           </PixelButton>
