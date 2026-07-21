@@ -68,35 +68,62 @@ export const Route = createFileRoute("/api/ai-pixel")({
               .join(" ")
               .trim() ?? "";
 
-          const selectorSystem = [
-            `Você é ${npcName}, um ilhéu ${personality ?? "misterioso e bem humorado"}.`,
-            "Sua tarefa: dada a mensagem do forasteiro, escolher qual das frases numeradas abaixo é a MELHOR resposta.",
-            "Responda APENAS com o número da frase escolhida (ex.: 7). Sem texto, sem pontuação, sem explicação.",
-            "Se nenhuma encaixar perfeitamente, escolha a menos ruim. Nunca invente frases.",
-            "LISTA DE FRASES:",
-            phrases.map((p, i) => `${i + 1}. ${p}`).join("\n"),
-          ].join("\n");
-
-          let chosenIndex = 0;
-          try {
-            const { text } = await generateText({
-              model: provider(MODEL),
-              system: selectorSystem,
-              temperature: 0,
-              prompt: `Mensagem do forasteiro: "${lastText}"\n\nNúmero da frase escolhida:`,
-            });
-            const match = text.match(/\d+/);
-            const n = match ? parseInt(match[0], 10) : 1;
-            if (Number.isFinite(n) && n >= 1 && n <= phrases.length) {
-              chosenIndex = n - 1;
-            } else {
-              chosenIndex = Math.floor(Math.random() * phrases.length);
+          // Frases já ditas pelo NPC nesta conversa — evitamos repetir.
+          const usedPhrases = new Set<string>();
+          for (const m of uiMessages) {
+            if (m.role !== "assistant") continue;
+            for (const p of m.parts) {
+              if (p.type === "text") usedPhrases.add(p.text.trim());
             }
-          } catch {
-            chosenIndex = Math.floor(Math.random() * phrases.length);
           }
 
-          const phrase = phrases[chosenIndex];
+          // Curto-circuito: se a mensagem for muito curta ou vazia,
+          // sorteia direto sem chamar o modelo (rápido e evita repetição).
+          let chosenIndex = -1;
+          const shouldAskModel = lastText.length >= 3;
+
+          if (shouldAskModel) {
+            const selectorSystem = [
+              `Você é ${npcName}, um ilhéu ${personality ?? "misterioso e bem humorado"}.`,
+              "Escolha qual das frases numeradas abaixo responde melhor à mensagem do forasteiro.",
+              "Responda APENAS com o número (ex.: 7). Sem texto, sem pontuação.",
+              "LISTA:",
+              phrases.map((p, i) => `${i + 1}. ${p}`).join("\n"),
+            ].join("\n");
+
+            try {
+              const controller = new AbortController();
+              const timeout = setTimeout(() => controller.abort(), 8000);
+              const { text } = await generateText({
+                model: provider(MODEL),
+                system: selectorSystem,
+                temperature: 0.4,
+                prompt: `Forasteiro disse: "${lastText}"\nNúmero:`,
+                abortSignal: controller.signal,
+              });
+              clearTimeout(timeout);
+              const match = text.match(/\d+/);
+              const n = match ? parseInt(match[0], 10) : NaN;
+              if (Number.isFinite(n) && n >= 1 && n <= phrases.length) {
+                chosenIndex = n - 1;
+              }
+            } catch {
+              /* fallback abaixo */
+            }
+          }
+
+          // Se a IA falhou/timed out OU escolheu uma frase já usada,
+          // pega uma frase ainda não dita nesta conversa aleatoriamente.
+          const chosenPhrase = chosenIndex >= 0 ? phrases[chosenIndex] : null;
+          let phrase: string;
+          if (chosenPhrase && !usedPhrases.has(chosenPhrase)) {
+            phrase = chosenPhrase;
+          } else {
+            const available = phrases.filter((p) => !usedPhrases.has(p));
+            const pool = available.length > 0 ? available : phrases;
+            phrase = pool[Math.floor(Math.random() * pool.length)];
+          }
+
           const stream = createUIMessageStream({
             execute: ({ writer }) => {
               const id = crypto.randomUUID();
@@ -108,6 +135,7 @@ export const Route = createFileRoute("/api/ai-pixel")({
           });
           return createUIMessageStreamResponse({ stream });
         }
+
 
         // --- Free-form fallback ------------------------------------------
         const system = npcName
