@@ -7196,6 +7196,7 @@ function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kin
     coal:   { rock: "#3a3f47", rockHi: "#4a4f57", core: "#0a0608", hi: "#f2f2f2" },
     copper: { rock: "#3a3f47", rockHi: "#4a4f57", core: "#d67a3e", hi: "#ffc98a" },
     bronze: { rock: "#3a3f47", rockHi: "#4a4f57", core: "#b8933e", hi: "#f0d787" },
+    iron:   { rock: "#2f3a2c", rockHi: "#465443", core: "#c2743a", hi: "#ffb872" },
   };
   const p = palette[kind];
   // Rocky base — flat 16x10 block with a 12x2 cap on top forming the "bump".
