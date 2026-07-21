@@ -1349,6 +1349,7 @@ function GamePage() {
   const worldStorageKey = (slot: number) => `pixel-realms.world.${slot}`;
   const worldSeedRef = useRef<number>(1337);
   const npcRef = useRef<Npc | null>(null);
+  const npcNearbyRef = useRef(false);
   const [npcNearby, setNpcNearby] = useState(false);
   const [npcChatOpen, setNpcChatOpen] = useState(false);
 
