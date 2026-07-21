@@ -2944,9 +2944,10 @@ function GamePage() {
           for (const ore of caveOresRef.current) {
             if (minedOresRef.current.has(ore.id)) continue;
             const hp = caveOreHPRef.current.get(ore.id);
-            if (hp == null || hp >= ORE_MAX_HP) continue;
+            const oreMax = oreMaxHp(ore.kind);
+            if (hp == null || hp >= oreMax) continue;
             if (Math.abs(ore.x - playerCX2) > HP_BAR_VIEW_RANGE) continue;
-            const pct = Math.max(0, Math.min(1, hp / ORE_MAX_HP));
+            const pct = Math.max(0, Math.min(1, hp / oreMax));
             const bx = Math.round(ore.x - 7 - camX);
             const by = GROUND_Y - 22;
             ctx.fillStyle = "rgba(0,0,0,0.55)";
