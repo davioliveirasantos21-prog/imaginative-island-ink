@@ -1858,6 +1858,7 @@ function GamePage() {
     };
 
     const ku = (e: KeyboardEvent) => {
+      if (isTypingTarget(e.target)) return;
       const dir = map[e.key];
       if (!dir) return;
       e.preventDefault();
