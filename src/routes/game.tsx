@@ -3023,7 +3023,7 @@ function GamePage() {
         if (cave2MinedOresRef.current.size > 0) {
           const wallClockMs = Date.now();
           let dirty = false;
-          const kinds: OreKind[] = ["coal", "copper", "bronze"];
+          const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
           const clearedSegs = cave2SegsRef.current.filter(
             (seg) =>
               seg.kind !== "start" &&
