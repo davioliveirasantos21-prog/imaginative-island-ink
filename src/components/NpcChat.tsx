@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, type UIMessage } from "ai";
 import {
   Conversation,
   ConversationContent,
@@ -10,9 +10,33 @@ import {
 import { Message, MessageResponse } from "@/components/ai-elements/message";
 import { drawCharacter, SPRITE_H, SPRITE_W } from "@/lib/appearance";
 import type { Npc } from "@/lib/npc";
-import { useEffect, useRef } from "react";
 
-export function NpcChat({ npc, onClose }: { npc: Npc; onClose: () => void }) {
+function storageKeyFor(slot: number, npcName: string) {
+  return `pixel-realms.npc-chat.${slot}.${npcName}`;
+}
+
+function loadInitial(slot: number, npcName: string): UIMessage[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(storageKeyFor(slot, npcName));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed as UIMessage[];
+  } catch {
+    return [];
+  }
+}
+
+export function NpcChat({
+  npc,
+  slot,
+  onClose,
+}: {
+  npc: Npc;
+  slot: number;
+  onClose: () => void;
+}) {
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
@@ -21,9 +45,34 @@ export function NpcChat({ npc, onClose }: { npc: Npc; onClose: () => void }) {
       }),
     [npc.name, npc.personality],
   );
-  const { messages, sendMessage, status } = useChat({ transport });
+
+  // Load persisted messages once per (slot, npc.name).
+  const initial = useMemo(
+    () => loadInitial(slot, npc.name),
+    [slot, npc.name],
+  );
+
+  const { messages, sendMessage, setMessages, status } = useChat({
+    id: `npc-${slot}-${npc.name}`,
+    messages: initial,
+    transport,
+  });
   const [input, setInput] = useState("");
   const isLoading = status === "submitted" || status === "streaming";
+
+  // Persist messages to localStorage whenever they change and streaming is idle
+  // (also persist during streaming so partials survive a reload).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        storageKeyFor(slot, npc.name),
+        JSON.stringify(messages),
+      );
+    } catch {
+      /* ignore quota */
+    }
+  }, [messages, slot, npc.name]);
 
   const previewRef = useRef<HTMLCanvasElement | null>(null);
   useEffect(() => {
@@ -40,12 +89,29 @@ export function NpcChat({ npc, onClose }: { npc: Npc; onClose: () => void }) {
     ctx.restore();
   }, [npc.appearance]);
 
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const text = input.trim();
     if (!text || isLoading) return;
     setInput("");
     await sendMessage({ text });
+    // Return focus so the user can keep typing.
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleClear = () => {
+    setMessages([]);
+    try {
+      window.localStorage.removeItem(storageKeyFor(slot, npc.name));
+    } catch {
+      /* ignore */
+    }
+    inputRef.current?.focus();
   };
 
   const messageText = (m: (typeof messages)[number]) =>
@@ -85,13 +151,24 @@ export function NpcChat({ npc, onClose }: { npc: Npc; onClose: () => void }) {
               </h2>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-[#f4e9c1]/70 hover:text-[#f4e9c1]"
-            aria-label="Fechar"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-2">
+            {messages.length > 0 ? (
+              <button
+                onClick={handleClear}
+                className="text-[10px] uppercase tracking-widest text-[#f4e9c1]/60 hover:text-[#f4e9c1]"
+                aria-label="Limpar conversa"
+              >
+                Limpar
+              </button>
+            ) : null}
+            <button
+              onClick={onClose}
+              className="text-[#f4e9c1]/70 hover:text-[#f4e9c1]"
+              aria-label="Fechar"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <Conversation className="flex-1">
@@ -130,6 +207,7 @@ export function NpcChat({ npc, onClose }: { npc: Npc; onClose: () => void }) {
           className="flex items-end gap-2 border-t-4 border-[#f4e9c1]/30 bg-[#0d1b2a] p-3"
         >
           <textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
