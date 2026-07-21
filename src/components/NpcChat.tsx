@@ -10,6 +10,7 @@ import {
 import { Message, MessageResponse } from "@/components/ai-elements/message";
 import { drawCharacter, SPRITE_H, SPRITE_W } from "@/lib/appearance";
 import type { Npc } from "@/lib/npc";
+import { loadNpcPhrases } from "@/lib/npc-phrases";
 
 function storageKeyFor(slot: number, npcName: string) {
   return `pixel-realms.npc-chat.${slot}.${npcName}`;
