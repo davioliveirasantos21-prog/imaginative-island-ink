@@ -1348,6 +1348,9 @@ function GamePage() {
   const slotIdRef = useRef<number | null>(null);
   const worldStorageKey = (slot: number) => `pixel-realms.world.${slot}`;
   const worldSeedRef = useRef<number>(1337);
+  const npcRef = useRef<Npc | null>(null);
+  const [npcNearby, setNpcNearby] = useState(false);
+  const [npcChatOpen, setNpcChatOpen] = useState(false);
 
   const loadWorld = (slot: number) => {
     // Ensure a per-slot random world seed exists BEFORE reading anything
