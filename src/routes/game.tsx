@@ -4210,12 +4210,13 @@ function GamePage() {
             }
             // Pick deals 1 damage per hit; ore has ORE_MAX_HP.
             const ore = bestOre;
-            const prevHP = caveOreHPRef.current.get(ore.id) ?? ORE_MAX_HP;
+            const oreMax = oreMaxHp(ore.kind);
+            const prevHP = caveOreHPRef.current.get(ore.id) ?? oreMax;
             playOneShotReverb(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               caveOreHPRef.current.set(ore.id, nextHP);
-              flashPickup(t("msg.ore", { n: nextHP, max: ORE_MAX_HP }));
+              flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
               saveWorld();
               return;
             }
