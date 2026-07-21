@@ -413,7 +413,7 @@ function IaPixelChat({ onClose }: { onClose: () => void }) {
                 <div
                   className={
                     m.role === "user"
-                      ? "rounded-lg px-4 py-3"
+                      ? "ml-auto rounded-lg px-4 py-3"
                       : "rounded-lg border-2 border-[#f4e9c1]/30 px-4 py-3"
                   }
                   style={
