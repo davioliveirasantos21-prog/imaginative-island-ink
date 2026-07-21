@@ -413,8 +413,8 @@ function IaPixelChat({ onClose }: { onClose: () => void }) {
                 <MessageContent
                   className={
                     m.role === "user"
-                      ? "rounded-lg bg-[#ffd166]/90 px-4 py-3 text-[#0d1b2a]"
-                      : "rounded-lg border-2 border-[#f4e9c1]/30 bg-[#0d1b2a] px-4 py-3 text-[#f4e9c1]"
+                      ? "rounded-lg !bg-[#ffd166]/90 px-4 py-3 !text-[#0d1b2a]"
+                      : "rounded-lg border-2 border-[#f4e9c1]/30 !bg-[#0d1b2a] px-4 py-3 !text-[#f4e9c1]"
                   }
                 >
                   <MessageResponse>{messageText(m)}</MessageResponse>
