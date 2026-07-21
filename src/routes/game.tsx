@@ -1918,7 +1918,14 @@ function GamePage() {
 
     const step = (dt: number) => {
       const s = stateRef.current;
-      const keys = keysRef.current;
+      // Freeze player input while conversing with an NPC.
+      const keys = chatOpenRef.current
+        ? (new Set<string>() as Set<string>)
+        : keysRef.current;
+      if (chatOpenRef.current) {
+        s.vx = 0;
+        if (s.grounded) s.animT = 0;
+      }
 
       // ----- Cave mode: simple side-scroller physics, no water/shark -----
       if (modeRef.current === "cave") {
