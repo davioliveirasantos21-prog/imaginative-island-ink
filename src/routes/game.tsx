@@ -6884,6 +6884,7 @@ function GamePage() {
       {npcChatOpen && npcRef.current ? (
         <NpcChat
           npc={npcRef.current}
+          slot={slotIdRef.current ?? 0}
           onClose={() => setNpcChatOpen(false)}
         />
       ) : null}
