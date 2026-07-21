@@ -1,14 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationEmptyState,
-  ConversationScrollButton,
-} from "@/components/ai-elements/conversation";
-import { Message, MessageResponse } from "@/components/ai-elements/message";
-import { drawCharacter, SPRITE_H, SPRITE_W } from "@/lib/appearance";
 import type { Npc } from "@/lib/npc";
 import { loadNpcPhrases } from "@/lib/npc-phrases";
 
@@ -29,14 +21,26 @@ function loadInitial(slot: number, npcName: string): UIMessage[] {
   }
 }
 
+type ScreenPos = { x: number; y: number };
+
 export function NpcChat({
   npc,
   slot,
   onClose,
+  canvasRef,
+  viewW,
+  viewH,
+  getNpcScreen,
+  getPlayerScreen,
 }: {
   npc: Npc;
   slot: number;
   onClose: () => void;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  viewW: number;
+  viewH: number;
+  getNpcScreen: () => ScreenPos | null;
+  getPlayerScreen: () => ScreenPos;
 }) {
   const transport = useMemo(
     () =>
@@ -51,7 +55,6 @@ export function NpcChat({
     [npc.name, npc.personality],
   );
 
-  // Load persisted messages once per (slot, npc.name).
   const initial = useMemo(
     () => loadInitial(slot, npc.name),
     [slot, npc.name],
@@ -65,8 +68,7 @@ export function NpcChat({
   const [input, setInput] = useState("");
   const isLoading = status === "submitted" || status === "streaming";
 
-  // Persist messages to localStorage whenever they change and streaming is idle
-  // (also persist during streaming so partials survive a reload).
+  // Persist messages to localStorage.
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -79,22 +81,7 @@ export function NpcChat({
     }
   }, [messages, slot, npc.name]);
 
-  const previewRef = useRef<HTMLCanvasElement | null>(null);
-  useEffect(() => {
-    const canvas = previewRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const scale = 2;
-    ctx.save();
-    ctx.scale(scale, scale);
-    drawCharacter(ctx, 0, 0, npc.appearance, { facing: 1, grounded: true });
-    ctx.restore();
-  }, [npc.appearance]);
-
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -105,7 +92,6 @@ export function NpcChat({
     if (!text || isLoading) return;
     setInput("");
     await sendMessage({ text });
-    // Return focus so the user can keep typing.
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
@@ -125,115 +111,213 @@ export function NpcChat({
       .map((p) => p.text)
       .join("");
 
+  // Last message per role for the balloons.
+  const lastNpcMsg = [...messages].reverse().find((m) => m.role === "assistant");
+  const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
+  const npcText = lastNpcMsg ? messageText(lastNpcMsg) : "";
+  const userText = lastUserMsg ? messageText(lastUserMsg) : "";
+
+  // Live-tracked screen positions of NPC and player (in CSS px, relative
+  // to the canvas' bounding rect).
+  const [npcPos, setNpcPos] = useState<ScreenPos | null>(null);
+  const [playerPos, setPlayerPos] = useState<ScreenPos | null>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const sx = rect.width / viewW;
+        const sy = rect.height / viewH;
+        setScale(sx);
+        const nRaw = getNpcScreen();
+        if (nRaw) setNpcPos({ x: nRaw.x * sx, y: nRaw.y * sy });
+        const pRaw = getPlayerScreen();
+        setPlayerPos({ x: pRaw.x * sx, y: pRaw.y * sy });
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [canvasRef, viewW, viewH, getNpcScreen, getPlayerScreen]);
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-40 font-pixel">
+      {/* NPC balloon (above the NPC's head) */}
+      {npcPos && npcText ? (
+        <Balloon
+          x={npcPos.x}
+          y={npcPos.y}
+          side="npc"
+          text={
+            isLoading && lastNpcMsg && lastNpcMsg.id === messages[messages.length - 1]?.id
+              ? npcText || "..."
+              : npcText
+          }
+          scale={scale}
+        />
+      ) : isLoading && !npcText && npcPos ? (
+        <Balloon x={npcPos.x} y={npcPos.y} side="npc" text="..." scale={scale} />
+      ) : null}
+
+      {/* Player balloon (above the player's head) */}
+      {playerPos && userText ? (
+        <Balloon
+          x={playerPos.x}
+          y={playerPos.y}
+          side="player"
+          text={userText}
+          scale={scale}
+        />
+      ) : null}
+
+      {/* Close (X) — top-right of the canvas overlay */}
+      <button
+        onClick={onClose}
+        className="pointer-events-auto absolute top-2 right-2 border-2 border-[#f4e9c1] bg-[#0d1b2a]/90 px-2 py-1 text-[10px] uppercase tracking-widest text-[#f4e9c1] hover:bg-[#1b2a3a]"
+        aria-label="Fechar conversa"
+      >
+        ✕ Sair
+      </button>
+
+      {messages.length > 0 ? (
+        <button
+          onClick={handleClear}
+          className="pointer-events-auto absolute top-2 right-20 border-2 border-[#f4e9c1]/60 bg-[#0d1b2a]/80 px-2 py-1 text-[10px] uppercase tracking-widest text-[#f4e9c1]/80 hover:bg-[#1b2a3a]"
+          aria-label="Limpar conversa"
+        >
+          Limpar
+        </button>
+      ) : null}
+
+      {/* Speech input at the bottom */}
+      <form
+        onSubmit={handleSubmit}
+        className="pointer-events-auto absolute bottom-3 left-1/2 -translate-x-1/2 flex w-[min(92%,520px)] items-center gap-2 border-4 border-[#f4e9c1] bg-[#1b2a3a] px-2 py-2"
+        style={{ boxShadow: "0 4px 0 #0a141f" }}
+      >
+        <span className="hidden sm:inline text-[10px] uppercase tracking-widest text-[#ffd166]">
+          Você:
+        </span>
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={`Falar com ${npc.name}...`}
+          className="flex-1 border-2 border-[#f4e9c1]/40 bg-[#0d1b2a] px-2 py-1.5 text-xs text-[#f4e9c1] outline-none focus:border-[#ffd166]"
+          disabled={isLoading}
+          autoComplete="off"
+          onKeyDown={(e) => {
+            // Swallow game key events at capture time via stopPropagation
+            e.stopPropagation();
+          }}
+          onKeyUp={(e) => e.stopPropagation()}
+        />
+        <button
+          type="submit"
+          disabled={isLoading || !input.trim()}
+          className="border-2 border-[#ffd166] bg-[#ffd166] px-3 py-1.5 text-xs font-bold uppercase text-[#0d1b2a] disabled:opacity-50"
+        >
+          {isLoading ? "..." : "Dizer"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+/**
+ * Pixel-art speech balloon. Positioned so its "tail" points DOWN at (x, y)
+ * (i.e. the character's head). Uses chunky 4px pixel borders drawn with
+ * layered box-shadows to keep the look pixelated without a real bitmap.
+ */
+function Balloon({
+  x,
+  y,
+  side,
+  text,
+  scale,
+}: {
+  x: number;
+  y: number;
+  side: "npc" | "player";
+  text: string;
+  scale: number;
+}) {
+  const px = Math.max(2, Math.round(scale)); // 1 "pixel" in CSS px
+  const bg = side === "npc" ? "#f4e9c1" : "#ffd166";
+  const fg = "#0d1b2a";
+
+  const maxCh = 28; // wrap width in characters
+  // Pixel-styled border using layered outlines that look like blocky pixels.
+  const border = `
+    0 0 0 ${px}px ${fg},
+    ${px}px 0 0 0 ${fg},
+    -${px}px 0 0 0 ${fg},
+    0 ${px}px 0 0 ${fg},
+    0 -${px}px 0 0 ${fg}
+  `;
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={onClose}
+      className="pointer-events-none absolute select-none"
+      style={{
+        left: x,
+        top: y,
+        transform: `translate(-50%, calc(-100% - ${18 * px}px))`,
+        zIndex: 50,
+      }}
     >
       <div
-        className="flex h-[80vh] w-full max-w-2xl flex-col border-4 border-[#f4e9c1] bg-[#1b2a3a] font-pixel text-[#f4e9c1]"
-        style={{ boxShadow: "0 8px 0 #0a141f, 0 12px 0 rgba(0,0,0,0.5)" }}
-        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: bg,
+          color: fg,
+          padding: `${px * 2}px ${px * 3}px`,
+          maxWidth: `${maxCh}ch`,
+          minWidth: `${8 * px}px`,
+          fontSize: Math.max(10, Math.round(px * 3.5)),
+          lineHeight: 1.25,
+          fontFamily: "inherit",
+          textAlign: "center",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          boxShadow: border,
+          imageRendering: "pixelated",
+        }}
       >
-        <div className="flex items-center justify-between gap-3 border-b-4 border-[#f4e9c1]/30 px-4 py-3">
-          <div className="flex items-center gap-3">
-            <canvas
-              ref={previewRef}
-              width={SPRITE_W * 2}
-              height={SPRITE_H * 2}
-              className="[image-rendering:pixelated]"
-              style={{
-                width: SPRITE_W * 2,
-                height: SPRITE_H * 2,
-              }}
-            />
-            <div>
-              <div className="text-[10px] uppercase tracking-widest text-[#f4e9c1]/60">
-                Conversar com
-              </div>
-              <h2 className="text-sm tracking-widest text-[#ffd166]">
-                {npc.name}
-              </h2>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {messages.length > 0 ? (
-              <button
-                onClick={handleClear}
-                className="text-[10px] uppercase tracking-widest text-[#f4e9c1]/60 hover:text-[#f4e9c1]"
-                aria-label="Limpar conversa"
-              >
-                Limpar
-              </button>
-            ) : null}
-            <button
-              onClick={onClose}
-              className="text-[#f4e9c1]/70 hover:text-[#f4e9c1]"
-              aria-label="Fechar"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-
-        <Conversation className="flex-1">
-          <ConversationContent>
-            {messages.length === 0 && (
-              <ConversationEmptyState
-                title={npc.name}
-                description="Diga alguma coisa... quem sabe ele responde de verdade."
-                icon={<span className="text-2xl">🍃</span>}
-              />
-            )}
-            {messages.map((m) => (
-              <Message key={m.id} from={m.role}>
-                <div
-                  className={
-                    m.role === "user"
-                      ? "ml-auto rounded-lg px-4 py-3"
-                      : "rounded-lg border-2 border-[#f4e9c1]/30 px-4 py-3"
-                  }
-                  style={
-                    m.role === "user"
-                      ? { backgroundColor: "#ffd166", color: "#0d1b2a" }
-                      : { backgroundColor: "#0d1b2a", color: "#f4e9c1" }
-                  }
-                >
-                  <MessageResponse>{messageText(m)}</MessageResponse>
-                </div>
-              </Message>
-            ))}
-          </ConversationContent>
-          <ConversationScrollButton />
-        </Conversation>
-
-        <form
-          onSubmit={handleSubmit}
-          className="flex items-end gap-2 border-t-4 border-[#f4e9c1]/30 bg-[#0d1b2a] p-3"
-        >
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                void handleSubmit();
-              }
-            }}
-            placeholder={`Falar com ${npc.name}...`}
-            rows={1}
-            className="max-h-32 flex-1 resize-none border-4 border-[#f4e9c1]/50 bg-[#1b2a3a] px-3 py-2 text-sm text-[#f4e9c1] outline-none focus:border-[#ffd166]"
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="border-4 border-[#ffd166] bg-[#ffd166] px-4 py-2 text-sm font-bold uppercase text-[#0d1b2a] transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {isLoading ? "..." : "Enviar"}
-          </button>
-        </form>
+        {text}
+      </div>
+      {/* Chunky pixel tail pointing down at the character. */}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: `-${px * 3}px`,
+          transform: "translateX(-50%)",
+          width: `${px * 4}px`,
+          height: `${px * 3}px`,
+          display: "grid",
+          gridTemplateColumns: `repeat(4, ${px}px)`,
+          gridTemplateRows: `repeat(3, ${px}px)`,
+        }}
+      >
+        {/* Row 1 */}
+        <div style={{ background: bg, boxShadow: `0 -${px}px 0 ${bg}` }} />
+        <div style={{ background: bg }} />
+        <div style={{ background: bg }} />
+        <div style={{ background: bg }} />
+        {/* Row 2 */}
+        <div />
+        <div style={{ background: bg }} />
+        <div style={{ background: bg }} />
+        <div />
+        {/* Row 3 */}
+        <div />
+        <div />
+        <div style={{ background: bg }} />
+        <div />
       </div>
     </div>
   );
