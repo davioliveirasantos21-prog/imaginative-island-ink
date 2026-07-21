@@ -3026,7 +3026,7 @@ function GamePage() {
         if (cave2MinedOresRef.current.size > 0) {
           const wallClockMs = Date.now();
           let dirty = false;
-          const kinds: OreKind[] = ["coal", "copper", "bronze", "iron"];
+          const baseKinds: OreKind[] = ["coal", "copper", "bronze"];
           const clearedSegs = cave2SegsRef.current.filter(
             (seg) =>
               seg.kind !== "start" &&
@@ -3065,7 +3065,7 @@ function GamePage() {
               cave2MinedOresRef.current.set(id, wallClockMs + 2000);
               continue;
             }
-            const nkind = kinds[Math.floor(Math.random() * kinds.length)];
+            const nkind = Math.random() < 0.1 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
             const nid = `c2-r-${nx}-${wallClockMs}-${Math.floor(Math.random() * 1000)}`;
             cave2OresRef.current = [
               ...cave2OresRef.current.filter((o) => o.id !== id),
