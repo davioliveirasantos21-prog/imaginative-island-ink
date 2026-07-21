@@ -1812,6 +1812,17 @@ function GamePage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [npcChatOpen]);
 
+  // Keep the ref in sync so the game loop can freeze player/NPC while chatting.
+  useEffect(() => {
+    chatOpenRef.current = npcChatOpen;
+    if (npcChatOpen) {
+      keysRef.current.clear();
+      const s = stateRef.current;
+      s.vx = 0;
+      s.animT = 0;
+    }
+  }, [npcChatOpen]);
+
 
 
 
