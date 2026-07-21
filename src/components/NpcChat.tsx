@@ -123,19 +123,22 @@ export function NpcChat({
   const [playerPos, setPlayerPos] = useState<ScreenPos | null>(null);
   const [scale, setScale] = useState(1);
 
+  const [rect, setRect] = useState<{ left: number; top: number; width: number; height: number }>({ left: 0, top: 0, width: 0, height: 0 });
+
   useEffect(() => {
     let raf = 0;
     const tick = () => {
       const canvas = canvasRef.current;
       if (canvas) {
-        const rect = canvas.getBoundingClientRect();
-        const sx = rect.width / viewW;
-        const sy = rect.height / viewH;
+        const r = canvas.getBoundingClientRect();
+        const sx = r.width / viewW;
+        const sy = r.height / viewH;
         setScale(sx);
+        setRect({ left: r.left, top: r.top, width: r.width, height: r.height });
         const nRaw = getNpcScreen();
-        if (nRaw) setNpcPos({ x: nRaw.x * sx, y: nRaw.y * sy });
+        if (nRaw) setNpcPos({ x: r.left + nRaw.x * sx, y: r.top + nRaw.y * sy });
         const pRaw = getPlayerScreen();
-        setPlayerPos({ x: pRaw.x * sx, y: pRaw.y * sy });
+        setPlayerPos({ x: r.left + pRaw.x * sx, y: r.top + pRaw.y * sy });
       }
       raf = requestAnimationFrame(tick);
     };
@@ -144,7 +147,7 @@ export function NpcChat({
   }, [canvasRef, viewW, viewH, getNpcScreen, getPlayerScreen]);
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-40 font-pixel">
+    <div className="pointer-events-none fixed inset-0 z-40 font-pixel">
       {/* NPC balloon (above the NPC's head) */}
       {npcPos && npcText ? (
         <Balloon
