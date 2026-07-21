@@ -101,6 +101,12 @@ import {
   type SceneryOverrides,
 } from "@/lib/scenery";
 import { dictionaries, useI18n, type Lang } from "@/lib/i18n";
+import {
+  addNpcPhrases,
+  clearNpcPhrases,
+  loadNpcPhrases,
+  removeNpcPhrase,
+} from "@/lib/npc-phrases";
 
 /**
  * Build a LocalizedName {pt,en,es} from an i18n key so the admin editor
