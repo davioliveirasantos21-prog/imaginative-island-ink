@@ -410,7 +410,7 @@ function IaPixelChat({ onClose }: { onClose: () => void }) {
             )}
             {messages.map((m) => (
               <Message key={m.id} from={m.role}>
-                <MessageContent
+                <div
                   className={
                     m.role === "user"
                       ? "rounded-lg px-4 py-3"
@@ -418,18 +418,12 @@ function IaPixelChat({ onClose }: { onClose: () => void }) {
                   }
                   style={
                     m.role === "user"
-                      ? {
-                          backgroundColor: "rgba(255, 209, 102, 0.9)",
-                          color: "#0d1b2a",
-                        }
-                      : {
-                          backgroundColor: "#0d1b2a",
-                          color: "#f4e9c1",
-                        }
+                      ? { backgroundColor: "#ffd166", color: "#0d1b2a" }
+                      : { backgroundColor: "#0d1b2a", color: "#f4e9c1" }
                   }
                 >
                   <MessageResponse>{messageText(m)}</MessageResponse>
-                </MessageContent>
+                </div>
               </Message>
             ))}
           </ConversationContent>
