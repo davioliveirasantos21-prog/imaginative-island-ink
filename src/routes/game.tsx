@@ -1360,6 +1360,8 @@ function GamePage() {
   const npcNearbyRef = useRef(false);
   const [npcNearby, setNpcNearby] = useState(false);
   const [npcChatOpen, setNpcChatOpen] = useState(false);
+  const chatOpenRef = useRef(false);
+  const npcAnimTRef = useRef(0);
 
   const loadWorld = (slot: number) => {
     // Ensure a per-slot random world seed exists BEFORE reading anything
