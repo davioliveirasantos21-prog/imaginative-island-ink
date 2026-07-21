@@ -178,7 +178,7 @@ function toHairPixels(m: Record<string, PixelTone>): HairPixels {
   return out;
 }
 
-type Tab = "hairs" | "clothes" | "items" | "scenery";
+type Tab = "hairs" | "clothes" | "items" | "scenery" | "phrases";
 
 type HairEdit = { kind: "hair"; editing?: CustomHair };
 type BuiltinHairEdit = { kind: "builtin-hair"; style: HairStyle };
