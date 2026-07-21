@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
   component: MainMenu,
 });
 
-type Modal = null | "settings" | "language" | "admin-login";
+type Modal = null | "settings" | "language" | "admin-login" | "ia-pixel";
 
 function MainMenu() {
   const { t, lang, setLang } = useI18n();
