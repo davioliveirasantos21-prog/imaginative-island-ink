@@ -793,11 +793,11 @@ function GamePage() {
     stones: number; wood: number; seeds: number;
     axe: number; hoe: number; pick: number; copperPick: number; copperHammer: number; spear: number;
     berrySeeds: number; palmSeeds: number; mushrooms: number; herbs: number;
-    coal: number; copper: number; bronze: number; copperMetal: number; bronzeMetal: number; copperBar: number; bronzeBar: number; torches: number;
+    coal: number; copper: number; bronze: number; iron: number; copperMetal: number; bronzeMetal: number; copperBar: number; bronzeBar: number; torches: number;
   }>({
     stones: 0, wood: 0, seeds: 0, axe: 0, hoe: 0, pick: 0, copperPick: 0, copperHammer: 0, spear: 0,
     berrySeeds: 0, palmSeeds: 0, mushrooms: 0, herbs: 0,
-    coal: 0, copper: 0, bronze: 0, copperMetal: 0, bronzeMetal: 0, copperBar: 0, bronzeBar: 0, torches: 0,
+    coal: 0, copper: 0, bronze: 0, iron: 0, copperMetal: 0, bronzeMetal: 0, copperBar: 0, bronzeBar: 0, torches: 0,
   });
 
   type Inv = typeof inventory;
