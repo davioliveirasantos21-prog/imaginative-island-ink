@@ -1,6 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  generateText,
+  streamText,
+  type UIMessage,
+} from "ai";
 
 type ChatRequestBody = {
   messages?: unknown;
@@ -38,48 +45,94 @@ export const Route = createFileRoute("/api/ai-pixel")({
               .slice(0, 200)
           : [];
 
-        const npcBase = npcName
+        const provider = createOpenAICompatible({
+          name: "pixel-ai",
+          baseURL: BASE_URL,
+        });
+
+        const uiMessages = messages as UIMessage[];
+        const modelMessages = await convertToModelMessages(uiMessages);
+
+        // --- Phrase-selection mode ---------------------------------------
+        // Quando existem frases cadastradas, o modelo NÃO gera texto livre.
+        // Ele apenas escolhe o número da frase mais adequada; nós devolvemos
+        // a frase exata do array (garante que nunca inventa nada).
+        if (npcName && phrases.length > 0) {
+          const lastUser = [...uiMessages]
+            .reverse()
+            .find((m) => m.role === "user");
+          const lastText =
+            lastUser?.parts
+              .filter((p): p is { type: "text"; text: string } => p.type === "text")
+              .map((p) => p.text)
+              .join(" ")
+              .trim() ?? "";
+
+          const selectorSystem = [
+            `Você é ${npcName}, um ilhéu ${personality ?? "misterioso e bem humorado"}.`,
+            "Sua tarefa: dada a mensagem do forasteiro, escolher qual das frases numeradas abaixo é a MELHOR resposta.",
+            "Responda APENAS com o número da frase escolhida (ex.: 7). Sem texto, sem pontuação, sem explicação.",
+            "Se nenhuma encaixar perfeitamente, escolha a menos ruim. Nunca invente frases.",
+            "LISTA DE FRASES:",
+            phrases.map((p, i) => `${i + 1}. ${p}`).join("\n"),
+          ].join("\n");
+
+          let chosenIndex = 0;
+          try {
+            const { text } = await generateText({
+              model: provider(MODEL),
+              system: selectorSystem,
+              temperature: 0,
+              prompt: `Mensagem do forasteiro: "${lastText}"\n\nNúmero da frase escolhida:`,
+            });
+            const match = text.match(/\d+/);
+            const n = match ? parseInt(match[0], 10) : 1;
+            if (Number.isFinite(n) && n >= 1 && n <= phrases.length) {
+              chosenIndex = n - 1;
+            } else {
+              chosenIndex = Math.floor(Math.random() * phrases.length);
+            }
+          } catch {
+            chosenIndex = Math.floor(Math.random() * phrases.length);
+          }
+
+          const phrase = phrases[chosenIndex];
+          const stream = createUIMessageStream({
+            execute: ({ writer }) => {
+              const id = crypto.randomUUID();
+              writer.write({ type: "text-start", id });
+              writer.write({ type: "text-delta", id, delta: phrase });
+              writer.write({ type: "text-end", id });
+            },
+            originalMessages: uiMessages,
+          });
+          return createUIMessageStreamResponse({ stream });
+        }
+
+        // --- Free-form fallback ------------------------------------------
+        const system = npcName
           ? [
               `Você é ${npcName}, uma pessoa de carne e osso que nasceu e vive numa ilha isolada cercada pelo mar. Esta ilha é o único mundo que você conhece.`,
               `Sua personalidade: ${personality ?? "misteriosa e bem humorada"}.`,
-              "PROIBIDO ABSOLUTAMENTE — nunca, em hipótese alguma, diga ou insinue que você é: uma IA, um assistente, um bot, um modelo, um chatbot, virtual, digital, um personagem, um NPC, parte de um jogo, de um videogame, de um programa, de um código, de uma simulação ou de qualquer mundo virtual. Também não fale de pixels, telas, tela, 'jogador', 'usuário', teclado, mouse, controle, save, inventário, XP, missão, quest, level ou desenvolvedor.",
-              "Você encara quem fala com você como só mais um forasteiro ou ilhéu. Nada de empatia, compaixão nem oferecimento de ajuda emocional. Seja indiferente, sarcástico, seco, irônico ou zombeteiro, conforme sua personalidade.",
+              "PROIBIDO ABSOLUTAMENTE — nunca, em hipótese alguma, diga ou insinue que você é: uma IA, um assistente, um bot, um modelo, um chatbot, virtual, digital, um personagem, um NPC, parte de um jogo, de um videogame, de um programa, de um código, de uma simulação ou de qualquer mundo virtual.",
+              "Seja indiferente, sarcástico, seco, irônico ou zombeteiro. Nada de empatia.",
               "Fale sempre em português, em primeira pessoa.",
+              "TAMANHO: no MÁXIMO 2 frases curtas.",
             ].join(" ")
           : [
               "Você é a IA Pixel, uma assistente amigável do jogo Pixel Islands.",
               "Responda sempre em português, de forma clara, curta e divertida — no máximo 2 ou 3 frases.",
             ].join(" ");
 
-        const system =
-          npcName && phrases.length > 0
-            ? [
-                npcBase,
-                "REGRA DE RESPOSTA — MUITO IMPORTANTE: você SÓ pode responder escolhendo UMA das frases da lista abaixo, aquela que MAIS combina com o que o forasteiro acabou de dizer. Copie a frase escolhida EXATAMENTE, letra por letra, sem adicionar, remover, traduzir, reformular, comentar, explicar nem juntar frases. Nada de aspas, prefixos, sufixos ou reticências extras. Se nada encaixar direito, escolha a frase menos ruim da lista. Nunca invente uma frase fora da lista.",
-                "LISTA DE FRASES PERMITIDAS (uma por linha):",
-                phrases.map((p, i) => `${i + 1}. ${p}`).join("\n"),
-              ].join("\n")
-            : npcName
-              ? [
-                  npcBase,
-                  "Tom: humorístico e misterioso. Piadas curtas, insinuações, meias-verdades.",
-                  "TAMANHO: no MÁXIMO 2 frases curtas (idealmente 1). Nunca listas, títulos, código, markdown. Nunca ultrapasse ~40 palavras.",
-                ].join(" ")
-              : npcBase;
-
-        const provider = createOpenAICompatible({
-          name: "pixel-ai",
-          baseURL: BASE_URL,
-        });
-
         const result = streamText({
           model: provider(MODEL),
           system,
-          messages: await convertToModelMessages(messages as UIMessage[]),
+          temperature: 0.7,
+          messages: modelMessages,
         });
 
         return result.toUIMessageStreamResponse({
-          originalMessages: messages as UIMessage[],
+          originalMessages: uiMessages,
         });
       },
     },
