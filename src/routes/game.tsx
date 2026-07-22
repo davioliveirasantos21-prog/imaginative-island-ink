@@ -1016,6 +1016,9 @@ function GamePage() {
     // Anvil only: an in-progress forge — raw metal already consumed, sits on
     // top of the anvil, and the player must hammer it N times to finish.
     forgeJob?: ForgeJob;
+    // Furnace only: this furnace's own smelting job. Each furnace is
+    // independent — one can be smelting copper while another burns wood.
+    smeltJob?: SmeltJob;
   };
   const FORGE_HITS_REQUIRED = 5;
   const BUILD_MAX_HP = 10;
