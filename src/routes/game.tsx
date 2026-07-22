@@ -7194,67 +7194,31 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
   }
 }
 
-// Pixel-art sprite for the iron ore, EXACTLY the art the user provided
-// (black background stripped). 15x25 grid, anchored so the bottom row sits
-// on the cave floor.
-const IRON_ORE_SPRITE: readonly string[] = [
-  "..DDMMMDMD.....",
-  "..DMMMMMMDD....",
-  ".DDMMMMMMMMD...",
-  ".DDDDDDMMMMM...",
-  ".DDDDDDMMMMM...",
-  ".DDDDDDMMMMMD..",
-  ".DDDDDDDMMMMDD.",
-  ".DODDDDDMMMMMD.",
-  ".DOODDDDDMMMMD.",
-  "DDOODDDDDMMMMDD",
-  "DOODDDDDDDMMMMD",
-  "DOODDDDDDDDMMMD",
-  "DDDDDDDDDDDMMMD",
-  "DDDDDDDDDDDMMMD",
-  "DDDDDDDDDDDMMMD",
-  "DDDDDDDDDDDMMMD",
-  "DDDDDDDDDDDMMMD",
-  "DDDDDDDDDDDMMMD",
-  "DDDDDDDDDDDMMOO",
-  "DDDDDDDDDDDMMOM",
-  "DDDDMDDDDDDDMOD",
-  "DOOOODDDDDDMOOD",
-  "DDOOOODDDDDOOOD",
-  "DDDOOODDDDDOOOD",
-  ".DDDDDDDDDDDDDD",
-];
-
-const IRON_ORE_PALETTE: Record<string, string> = {
-  L: "#5a6a58", // stone light
-  M: "#3f4a3d", // stone mid
-  D: "#2b3329", // stone dark
-  o: "#c68a4a", // ore highlight
-  O: "#7a3f18", // ore core
-};
+// Iron ore sprite — the EXACT image the user provided, loaded from CDN and
+// drawn pixel-perfect (no reinterpretation).
+let ironOreImg: HTMLImageElement | null = null;
+if (typeof window !== "undefined") {
+  ironOreImg = new Image();
+  ironOreImg.src = ironOreAsset.url;
+}
 
 // Pixel-art ore chunk embedded on the cave floor.
 function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kind: OreKind) {
   if (kind === "iron") {
-    // Render the exact sprite the user drew.
-    const rows = IRON_ORE_SPRITE;
-    const h = rows.length;
-    const w = rows[0].length;
-    const ox = sx - Math.floor(w / 2);
-    const oy = groundY - h + 1; // bottom row sits on the ground line
-    for (let y = 0; y < h; y++) {
-      const row = rows[y];
-      for (let x = 0; x < w; x++) {
-        const ch = row[x];
-        if (ch === "." ) continue;
-        const color = IRON_ORE_PALETTE[ch];
-        if (!color) continue;
-        ctx.fillStyle = color;
-        ctx.fillRect(ox + x, oy + y, 1, 1);
-      }
+    // Render the exact user-provided image, scaled to sprite size.
+    const dw = 15;
+    const dh = 24;
+    const ox = sx - Math.floor(dw / 2);
+    const oy = groundY - dh + 1;
+    if (ironOreImg && ironOreImg.complete && ironOreImg.naturalWidth > 0) {
+      const prev = ctx.imageSmoothingEnabled;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(ironOreImg, ox, oy, dw, dh);
+      ctx.imageSmoothingEnabled = prev;
     }
     return;
   }
+
   // Rock base uses the new gray cave palette; ore cores keep their tint.
   const palette: Record<OreKind, { rock: string; core: string; hi: string; sparkle: string }> = {
     coal:   { rock: "#2f333a", core: "#0a0608", hi: "#4a4e56", sparkle: "#a0a5ad" },
