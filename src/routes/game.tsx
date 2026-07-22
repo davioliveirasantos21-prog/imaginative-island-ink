@@ -895,16 +895,16 @@ function GamePage() {
       setSelectedSlot(newIdx);
     }
   });
-  // Carrying logs occupies both hands — clear any hotbar selection so the
-  // player is visibly holding the logs and can't accidentally act with a
-  // tool until the wood is delivered.
+  // Carrying logs or bars occupies both hands — clear any hotbar selection
+  // so the player is visibly holding what they've got and can't accidentally
+  // act with a tool until they set it down / deliver it.
   useEffect(() => {
-    if (carriedLogs > 0 && selectedSlot != null) {
+    if ((carriedLogs > 0 || totalCarriedBars > 0) && selectedSlot != null) {
       selectedSlotRef.current = null;
       setSelectedSlot(null);
       selectedKindRef.current = null;
     }
-  }, [carriedLogs, selectedSlot]);
+  }, [carriedLogs, totalCarriedBars, selectedSlot]);
   const [pickupFlash, setPickupFlash] = useState<string | null>(null);
   // Regen timers: taken/chopped entries carry a timestamp so we can regrow
   // pebbles and fade the stumps away over time.
