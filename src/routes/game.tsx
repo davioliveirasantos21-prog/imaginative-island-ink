@@ -803,10 +803,17 @@ function GamePage() {
   type Inv = typeof inventory;
   const setInventory: React.Dispatch<React.SetStateAction<Inv>> = setInventoryRaw;
   const MAX_CARRY_LOGS = 3;
+  const MAX_CARRY_BARS = 3; // combined copper + bronze bars — hands are occupied
   const LOG_STACK_RANGE = 6; // dropped logs within this many pixels snap into the same pile
   const [carriedLogs, setCarriedLogs] = useState(0);
   const carriedLogsRef = useRef(0);
   carriedLogsRef.current = carriedLogs;
+  // Total bars currently in the player's hands. Mirrors the wood mechanic:
+  // any bar in inventory means the player is physically holding it, blocking
+  // hotbar use and slowing movement. Capped at MAX_CARRY_BARS (3 total).
+  const totalCarriedBars = inventory.copperBar + inventory.bronzeBar;
+  const totalCarriedBarsRef = useRef(0);
+  totalCarriedBarsRef.current = totalCarriedBars;
   // Hotbar selection — which inventory item is "held" for use (e.g. seed → plant).
   type SlotKind =
     | "stone" | "wood" | "seed"
