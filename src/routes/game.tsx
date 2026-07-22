@@ -6370,7 +6370,8 @@ function GamePage() {
                         key={r.key}
                         disabled={!r.canRun}
                         onClick={() => {
-                          if (!r.canRun || smeltJobRef.current) return;
+                          const f = builtRef.current.find((x) => x.id === furnaceMenuOpen && x.kind === "furnace");
+                          if (!f || !r.canRun || f.smeltJob) return;
                           setInventory((inv) => {
                             for (const inp of r.inputs) {
                               if ((inv[inp.field] as number) < inp.qty) return inv;
@@ -6398,8 +6399,7 @@ function GamePage() {
                             startedAt,
                             endsAt: startedAt + SMELT_DURATION_MS,
                           };
-                          smeltJobRef.current = job;
-                          setSmeltJob(job);
+                          f.smeltJob = job;
                           setSmeltNow(startedAt);
                           saveWorld();
                         }}
