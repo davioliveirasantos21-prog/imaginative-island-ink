@@ -4742,7 +4742,14 @@ function GamePage() {
         }
 
         // Anvil with a finished forge → any click collects the bar, no menu.
+        // Bars occupy the player's hands (mesma mecânica da madeira), so
+        // refuse to collect when the player is already at the 3-bar limit
+        // or hauling logs.
         if (b.kind === "anvil" && b.forgeJob && b.forgeJob.hits >= b.forgeJob.hitsRequired) {
+          if (carriedLogsRef.current > 0 || totalCarriedBarsRef.current >= MAX_CARRY_BARS) {
+            flashPickup(t("msg.handsFull"));
+            return;
+          }
           const barKind = b.forgeJob.barKind;
           const barName = b.forgeJob.barName;
           setInventory((inv) => ({
