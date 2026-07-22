@@ -7198,7 +7198,7 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
 // (black background stripped). 15x25 grid, anchored so the bottom row sits
 // on the cave floor.
 const IRON_ORE_SPRITE: readonly string[] = [
-  "..DDMMMDM D....".replace(" ",""),
+  "..DDMMMDMD.....",
   "..DMMMMMMDD....",
   ".DDMMMMMMMMD...",
   ".DDDDDDMMMMM...",
