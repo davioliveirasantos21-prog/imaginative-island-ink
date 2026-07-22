@@ -1056,7 +1056,7 @@ function GamePage() {
   const cameraReset = () => setCameraOffsetY(0);
   const [benchMenuOpen, setBenchMenuOpen] = useState(false);
   const [workshopMenuOpen, setWorkshopMenuOpen] = useState(false);
-  const [furnaceMenuOpen, setFurnaceMenuOpen] = useState(false);
+  const [furnaceMenuOpen, setFurnaceMenuOpen] = useState<string | null>(null);
   const [anvilMenuOpen, setAnvilMenuOpen] = useState<string | null>(null);
   // When set, the chest with this id has its storage panel open.
   const [chestMenuOpen, setChestMenuOpen] = useState<string | null>(null);
@@ -1067,22 +1067,22 @@ function GamePage() {
   const menuOpenedAtRef = useRef(0);
   const markMenuOpened = () => { menuOpenedAtRef.current = Date.now(); };
   const canCloseMenu = () => Date.now() - menuOpenedAtRef.current >= 500;
-  // Active smelting job (persisted). Materials are already consumed when the job starts.
+  // Smelting job type. Each furnace stores its OWN job on `Built.smeltJob`,
+  // so multiple furnaces can smelt different things in parallel.
   type SmeltJob = { barKind: "copperMetal" | "bronzeMetal" | "coal"; barName: string; barQty: number; startedAt: number; endsAt: number };
   const SMELT_DURATION_MS = 30000;
-  const [smeltJob, setSmeltJob] = useState<SmeltJob | null>(null);
-  const smeltJobRef = useRef<SmeltJob | null>(null);
-  smeltJobRef.current = smeltJob;
   const [smeltNow, setSmeltNow] = useState(0);
-  // Tick the smelting job so the UI updates. Bars are NOT auto-added — the
-  // player must click "Collect" once the timer is done.
+  // Tick while any furnace has an active job so the UI/audio updates.
   useEffect(() => {
-    if (!smeltJob) return;
     const id = window.setInterval(() => {
-      setSmeltNow(Date.now());
+      const anyActive = builtRef.current.some(
+        (b) => b.kind === "furnace" && b.smeltJob && b.smeltJob.endsAt > Date.now() - 2000,
+      );
+      if (anyActive) setSmeltNow(Date.now());
     }, 250);
     return () => window.clearInterval(id);
-  }, [smeltJob?.endsAt]);
+  }, []);
+
 
   // ----- Hotbar transparency -----
   // The hotbar fades when the player isn't receiving or spending items and
