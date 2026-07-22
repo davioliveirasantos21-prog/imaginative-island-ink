@@ -6202,7 +6202,8 @@ function GamePage() {
         </div>
       ) : null}
       {furnaceMenuOpen ? (
-        <StoneMenu title={t("furnace.title")} onClose={() => { if (canCloseMenu()) setFurnaceMenuOpen(false); }}>
+        <StoneMenu title={t("furnace.title")} onClose={() => { if (canCloseMenu()) setFurnaceMenuOpen(null); }}>
+
           {/* Ember glow bar under the title — sells the "hot forge" feel */}
           <div
             className="mb-3 h-1 w-full"
