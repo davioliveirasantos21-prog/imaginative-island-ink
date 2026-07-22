@@ -16,7 +16,17 @@
 
 import type { ItemPixels } from "@/lib/items";
 
-export type HeldToolKind = "spear" | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer";
+export type HeldToolKind =
+  | "spear"
+  | "axe"
+  | "hoe"
+  | "pick"
+  | "copperPick"
+  | "copperHammer"
+  | "wood"
+  | "copperBar"
+  | "bronzeBar"
+  | "ironBar";
 
 /** Grid used for held-tool overrides. Wide enough for the axe wedge + pick
  *  head, tall enough to include the full spear (tip crown at ty-7 above the
