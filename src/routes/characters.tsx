@@ -313,7 +313,7 @@ function SlotCard({
       i += 1;
       setTyped(houseLore.slice(0, i));
       if (i >= houseLore.length) window.clearInterval(id);
-    }, 22);
+    }, 78);
     return () => window.clearInterval(id);
   }, [showLore, houseLore]);
 
