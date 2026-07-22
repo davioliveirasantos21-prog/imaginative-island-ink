@@ -2509,13 +2509,17 @@ function GamePage() {
           if (!s.dead) {
             s.dead = true;
             s.deathT = 0;
-            // Death drops everything the player was carrying — troncos are lost.
+            // Death drops everything the player was carrying — troncos e
+            // barras vão para o fundo do mar.
             const lost = carriedLogsRef.current;
-            if (lost > 0) {
-              setCarriedLogs(0);
+            const lostBars = totalCarriedBarsRef.current;
+            if (lost > 0 || lostBars > 0) {
+              if (lost > 0) setCarriedLogs(0);
               setInventory((inv) => ({
                 ...inv,
                 wood: Math.max(0, inv.wood - lost),
+                copperBar: 0,
+                bronzeBar: 0,
               }));
               saveWorld();
             }
