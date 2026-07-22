@@ -3801,6 +3801,49 @@ function GamePage() {
           ctx.fillStyle = skin;
           ctx.fillRect(logX + 13, topLy, 3, 3);
         }
+        // Carried bars on the torso — copper first, then bronze on top.
+        // Rendered only when the player isn't already hauling logs (logs win
+        // the hand slot). Uses metallic palettes so the bars read as forged.
+        const nCopperBars = inventoryRef.current.copperBar;
+        const nBronzeBars = inventoryRef.current.bronzeBar;
+        const nBars = nCopperBars + nBronzeBars;
+        if (nBars > 0 && carriedLogsRef.current === 0 && (!s.dead || s.deathT < DEATH_ANIM)) {
+          const torsoBaseY = spriteY + 15;
+          const barX = spriteX + 2;
+          // Stack copper first (bottom), bronze on top so bronze is visible.
+          const stack: Array<"copper" | "bronze"> = [];
+          for (let i = 0; i < nCopperBars; i++) stack.push("copper");
+          for (let i = 0; i < nBronzeBars; i++) stack.push("bronze");
+          for (let i = 0; i < stack.length; i++) {
+            const by = torsoBaseY - i * 3;
+            const isCopper = stack[i] === "copper";
+            if (i === 0) {
+              ctx.fillStyle = "rgba(0,0,0,0.25)";
+              ctx.fillRect(barX, by + 3, 12, 1);
+            }
+            ctx.fillStyle = isCopper ? "#b3541e" : "#a37244";
+            ctx.fillRect(barX, by, 12, 3);
+            ctx.fillStyle = isCopper ? "#e08a3a" : "#d6a15c";
+            ctx.fillRect(barX + 1, by, 10, 1);
+            ctx.fillStyle = isCopper ? "#7a3812" : "#6d4826";
+            ctx.fillRect(barX, by + 2, 12, 1);
+            ctx.fillStyle = "#2a1508";
+            ctx.fillRect(barX, by, 1, 3);
+            ctx.fillRect(barX + 11, by, 1, 3);
+          }
+          const topBy = torsoBaseY - (stack.length - 1) * 3;
+          const skin = appearanceRef.current.skin;
+          const skinShadow = shadeHex(skin, -0.3);
+          ctx.fillStyle = skinShadow;
+          ctx.fillRect(barX - 2, topBy - 1, 3, 5);
+          ctx.fillStyle = skin;
+          ctx.fillRect(barX - 2, topBy, 3, 3);
+          ctx.fillStyle = skinShadow;
+          ctx.fillRect(barX + 11, topBy - 1, 3, 5);
+          ctx.fillStyle = skin;
+          ctx.fillRect(barX + 11, topBy, 3, 3);
+        }
+
 
         // Held tool — spear, axe, hoe or pickaxe visible in the front hand
         // when its slot is selected and the player owns one. Rendered as a
