@@ -6263,7 +6263,8 @@ function GamePage() {
                 canRun: inventory.wood >= 1,
               },
             ];
-            const active = smeltJob;
+            const furnace = builtRef.current.find((x) => x.id === furnaceMenuOpen && x.kind === "furnace");
+            const active = furnace?.smeltJob ?? null;
             const remainingMs = active ? Math.max(0, active.endsAt - smeltNow) : 0;
             const pct = active
               ? Math.max(0, Math.min(1, 1 - remainingMs / SMELT_DURATION_MS))
