@@ -827,9 +827,7 @@ function GamePage() {
   const HOTBAR_PRIORITY: SlotKind[] = [
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
     "berrySeed", "palmSeed", "mushroom", "herb",
-    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "torch",
-    // copperBar / bronzeBar intentionally excluded — bars occupy the player's
-    // hands (see totalCarriedBars) and are never selectable in the hotbar.
+    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "copperBar", "bronzeBar", "torch",
   ];
   const countFor = (k: SlotKind): number => {
     switch (k) {
