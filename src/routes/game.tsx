@@ -7194,8 +7194,66 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
   }
 }
 
+// Pixel-art sprite for the iron ore, EXACTLY the art the user provided
+// (black background stripped). 15x25 grid, anchored so the bottom row sits
+// on the cave floor.
+const IRON_ORE_SPRITE: readonly string[] = [
+  "..DMMMMMMD.....",
+  "..MMMMMMMDD....",
+  ".DMMMMMMMMMM...",
+  ".DMMMMMMMMMM...",
+  ".DMMMMMMMMMM...",
+  ".DDMMMMMMMMMD..",
+  ".DMMMMMMMMMMDD.",
+  ".DOMMMMMMMMMMD.",
+  ".DOOMMMMMMMMMD.",
+  "DDOOMMMMMMMMMDD",
+  "DOOMMDMMMMMMMMD",
+  "DLOMMMMMMMMMMMD",
+  "DMMMMMMMMMMMMMD",
+  "DMDMMMMMMMMMMMD",
+  "DMMMMMMMMMMMMMD",
+  "DMMMMMMMMMMMMMD",
+  "DMMMMMMMMMMMMMD",
+  "DMMMMMMMMMMMMLD",
+  "DMMMDMMMMMDMMLO",
+  "DMMMMMMMMMDMMOM",
+  "DMMMMMMMMMDMMOD",
+  "DOOOLMMMMMMMOOD",
+  "DDOOOOMMMMMLOOD",
+  "DDDLOOMMMMMLOLD",
+  ".DDDDDDDDDDDDDD",
+];
+const IRON_ORE_PALETTE: Record<string, string> = {
+  L: "#5a6a58", // stone light
+  M: "#3f4a3d", // stone mid
+  D: "#2b3329", // stone dark
+  o: "#c68a4a", // ore highlight
+  O: "#7a3f18", // ore core
+};
+
 // Pixel-art ore chunk embedded on the cave floor.
 function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kind: OreKind) {
+  if (kind === "iron") {
+    // Render the exact sprite the user drew.
+    const rows = IRON_ORE_SPRITE;
+    const h = rows.length;
+    const w = rows[0].length;
+    const ox = sx - Math.floor(w / 2);
+    const oy = groundY - h + 1; // bottom row sits on the ground line
+    for (let y = 0; y < h; y++) {
+      const row = rows[y];
+      for (let x = 0; x < w; x++) {
+        const ch = row[x];
+        if (ch === "." ) continue;
+        const color = IRON_ORE_PALETTE[ch];
+        if (!color) continue;
+        ctx.fillStyle = color;
+        ctx.fillRect(ox + x, oy + y, 1, 1);
+      }
+    }
+    return;
+  }
   // Rock base uses the new gray cave palette; ore cores keep their tint.
   const palette: Record<OreKind, { rock: string; core: string; hi: string; sparkle: string }> = {
     coal:   { rock: "#2f333a", core: "#0a0608", hi: "#4a4e56", sparkle: "#a0a5ad" },
