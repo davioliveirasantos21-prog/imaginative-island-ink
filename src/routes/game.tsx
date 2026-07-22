@@ -5807,6 +5807,7 @@ function GamePage() {
                   kind === "coal"      ? inventory.coal :
                   kind === "copper"    ? inventory.copper :
                   kind === "bronze"    ? inventory.bronze :
+                  kind === "iron"      ? inventory.iron :
                   kind === "copperMetal" ? inventory.copperMetal :
                   kind === "bronzeMetal" ? inventory.bronzeMetal :
                   kind === "copperBar" ? inventory.copperBar :
