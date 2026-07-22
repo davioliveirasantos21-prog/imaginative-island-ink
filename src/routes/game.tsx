@@ -6453,7 +6453,7 @@ function GamePage() {
             );
           })()}
           <button
-            onClick={() => { if (canCloseMenu()) setFurnaceMenuOpen(false); }}
+            onClick={() => { if (canCloseMenu()) setFurnaceMenuOpen(null); }}
             className="mt-4 w-full text-[10px] tracking-widest uppercase py-2 text-[#ffd1a3] hover:text-[#ffe6a3]"
             style={{
               border: "3px solid #0a0608",
