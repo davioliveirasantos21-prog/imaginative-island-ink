@@ -6223,6 +6223,10 @@ function GamePage() {
                       disabled={!r.canRun}
                       onClick={() => {
                         if (!r.canRun || !anvil) return;
+                        if (carriedLogsRef.current > 0 || totalCarriedBarsRef.current >= MAX_CARRY_BARS) {
+                          flashPickup(t("msg.handsFull"));
+                          return;
+                        }
                         setInventory((inv) => ({
                           ...inv,
                           [r.rawKind]: Math.max(0, (inv[r.rawKind] ?? 0) - r.rawQty),
