@@ -2444,7 +2444,7 @@ function GamePage() {
         // the sand into the water instead of hovering above a flat plane.
         const groundYHere = GROUND_Y + beachSurfaceOffset(centerX);
 
-        const carrySlow = Math.max(0.4, 1 - 0.15 * carriedLogsRef.current);
+        const carrySlow = Math.max(0.4, 1 - 0.15 * (carriedLogsRef.current + totalCarriedBarsRef.current));
         if (inWater) {
           s.vx = ax * MOVE_SPEED * (1 - 0.5 * submersion) * carrySlow;
           s.vy = 0;
