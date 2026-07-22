@@ -803,10 +803,17 @@ function GamePage() {
   type Inv = typeof inventory;
   const setInventory: React.Dispatch<React.SetStateAction<Inv>> = setInventoryRaw;
   const MAX_CARRY_LOGS = 3;
+  const MAX_CARRY_BARS = 3; // combined copper + bronze bars — hands are occupied
   const LOG_STACK_RANGE = 6; // dropped logs within this many pixels snap into the same pile
   const [carriedLogs, setCarriedLogs] = useState(0);
   const carriedLogsRef = useRef(0);
   carriedLogsRef.current = carriedLogs;
+  // Total bars currently in the player's hands. Mirrors the wood mechanic:
+  // any bar in inventory means the player is physically holding it, blocking
+  // hotbar use and slowing movement. Capped at MAX_CARRY_BARS (3 total).
+  const totalCarriedBars = inventory.copperBar + inventory.bronzeBar;
+  const totalCarriedBarsRef = useRef(0);
+  totalCarriedBarsRef.current = totalCarriedBars;
   // Hotbar selection — which inventory item is "held" for use (e.g. seed → plant).
   type SlotKind =
     | "stone" | "wood" | "seed"
@@ -820,7 +827,9 @@ function GamePage() {
   const HOTBAR_PRIORITY: SlotKind[] = [
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
     "berrySeed", "palmSeed", "mushroom", "herb",
-    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "copperBar", "bronzeBar", "torch",
+    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "torch",
+    // copperBar / bronzeBar intentionally excluded — bars occupy the player's
+    // hands (see totalCarriedBars) and are never selectable in the hotbar.
   ];
   const countFor = (k: SlotKind): number => {
     switch (k) {
@@ -886,16 +895,16 @@ function GamePage() {
       setSelectedSlot(newIdx);
     }
   });
-  // Carrying logs occupies both hands — clear any hotbar selection so the
-  // player is visibly holding the logs and can't accidentally act with a
-  // tool until the wood is delivered.
+  // Carrying logs or bars occupies both hands — clear any hotbar selection
+  // so the player is visibly holding what they've got and can't accidentally
+  // act with a tool until they set it down / deliver it.
   useEffect(() => {
-    if (carriedLogs > 0 && selectedSlot != null) {
+    if ((carriedLogs > 0 || totalCarriedBars > 0) && selectedSlot != null) {
       selectedSlotRef.current = null;
       setSelectedSlot(null);
       selectedKindRef.current = null;
     }
-  }, [carriedLogs, selectedSlot]);
+  }, [carriedLogs, totalCarriedBars, selectedSlot]);
   const [pickupFlash, setPickupFlash] = useState<string | null>(null);
   // Regen timers: taken/chopped entries carry a timestamp so we can regrow
   // pebbles and fade the stumps away over time.
@@ -1886,7 +1895,7 @@ function GamePage() {
           if (keys.has("left")) ax -= 1;
           if (keys.has("right")) ax += 1;
           if (ax !== 0) s.facing = ax > 0 ? 1 : -1;
-          const carrySlow = Math.max(0.4, 1 - 0.15 * carriedLogsRef.current);
+          const carrySlow = Math.max(0.4, 1 - 0.15 * (carriedLogsRef.current + totalCarriedBarsRef.current));
           s.vx = ax * MOVE_SPEED * carrySlow;
           if (keys.has("jump") && s.grounded) {
             s.vy = JUMP_VELOCITY;
@@ -2435,7 +2444,7 @@ function GamePage() {
         // the sand into the water instead of hovering above a flat plane.
         const groundYHere = GROUND_Y + beachSurfaceOffset(centerX);
 
-        const carrySlow = Math.max(0.4, 1 - 0.15 * carriedLogsRef.current);
+        const carrySlow = Math.max(0.4, 1 - 0.15 * (carriedLogsRef.current + totalCarriedBarsRef.current));
         if (inWater) {
           s.vx = ax * MOVE_SPEED * (1 - 0.5 * submersion) * carrySlow;
           s.vy = 0;
@@ -2500,13 +2509,17 @@ function GamePage() {
           if (!s.dead) {
             s.dead = true;
             s.deathT = 0;
-            // Death drops everything the player was carrying — troncos are lost.
+            // Death drops everything the player was carrying — troncos e
+            // barras vão para o fundo do mar.
             const lost = carriedLogsRef.current;
-            if (lost > 0) {
-              setCarriedLogs(0);
+            const lostBars = totalCarriedBarsRef.current;
+            if (lost > 0 || lostBars > 0) {
+              if (lost > 0) setCarriedLogs(0);
               setInventory((inv) => ({
                 ...inv,
                 wood: Math.max(0, inv.wood - lost),
+                copperBar: 0,
+                bronzeBar: 0,
               }));
               saveWorld();
             }
@@ -3788,6 +3801,49 @@ function GamePage() {
           ctx.fillStyle = skin;
           ctx.fillRect(logX + 13, topLy, 3, 3);
         }
+        // Carried bars on the torso — copper first, then bronze on top.
+        // Rendered only when the player isn't already hauling logs (logs win
+        // the hand slot). Uses metallic palettes so the bars read as forged.
+        const nCopperBars = inventoryRef.current.copperBar;
+        const nBronzeBars = inventoryRef.current.bronzeBar;
+        const nBars = nCopperBars + nBronzeBars;
+        if (nBars > 0 && carriedLogsRef.current === 0 && (!s.dead || s.deathT < DEATH_ANIM)) {
+          const torsoBaseY = spriteY + 15;
+          const barX = spriteX + 2;
+          // Stack copper first (bottom), bronze on top so bronze is visible.
+          const stack: Array<"copper" | "bronze"> = [];
+          for (let i = 0; i < nCopperBars; i++) stack.push("copper");
+          for (let i = 0; i < nBronzeBars; i++) stack.push("bronze");
+          for (let i = 0; i < stack.length; i++) {
+            const by = torsoBaseY - i * 3;
+            const isCopper = stack[i] === "copper";
+            if (i === 0) {
+              ctx.fillStyle = "rgba(0,0,0,0.25)";
+              ctx.fillRect(barX, by + 3, 12, 1);
+            }
+            ctx.fillStyle = isCopper ? "#b3541e" : "#a37244";
+            ctx.fillRect(barX, by, 12, 3);
+            ctx.fillStyle = isCopper ? "#e08a3a" : "#d6a15c";
+            ctx.fillRect(barX + 1, by, 10, 1);
+            ctx.fillStyle = isCopper ? "#7a3812" : "#6d4826";
+            ctx.fillRect(barX, by + 2, 12, 1);
+            ctx.fillStyle = "#2a1508";
+            ctx.fillRect(barX, by, 1, 3);
+            ctx.fillRect(barX + 11, by, 1, 3);
+          }
+          const topBy = torsoBaseY - (stack.length - 1) * 3;
+          const skin = appearanceRef.current.skin;
+          const skinShadow = shadeHex(skin, -0.3);
+          ctx.fillStyle = skinShadow;
+          ctx.fillRect(barX - 2, topBy - 1, 3, 5);
+          ctx.fillStyle = skin;
+          ctx.fillRect(barX - 2, topBy, 3, 3);
+          ctx.fillStyle = skinShadow;
+          ctx.fillRect(barX + 11, topBy - 1, 3, 5);
+          ctx.fillStyle = skin;
+          ctx.fillRect(barX + 11, topBy, 3, 3);
+        }
+
 
         // Held tool — spear, axe, hoe or pickaxe visible in the front hand
         // when its slot is selected and the player owns one. Rendered as a
@@ -4686,7 +4742,14 @@ function GamePage() {
         }
 
         // Anvil with a finished forge → any click collects the bar, no menu.
+        // Bars occupy the player's hands (mesma mecânica da madeira), so
+        // refuse to collect when the player is already at the 3-bar limit
+        // or hauling logs.
         if (b.kind === "anvil" && b.forgeJob && b.forgeJob.hits >= b.forgeJob.hitsRequired) {
+          if (carriedLogsRef.current > 0 || totalCarriedBarsRef.current >= MAX_CARRY_BARS) {
+            flashPickup(t("msg.handsFull"));
+            return;
+          }
           const barKind = b.forgeJob.barKind;
           const barName = b.forgeJob.barName;
           setInventory((inv) => ({
@@ -5830,7 +5893,7 @@ function GamePage() {
                     aria-label={`${label}${has ? ` (${count})` : ""}`}
                     aria-pressed={selected}
                     onClick={() => {
-                      if (carriedLogs > 0) { flashPickup(t("msg.handsFull")); return; }
+                      if (carriedLogs > 0 || totalCarriedBars > 0) { flashPickup(t("msg.handsFull")); return; }
                       if (!has) { selectedKindRef.current = null; selectedSlotRef.current = null; setSelectedSlot(null); return; }
                       const next = selectedSlot === i ? null : i;
                       selectedSlotRef.current = next;
@@ -6160,6 +6223,10 @@ function GamePage() {
                       disabled={!r.canRun}
                       onClick={() => {
                         if (!r.canRun || !anvil) return;
+                        if (carriedLogsRef.current > 0 || totalCarriedBarsRef.current >= MAX_CARRY_BARS) {
+                          flashPickup(t("msg.handsFull"));
+                          return;
+                        }
                         setInventory((inv) => ({
                           ...inv,
                           [r.rawKind]: Math.max(0, (inv[r.rawKind] ?? 0) - r.rawQty),
