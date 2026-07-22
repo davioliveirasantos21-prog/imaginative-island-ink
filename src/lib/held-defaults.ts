@@ -16,7 +16,17 @@
 
 import type { ItemPixels } from "@/lib/items";
 
-export type HeldToolKind = "spear" | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer";
+export type HeldToolKind =
+  | "spear"
+  | "axe"
+  | "hoe"
+  | "pick"
+  | "copperPick"
+  | "copperHammer"
+  | "wood"
+  | "copperBar"
+  | "bronzeBar"
+  | "ironBar";
 
 /** Grid used for held-tool overrides. Wide enough for the axe wedge + pick
  *  head, tall enough to include the full spear (tip crown at ty-7 above the
@@ -58,26 +68,30 @@ export function drawHeldTool(
   const shaftTop = spriteY - (kind === "spear" ? 6 : 2);
   const shaftBottom = spriteY + 27;
   const sx = handX + (facing === 1 ? 0 : 1);
+  const isCarriedResource =
+    kind === "wood" || kind === "copperBar" || kind === "bronzeBar" || kind === "ironBar";
 
-  // Wood shaft
-  ctx.fillStyle = "#7a4a24";
-  ctx.fillRect(sx, shaftTop, 2, shaftBottom - shaftTop);
-  ctx.fillStyle = "#a06a34";
-  ctx.fillRect(sx, shaftTop, 1, shaftBottom - shaftTop);
-  ctx.fillStyle = "#5f3a1c";
-  ctx.fillRect(sx + 1, shaftTop, 1, shaftBottom - shaftTop);
-  // Rope grip wrap where the hand holds it
-  ctx.fillStyle = "#3a2010";
-  ctx.fillRect(sx, handY - 1, 2, 1);
-  ctx.fillRect(sx, handY + 1, 2, 1);
-  ctx.fillRect(sx, handY + 3, 2, 1);
+  if (!isCarriedResource) {
+    // Wood shaft
+    ctx.fillStyle = "#7a4a24";
+    ctx.fillRect(sx, shaftTop, 2, shaftBottom - shaftTop);
+    ctx.fillStyle = "#a06a34";
+    ctx.fillRect(sx, shaftTop, 1, shaftBottom - shaftTop);
+    ctx.fillStyle = "#5f3a1c";
+    ctx.fillRect(sx + 1, shaftTop, 1, shaftBottom - shaftTop);
+    // Rope grip wrap where the hand holds it
+    ctx.fillStyle = "#3a2010";
+    ctx.fillRect(sx, handY - 1, 2, 1);
+    ctx.fillRect(sx, handY + 1, 2, 1);
+    ctx.fillRect(sx, handY + 3, 2, 1);
 
-  // Front hand overlay so the fist appears wrapped around the shaft
-  const skinShadow = shadeHex(skin, -0.3);
-  ctx.fillStyle = skinShadow;
-  ctx.fillRect(handX - (facing === 1 ? 1 : 0), handY, 3, 3);
-  ctx.fillStyle = skin;
-  ctx.fillRect(handX - (facing === 1 ? 1 : 0), handY, 3, 2);
+    // Front hand overlay so the fist appears wrapped around the shaft
+    const skinShadow = shadeHex(skin, -0.3);
+    ctx.fillStyle = skinShadow;
+    ctx.fillRect(handX - (facing === 1 ? 1 : 0), handY, 3, 3);
+    ctx.fillStyle = skin;
+    ctx.fillRect(handX - (facing === 1 ? 1 : 0), handY, 3, 2);
+  }
 
   if (kind === "spear") {
     const tipCx = sx;
@@ -179,6 +193,47 @@ export function drawHeldTool(
     // Bottom shadow
     ctx.fillStyle = cLo;
     ctx.fillRect(sx - 3, ty + 2, 8, 1);
+  } else if (kind === "wood" || kind === "copperBar" || kind === "bronzeBar" || kind === "ironBar") {
+    // Carried resource — a single horizontal "unit" resting across the
+    // player's torso, gripped at both ends. Mirrors the in-game stack art
+    // (log for wood, forged bar for the metals) so the admin editor opens
+    // pre-populated with the current appearance.
+    const torsoY = handY - 4;
+    const barX = handX - 6;
+    let base: string, hi: string, lo: string, edge: string;
+    if (kind === "wood") {
+      base = "#7a4a24"; hi = "#a06a34"; lo = "#5f3a1c"; edge = "#3a2010";
+    } else if (kind === "copperBar") {
+      base = "#b3541e"; hi = "#e08a3a"; lo = "#7a3812"; edge = "#2a1508";
+    } else if (kind === "bronzeBar") {
+      base = "#a37244"; hi = "#d6a15c"; lo = "#6d4826"; edge = "#2a1508";
+    } else {
+      // ironBar
+      base = "#a8b0bc"; hi = "#d8dee6"; lo = "#5a6270"; edge = "#2a2f38";
+    }
+    // Shadow under the piece
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(barX, torsoY + 3, 14, 1);
+    // Body + shading
+    ctx.fillStyle = base;
+    ctx.fillRect(barX, torsoY, 14, 3);
+    ctx.fillStyle = hi;
+    ctx.fillRect(barX + 1, torsoY, 12, 1);
+    ctx.fillStyle = lo;
+    ctx.fillRect(barX, torsoY + 2, 14, 1);
+    ctx.fillStyle = edge;
+    ctx.fillRect(barX, torsoY, 1, 3);
+    ctx.fillRect(barX + 13, torsoY, 1, 3);
+    // Two skin hands wrapping the ends
+    const skinShadow = shadeHex(skin, -0.3);
+    ctx.fillStyle = skinShadow;
+    ctx.fillRect(barX - 2, torsoY - 1, 3, 5);
+    ctx.fillStyle = skin;
+    ctx.fillRect(barX - 2, torsoY, 3, 3);
+    ctx.fillStyle = skinShadow;
+    ctx.fillRect(barX + 13, torsoY - 1, 3, 5);
+    ctx.fillStyle = skin;
+    ctx.fillRect(barX + 13, torsoY, 3, 3);
   }
 }
 
@@ -227,7 +282,7 @@ export function captureHeldDefaultPixels(kind: HeldToolKind): ItemPixels {
   return readPixels(ctx, c.width, c.height);
 }
 
-export const HELD_TOOL_KINDS: HeldToolKind[] = ["spear", "axe", "hoe", "pick", "copperPick", "copperHammer"];
+export const HELD_TOOL_KINDS: HeldToolKind[] = ["spear", "axe", "hoe", "pick", "copperPick", "copperHammer", "wood", "copperBar", "bronzeBar", "ironBar"];
 
 export function isHeldToolKind(kind: string): kind is HeldToolKind {
   return HELD_TOOL_KINDS.includes(kind as HeldToolKind);

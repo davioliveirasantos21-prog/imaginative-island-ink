@@ -33,6 +33,8 @@ export type ItemKind =
   | "iron"
   | "ironMetal"
   | "ironBar"
+  | "copperBar"
+  | "bronzeBar"
   | "torch";
 
 export const ITEM_KINDS: ItemKind[] = [
@@ -57,6 +59,8 @@ export const ITEM_KINDS: ItemKind[] = [
   "iron",
   "ironMetal",
   "ironBar",
+  "copperBar",
+  "bronzeBar",
   "torch",
 ];
 

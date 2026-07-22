@@ -186,10 +186,12 @@ function drawDefault(ctx: Ctx, kind: ItemKind): boolean {
       // Iron bar — mirror of copperBar, in cool gray tones.
       drawBar(ctx, "#a8b0bc", "#2a2f38", "#d8dee6", "#eef1f6");
       return true;
-    // Note: Old nuggets saved for future coins:
-    // copperCoin: drawMetalNugget(ctx, "#c97a45", "#5a2a10", "#ffb070", "#ffd6a0");
-    // bronzeCoin: drawMetalNugget(ctx, "#a88245", "#4a3418", "#e8c880", "#f4dfa0");
-    // copperBar/bronzeBar are hotbar-only slot kinds, not ItemKind — no editor entry
+    case "copperBar":
+      drawBar(ctx, "#d47a3a", "#5a2a10", "#ffb070", "#ffd6a0");
+      return true;
+    case "bronzeBar":
+      drawBar(ctx, "#b58c4a", "#4a3418", "#e8c880", "#f4dfa0");
+      return true;
 
     case "berrySeed":
       fill(ctx, 5, 5, 6, 6, "#5a1010");
