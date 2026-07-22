@@ -548,20 +548,18 @@ function GamePage() {
 
 
     const interval = window.setInterval(() => {
-      const job = smeltJobRef.current;
-      const lit = !!job && job.endsAt > Date.now();
-      if (!lit || modeRef.current !== "world") {
-        audio.volume = 0;
-        return;
-      }
+      if (modeRef.current !== "world") { audio.volume = 0; return; }
       const px = stateRef.current?.x ?? 0;
       const playerCX = px + 16 / 2;
+      const now = Date.now();
       let nearest = Infinity;
       for (const b of builtRef.current) {
         if (b.kind !== "furnace") continue;
+        if (!b.smeltJob || b.smeltJob.endsAt <= now) continue;
         const d = Math.abs((b.x + 10) - playerCX);
         if (d < nearest) nearest = d;
       }
+      if (!isFinite(nearest)) { audio.volume = 0; return; }
       // Audible within ~140px, max volume at ~30px. Overall cap keeps it quiet.
       const maxRange = 140;
       const near = 30;
@@ -1016,6 +1014,9 @@ function GamePage() {
     // Anvil only: an in-progress forge — raw metal already consumed, sits on
     // top of the anvil, and the player must hammer it N times to finish.
     forgeJob?: ForgeJob;
+    // Furnace only: this furnace's own smelting job. Each furnace is
+    // independent — one can be smelting copper while another burns wood.
+    smeltJob?: SmeltJob;
   };
   const FORGE_HITS_REQUIRED = 5;
   const BUILD_MAX_HP = 10;
@@ -1053,7 +1054,7 @@ function GamePage() {
   const cameraReset = () => setCameraOffsetY(0);
   const [benchMenuOpen, setBenchMenuOpen] = useState(false);
   const [workshopMenuOpen, setWorkshopMenuOpen] = useState(false);
-  const [furnaceMenuOpen, setFurnaceMenuOpen] = useState(false);
+  const [furnaceMenuOpen, setFurnaceMenuOpen] = useState<string | null>(null);
   const [anvilMenuOpen, setAnvilMenuOpen] = useState<string | null>(null);
   // When set, the chest with this id has its storage panel open.
   const [chestMenuOpen, setChestMenuOpen] = useState<string | null>(null);
@@ -1064,22 +1065,22 @@ function GamePage() {
   const menuOpenedAtRef = useRef(0);
   const markMenuOpened = () => { menuOpenedAtRef.current = Date.now(); };
   const canCloseMenu = () => Date.now() - menuOpenedAtRef.current >= 500;
-  // Active smelting job (persisted). Materials are already consumed when the job starts.
+  // Smelting job type. Each furnace stores its OWN job on `Built.smeltJob`,
+  // so multiple furnaces can smelt different things in parallel.
   type SmeltJob = { barKind: "copperMetal" | "bronzeMetal" | "coal"; barName: string; barQty: number; startedAt: number; endsAt: number };
   const SMELT_DURATION_MS = 30000;
-  const [smeltJob, setSmeltJob] = useState<SmeltJob | null>(null);
-  const smeltJobRef = useRef<SmeltJob | null>(null);
-  smeltJobRef.current = smeltJob;
   const [smeltNow, setSmeltNow] = useState(0);
-  // Tick the smelting job so the UI updates. Bars are NOT auto-added — the
-  // player must click "Collect" once the timer is done.
+  // Tick while any furnace has an active job so the UI/audio updates.
   useEffect(() => {
-    if (!smeltJob) return;
     const id = window.setInterval(() => {
-      setSmeltNow(Date.now());
+      const anyActive = builtRef.current.some(
+        (b) => b.kind === "furnace" && b.smeltJob && b.smeltJob.endsAt > Date.now() - 2000,
+      );
+      if (anyActive) setSmeltNow(Date.now());
     }, 250);
     return () => window.clearInterval(id);
-  }, [smeltJob?.endsAt]);
+  }, []);
+
 
   // ----- Hotbar transparency -----
   // The hotbar fades when the player isn't receiving or spending items and
@@ -1503,9 +1504,15 @@ function GamePage() {
           localStorage.setItem("cave-wall-restore-v1", "1");
         }
       } catch { /* ignore */ }
+      // Legacy migration: earlier versions stored a single global smeltJob.
+      // If present, attach it to the first furnace in the world so the
+      // player doesn't lose an in-progress smelt.
       if (data.smeltJob && data.smeltJob.endsAt && data.smeltJob.barKind) {
-        smeltJobRef.current = data.smeltJob;
-        setSmeltJob(data.smeltJob);
+        const built = data.built ?? [];
+        const firstFurnace = built.find((b) => b.kind === "furnace");
+        if (firstFurnace && !firstFurnace.smeltJob) {
+          firstFurnace.smeltJob = data.smeltJob;
+        }
       }
 
       carriedLogsRef.current = data.carriedLogs ?? 0;
@@ -1657,7 +1664,7 @@ function GamePage() {
           oreHP: Array.from(caveOreHPRef.current.entries()),
           placedTorches: placedTorchesRef.current,
           caveWallBroken: caveWallBrokenRef.current,
-          smeltJob: smeltJobRef.current,
+          // smeltJob now lives on each Built furnace, persisted via `built`.
           carriedLogs: carriedLogsRef.current,
           takenStones: Array.from(stonesTakenRef.current.entries()),
           brokenTrees: Array.from(treesBrokenRef.current.entries()),
@@ -3387,7 +3394,7 @@ function GamePage() {
         // Furnace uses two possible overrides: "furnace" when actively smelting,
         // "furnaceOff" otherwise (so admins can paint a variant without fire).
         const furnaceLit = b.kind === "furnace"
-          ? !!(smeltJobRef.current && smeltJobRef.current.endsAt > Date.now())
+          ? !!(b.smeltJob && b.smeltJob.endsAt > Date.now())
           : false;
         const overrideKind: SceneryKind = b.kind === "furnace" && !furnaceLit
           ? "furnaceOff"
@@ -4781,7 +4788,7 @@ function GamePage() {
 
         if (b.kind === "bench") { markMenuOpened(); setBenchMenuOpen(true); }
         else if (b.kind === "workshop") { markMenuOpened(); setWorkshopMenuOpen(true); }
-        else if (b.kind === "furnace") { markMenuOpened(); setFurnaceMenuOpen(true); }
+        else if (b.kind === "furnace") { markMenuOpened(); setFurnaceMenuOpen(b.id); }
         else if (b.kind === "chest") { markMenuOpened(); setChestMenuOpen(b.id); }
         else if (b.kind === "anvil") { markMenuOpened(); setAnvilMenuOpen(b.id); }
         return;
@@ -6195,7 +6202,8 @@ function GamePage() {
         </div>
       ) : null}
       {furnaceMenuOpen ? (
-        <StoneMenu title={t("furnace.title")} onClose={() => { if (canCloseMenu()) setFurnaceMenuOpen(false); }}>
+        <StoneMenu title={t("furnace.title")} onClose={() => { if (canCloseMenu()) setFurnaceMenuOpen(null); }}>
+
           {/* Ember glow bar under the title — sells the "hot forge" feel */}
           <div
             className="mb-3 h-1 w-full"
@@ -6255,7 +6263,8 @@ function GamePage() {
                 canRun: inventory.wood >= 1,
               },
             ];
-            const active = smeltJob;
+            const furnace = builtRef.current.find((x) => x.id === furnaceMenuOpen && x.kind === "furnace");
+            const active = furnace?.smeltJob ?? null;
             const remainingMs = active ? Math.max(0, active.endsAt - smeltNow) : 0;
             const pct = active
               ? Math.max(0, Math.min(1, 1 - remainingMs / SMELT_DURATION_MS))
@@ -6326,16 +6335,17 @@ function GamePage() {
                         </div>
                         {done ? (
                           <button
-                            onClick={() => {
-                              const job = smeltJobRef.current;
-                              if (!job || Date.now() < job.endsAt) return;
-                              smeltJobRef.current = null;
+                          onClick={() => {
+                              const f = builtRef.current.find((x) => x.id === furnaceMenuOpen && x.kind === "furnace");
+                              const job = f?.smeltJob;
+                              if (!f || !job || Date.now() < job.endsAt) return;
+                              f.smeltJob = undefined;
                               setInventory((inv) => {
                                 const next = { ...inv, [job.barKind]: (inv[job.barKind] as number) + job.barQty } as Inv;
                                 inventoryRef.current = next;
                                 return next;
                               });
-                              setSmeltJob(null);
+                              setSmeltNow(Date.now());
                               flashPickup(`+${job.barQty} ${job.barName}`);
                               saveWorld();
                             }}
@@ -6360,7 +6370,8 @@ function GamePage() {
                         key={r.key}
                         disabled={!r.canRun}
                         onClick={() => {
-                          if (!r.canRun || smeltJobRef.current) return;
+                          const f = builtRef.current.find((x) => x.id === furnaceMenuOpen && x.kind === "furnace");
+                          if (!f || !r.canRun || f.smeltJob) return;
                           setInventory((inv) => {
                             for (const inp of r.inputs) {
                               if ((inv[inp.field] as number) < inp.qty) return inv;
@@ -6388,8 +6399,7 @@ function GamePage() {
                             startedAt,
                             endsAt: startedAt + SMELT_DURATION_MS,
                           };
-                          smeltJobRef.current = job;
-                          setSmeltJob(job);
+                          f.smeltJob = job;
                           setSmeltNow(startedAt);
                           saveWorld();
                         }}
@@ -6443,7 +6453,7 @@ function GamePage() {
             );
           })()}
           <button
-            onClick={() => { if (canCloseMenu()) setFurnaceMenuOpen(false); }}
+            onClick={() => { if (canCloseMenu()) setFurnaceMenuOpen(null); }}
             className="mt-4 w-full text-[10px] tracking-widest uppercase py-2 text-[#ffd1a3] hover:text-[#ffe6a3]"
             style={{
               border: "3px solid #0a0608",
