@@ -68,26 +68,30 @@ export function drawHeldTool(
   const shaftTop = spriteY - (kind === "spear" ? 6 : 2);
   const shaftBottom = spriteY + 27;
   const sx = handX + (facing === 1 ? 0 : 1);
+  const isCarriedResource =
+    kind === "wood" || kind === "copperBar" || kind === "bronzeBar" || kind === "ironBar";
 
-  // Wood shaft
-  ctx.fillStyle = "#7a4a24";
-  ctx.fillRect(sx, shaftTop, 2, shaftBottom - shaftTop);
-  ctx.fillStyle = "#a06a34";
-  ctx.fillRect(sx, shaftTop, 1, shaftBottom - shaftTop);
-  ctx.fillStyle = "#5f3a1c";
-  ctx.fillRect(sx + 1, shaftTop, 1, shaftBottom - shaftTop);
-  // Rope grip wrap where the hand holds it
-  ctx.fillStyle = "#3a2010";
-  ctx.fillRect(sx, handY - 1, 2, 1);
-  ctx.fillRect(sx, handY + 1, 2, 1);
-  ctx.fillRect(sx, handY + 3, 2, 1);
+  if (!isCarriedResource) {
+    // Wood shaft
+    ctx.fillStyle = "#7a4a24";
+    ctx.fillRect(sx, shaftTop, 2, shaftBottom - shaftTop);
+    ctx.fillStyle = "#a06a34";
+    ctx.fillRect(sx, shaftTop, 1, shaftBottom - shaftTop);
+    ctx.fillStyle = "#5f3a1c";
+    ctx.fillRect(sx + 1, shaftTop, 1, shaftBottom - shaftTop);
+    // Rope grip wrap where the hand holds it
+    ctx.fillStyle = "#3a2010";
+    ctx.fillRect(sx, handY - 1, 2, 1);
+    ctx.fillRect(sx, handY + 1, 2, 1);
+    ctx.fillRect(sx, handY + 3, 2, 1);
 
-  // Front hand overlay so the fist appears wrapped around the shaft
-  const skinShadow = shadeHex(skin, -0.3);
-  ctx.fillStyle = skinShadow;
-  ctx.fillRect(handX - (facing === 1 ? 1 : 0), handY, 3, 3);
-  ctx.fillStyle = skin;
-  ctx.fillRect(handX - (facing === 1 ? 1 : 0), handY, 3, 2);
+    // Front hand overlay so the fist appears wrapped around the shaft
+    const skinShadow = shadeHex(skin, -0.3);
+    ctx.fillStyle = skinShadow;
+    ctx.fillRect(handX - (facing === 1 ? 1 : 0), handY, 3, 3);
+    ctx.fillStyle = skin;
+    ctx.fillRect(handX - (facing === 1 ? 1 : 0), handY, 3, 2);
+  }
 
   if (kind === "spear") {
     const tipCx = sx;
