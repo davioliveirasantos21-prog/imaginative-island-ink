@@ -4788,7 +4788,7 @@ function GamePage() {
 
         if (b.kind === "bench") { markMenuOpened(); setBenchMenuOpen(true); }
         else if (b.kind === "workshop") { markMenuOpened(); setWorkshopMenuOpen(true); }
-        else if (b.kind === "furnace") { markMenuOpened(); setFurnaceMenuOpen(true); }
+        else if (b.kind === "furnace") { markMenuOpened(); setFurnaceMenuOpen(b.id); }
         else if (b.kind === "chest") { markMenuOpened(); setChestMenuOpen(b.id); }
         else if (b.kind === "anvil") { markMenuOpened(); setAnvilMenuOpen(b.id); }
         return;
