@@ -1895,7 +1895,7 @@ function GamePage() {
           if (keys.has("left")) ax -= 1;
           if (keys.has("right")) ax += 1;
           if (ax !== 0) s.facing = ax > 0 ? 1 : -1;
-          const carrySlow = Math.max(0.4, 1 - 0.15 * carriedLogsRef.current);
+          const carrySlow = Math.max(0.4, 1 - 0.15 * (carriedLogsRef.current + totalCarriedBarsRef.current));
           s.vx = ax * MOVE_SPEED * carrySlow;
           if (keys.has("jump") && s.grounded) {
             s.vy = JUMP_VELOCITY;
