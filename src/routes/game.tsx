@@ -6335,16 +6335,17 @@ function GamePage() {
                         </div>
                         {done ? (
                           <button
-                            onClick={() => {
-                              const job = smeltJobRef.current;
-                              if (!job || Date.now() < job.endsAt) return;
-                              smeltJobRef.current = null;
+                          onClick={() => {
+                              const f = builtRef.current.find((x) => x.id === furnaceMenuOpen && x.kind === "furnace");
+                              const job = f?.smeltJob;
+                              if (!f || !job || Date.now() < job.endsAt) return;
+                              f.smeltJob = undefined;
                               setInventory((inv) => {
                                 const next = { ...inv, [job.barKind]: (inv[job.barKind] as number) + job.barQty } as Inv;
                                 inventoryRef.current = next;
                                 return next;
                               });
-                              setSmeltJob(null);
+                              setSmeltNow(Date.now());
                               flashPickup(`+${job.barQty} ${job.barName}`);
                               saveWorld();
                             }}
