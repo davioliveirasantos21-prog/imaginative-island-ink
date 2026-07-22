@@ -548,20 +548,18 @@ function GamePage() {
 
 
     const interval = window.setInterval(() => {
-      const job = smeltJobRef.current;
-      const lit = !!job && job.endsAt > Date.now();
-      if (!lit || modeRef.current !== "world") {
-        audio.volume = 0;
-        return;
-      }
+      if (modeRef.current !== "world") { audio.volume = 0; return; }
       const px = stateRef.current?.x ?? 0;
       const playerCX = px + 16 / 2;
+      const now = Date.now();
       let nearest = Infinity;
       for (const b of builtRef.current) {
         if (b.kind !== "furnace") continue;
+        if (!b.smeltJob || b.smeltJob.endsAt <= now) continue;
         const d = Math.abs((b.x + 10) - playerCX);
         if (d < nearest) nearest = d;
       }
+      if (!isFinite(nearest)) { audio.volume = 0; return; }
       // Audible within ~140px, max volume at ~30px. Overall cap keeps it quiet.
       const maxRange = 140;
       const near = 30;
