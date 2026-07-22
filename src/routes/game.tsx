@@ -1664,7 +1664,7 @@ function GamePage() {
           oreHP: Array.from(caveOreHPRef.current.entries()),
           placedTorches: placedTorchesRef.current,
           caveWallBroken: caveWallBrokenRef.current,
-          smeltJob: smeltJobRef.current,
+          // smeltJob now lives on each Built furnace, persisted via `built`.
           carriedLogs: carriedLogsRef.current,
           takenStones: Array.from(stonesTakenRef.current.entries()),
           brokenTrees: Array.from(treesBrokenRef.current.entries()),
