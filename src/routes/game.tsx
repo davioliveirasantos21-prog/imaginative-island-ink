@@ -7196,33 +7196,33 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
 
 // Pixel-art ore chunk embedded on the cave floor.
 function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kind: OreKind) {
-  // Rock base + chunky 2x2 ore nuggets with a bright inset highlight —
-  // matches the admin-tuned look from image-4.
-  const palette: Record<OreKind, { rock: string; rockHi: string; core: string; hi: string }> = {
-    coal:   { rock: "#3a3f47", rockHi: "#4a4f57", core: "#0a0608", hi: "#f2f2f2" },
-    copper: { rock: "#3a3f47", rockHi: "#4a4f57", core: "#d67a3e", hi: "#ffc98a" },
-    bronze: { rock: "#3a3f47", rockHi: "#4a4f57", core: "#b8933e", hi: "#f0d787" },
-    iron:   { rock: "#2f3a2c", rockHi: "#465443", core: "#c2743a", hi: "#ffb872" },
+  // Rock base uses the new gray cave palette; ore cores keep their tint.
+  const palette: Record<OreKind, { rock: string; core: string; hi: string; sparkle: string }> = {
+    coal:   { rock: "#2f333a", core: "#0a0608", hi: "#4a4e56", sparkle: "#a0a5ad" },
+    copper: { rock: "#2f333a", core: "#b46b3a", hi: "#e4a065", sparkle: "#fff0d0" },
+    bronze: { rock: "#2f333a", core: "#8a6a3a", hi: "#d4a86a", sparkle: "#fff2c0" },
+    iron:   { rock: "#2f333a", core: "#c46a2a", hi: "#ffa25a", sparkle: "#ffd8a8" },
   };
   const p = palette[kind];
-  // Rocky base — flat 16x10 block with a 12x2 cap on top forming the "bump".
+  // Rocky base (12x10) sitting on the floor.
   ctx.fillStyle = p.rock;
   ctx.fillRect(sx - 8, groundY - 10, 16, 10);
   ctx.fillRect(sx - 6, groundY - 12, 12, 2);
-  // Subtle top highlight
-  ctx.fillStyle = p.rockHi;
-  ctx.fillRect(sx - 6, groundY - 12, 12, 1);
-  ctx.fillRect(sx - 8, groundY - 10, 16, 1);
-  // 2x2 ore chunks scattered across the rock (same layout as reference).
-  const chunks: Array<[number, number]> = [
-    [-5, -8], [-1, -8], [-3, -5], [ 2, -6], [ 3, -3],
-  ];
-  for (const [dx, dy] of chunks) {
-    ctx.fillStyle = p.core;
-    ctx.fillRect(sx + dx, groundY + dy, 2, 2);
-    ctx.fillStyle = p.hi;
-    ctx.fillRect(sx + dx + 1, groundY + dy, 1, 1);
-  }
+  // Ore veins (core color pixels).
+  ctx.fillStyle = p.core;
+  ctx.fillRect(sx - 4, groundY - 9, 3, 2);
+  ctx.fillRect(sx + 1, groundY - 7, 3, 2);
+  ctx.fillRect(sx - 2, groundY - 4, 2, 2);
+  ctx.fillRect(sx + 3, groundY - 3, 2, 2);
+  // Highlights
+  ctx.fillStyle = p.hi;
+  ctx.fillRect(sx - 3, groundY - 9, 1, 1);
+  ctx.fillRect(sx + 2, groundY - 7, 1, 1);
+  ctx.fillRect(sx + 4, groundY - 3, 1, 1);
+  // Tiny sparkle rim
+  ctx.fillStyle = p.sparkle;
+  ctx.fillRect(sx - 6, groundY - 11, 1, 1);
+  ctx.fillRect(sx + 5, groundY - 10, 1, 1);
 }
 
 
