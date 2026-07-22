@@ -5886,7 +5886,7 @@ function GamePage() {
                     aria-label={`${label}${has ? ` (${count})` : ""}`}
                     aria-pressed={selected}
                     onClick={() => {
-                      if (carriedLogs > 0) { flashPickup(t("msg.handsFull")); return; }
+                      if (carriedLogs > 0 || totalCarriedBars > 0) { flashPickup(t("msg.handsFull")); return; }
                       if (!has) { selectedKindRef.current = null; selectedSlotRef.current = null; setSelectedSlot(null); return; }
                       const next = selectedSlot === i ? null : i;
                       selectedSlotRef.current = next;
