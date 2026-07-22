@@ -262,6 +262,7 @@ function SlotCard({
 }) {
   const { t } = useI18n();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const isEmpty = slot == null;
 
   // Three distinct houses — each slot gets its own heraldry, banner, and mood.
@@ -297,6 +298,7 @@ function SlotCard({
   const h = HOUSES[index % HOUSES.length];
   const houseName = t(`houses.${h.key}.name` as never);
   const houseMotto = t(`houses.${h.key}.motto` as never);
+  const houseLore = t(`houses.${h.key}.lore` as never);
 
   return (
     <div
@@ -360,12 +362,23 @@ function SlotCard({
         style={{
           boxShadow: `inset 0 0 0 3px ${h.bannerDark}, inset 0 0 0 5px ${h.banner}, 0 4px 0 rgba(0,0,0,0.6)`,
         }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
-        <div className="short:scale-50 origin-center">
+        <div className="short:scale-50 origin-center flex items-center justify-center h-full w-full">
           {isEmpty ? (
-            <div className="flex flex-col items-center gap-1 text-[#f4e9c1]/25">
-              <span className="text-4xl leading-none" style={{ color: h.accent, opacity: 0.35 }}>{h.sigil}</span>
-            </div>
+            hovered ? (
+              <div
+                className="px-2 text-center italic leading-snug tracking-wide text-[10px] short:text-[8px]"
+                style={{ color: h.accent, textShadow: "0 1px 0 #000" }}
+              >
+                “{houseLore}”
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-1 text-[#f4e9c1]/25">
+                <span className="text-4xl leading-none" style={{ color: h.accent, opacity: 0.35 }}>{h.sigil}</span>
+              </div>
+            )
           ) : (
             <SpritePreview appearance={slot.appearance} scale={4} />
           )}
