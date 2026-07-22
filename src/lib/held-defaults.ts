@@ -282,7 +282,7 @@ export function captureHeldDefaultPixels(kind: HeldToolKind): ItemPixels {
   return readPixels(ctx, c.width, c.height);
 }
 
-export const HELD_TOOL_KINDS: HeldToolKind[] = ["spear", "axe", "hoe", "pick", "copperPick", "copperHammer"];
+export const HELD_TOOL_KINDS: HeldToolKind[] = ["spear", "axe", "hoe", "pick", "copperPick", "copperHammer", "wood", "copperBar", "bronzeBar", "ironBar"];
 
 export function isHeldToolKind(kind: string): kind is HeldToolKind {
   return HELD_TOOL_KINDS.includes(kind as HeldToolKind);
