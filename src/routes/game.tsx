@@ -3394,7 +3394,7 @@ function GamePage() {
         // Furnace uses two possible overrides: "furnace" when actively smelting,
         // "furnaceOff" otherwise (so admins can paint a variant without fire).
         const furnaceLit = b.kind === "furnace"
-          ? !!(smeltJobRef.current && smeltJobRef.current.endsAt > Date.now())
+          ? !!(b.smeltJob && b.smeltJob.endsAt > Date.now())
           : false;
         const overrideKind: SceneryKind = b.kind === "furnace" && !furnaceLit
           ? "furnaceOff"
