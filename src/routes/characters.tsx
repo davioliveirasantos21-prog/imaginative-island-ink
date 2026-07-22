@@ -263,6 +263,7 @@ function SlotCard({
   const { t } = useI18n();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [typed, setTyped] = useState("");
   const isEmpty = slot == null;
 
   // Three distinct houses — each slot gets its own heraldry, banner, and mood.
@@ -299,6 +300,22 @@ function SlotCard({
   const houseName = t(`houses.${h.key}.name` as never);
   const houseMotto = t(`houses.${h.key}.motto` as never);
   const houseLore = t(`houses.${h.key}.lore` as never);
+  const showLore = isEmpty && hovered;
+
+  useEffect(() => {
+    if (!showLore) {
+      setTyped("");
+      return;
+    }
+    setTyped("");
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 1;
+      setTyped(houseLore.slice(0, i));
+      if (i >= houseLore.length) window.clearInterval(id);
+    }, 22);
+    return () => window.clearInterval(id);
+  }, [showLore, houseLore]);
 
   return (
     <div
@@ -356,33 +373,41 @@ function SlotCard({
         “{houseMotto}”
       </div>
 
-      {/* portrait frame — colored by house */}
+      {/* portrait frame — colored by house. Hides entirely on hover for empty slots to reveal lore text */}
       <div
-        className="my-5 flex h-40 w-32 items-center justify-center overflow-hidden bg-[#07090d] short:my-2 short:h-20 short:w-16"
-        style={{
-          boxShadow: `inset 0 0 0 3px ${h.bannerDark}, inset 0 0 0 5px ${h.banner}, 0 4px 0 rgba(0,0,0,0.6)`,
-        }}
+        className="my-5 h-40 w-32 short:my-2 short:h-20 short:w-16 flex items-center justify-center"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <div className="short:scale-50 origin-center flex items-center justify-center h-full w-full">
-          {isEmpty ? (
-            hovered ? (
-              <div
-                className="px-2 text-center italic leading-snug tracking-wide text-[10px] short:text-[8px]"
-                style={{ color: h.accent, textShadow: "0 1px 0 #000" }}
-              >
-                “{houseLore}”
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-1 text-[#f4e9c1]/25">
-                <span className="text-4xl leading-none" style={{ color: h.accent, opacity: 0.35 }}>{h.sigil}</span>
-              </div>
-            )
-          ) : (
-            <SpritePreview appearance={slot.appearance} scale={4} />
-          )}
-        </div>
+        {showLore ? (
+          <div
+            className="px-1 text-center italic tracking-[0.15em] leading-snug text-[10px] text-[#f4e9c1]/70 short:text-[8px]"
+            style={{ textShadow: "0 1px 0 #000" }}
+          >
+            “{typed}
+            <span className="inline-block w-[1px] animate-pulse" style={{ color: h.accent }}>
+              {typed.length < houseLore.length ? "▎" : ""}
+            </span>
+            {typed.length >= houseLore.length ? "”" : ""}
+          </div>
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center overflow-hidden bg-[#07090d]"
+            style={{
+              boxShadow: `inset 0 0 0 3px ${h.bannerDark}, inset 0 0 0 5px ${h.banner}, 0 4px 0 rgba(0,0,0,0.6)`,
+            }}
+          >
+            <div className="short:scale-50 origin-center">
+              {isEmpty ? (
+                <div className="flex flex-col items-center gap-1 text-[#f4e9c1]/25">
+                  <span className="text-4xl leading-none" style={{ color: h.accent, opacity: 0.35 }}>{h.sigil}</span>
+                </div>
+              ) : (
+                <SpritePreview appearance={slot.appearance} scale={4} />
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mb-2 text-[9px] tracking-[0.3em] uppercase" style={{ color: h.accent }}>
