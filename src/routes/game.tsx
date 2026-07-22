@@ -7243,8 +7243,8 @@ function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kin
   ctx.fillRect(sx - 3, groundY - 9, 1, 1);
   ctx.fillRect(sx + 2, groundY - 7, 1, 1);
   ctx.fillRect(sx + 4, groundY - 3, 1, 1);
-  // Tiny sparkle rim
-  ctx.fillStyle = p.sparkle;
+  // Cover previous sparkle pixels with the base rock color to remove shine
+  ctx.fillStyle = p.rock;
   ctx.fillRect(sx - 6, groundY - 11, 1, 1);
   ctx.fillRect(sx + 5, groundY - 10, 1, 1);
 }
