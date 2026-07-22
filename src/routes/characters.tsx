@@ -373,15 +373,20 @@ function SlotCard({
         “{houseMotto}”
       </div>
 
-      {/* portrait frame — colored by house. Hides entirely on hover for empty slots to reveal lore text */}
+      {/* portrait frame — colored by house. The black square fades out on hover for empty slots to reveal lore text */}
       <div
-        className="my-5 h-40 w-32 short:my-2 short:h-20 short:w-16 flex items-center justify-center"
+        className="relative my-5 h-40 w-32 short:my-2 short:h-20 short:w-16"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        {showLore ? (
+        {/* lore text — same style as the motto above, typed letter by letter */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center px-2 transition-opacity duration-500 ${
+            showLore ? "opacity-100" : "opacity-0"
+          }`}
+        >
           <div
-            className="px-1 text-center italic tracking-[0.15em] leading-snug text-[10px] text-[#f4e9c1]/70 short:text-[8px]"
+            className="text-center italic tracking-[0.25em] leading-snug text-[9px] text-[#f4e9c1]/80 short:text-[8px]"
             style={{ textShadow: "0 1px 0 #000" }}
           >
             “{typed}
@@ -390,24 +395,27 @@ function SlotCard({
             </span>
             {typed.length >= houseLore.length ? "”" : ""}
           </div>
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center overflow-hidden bg-[#07090d]"
-            style={{
-              boxShadow: `inset 0 0 0 3px ${h.bannerDark}, inset 0 0 0 5px ${h.banner}, 0 4px 0 rgba(0,0,0,0.6)`,
-            }}
-          >
-            <div className="short:scale-50 origin-center">
-              {isEmpty ? (
-                <div className="flex flex-col items-center gap-1 text-[#f4e9c1]/25">
-                  <span className="text-4xl leading-none" style={{ color: h.accent, opacity: 0.35 }}>{h.sigil}</span>
-                </div>
-              ) : (
-                <SpritePreview appearance={slot.appearance} scale={4} />
-              )}
-            </div>
+        </div>
+
+        {/* black sigil square — fades out/in on hover */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center overflow-hidden bg-[#07090d] transition-opacity duration-500 ${
+            showLore ? "opacity-0" : "opacity-100"
+          }`}
+          style={{
+            boxShadow: `inset 0 0 0 3px ${h.bannerDark}, inset 0 0 0 5px ${h.banner}, 0 4px 0 rgba(0,0,0,0.6)`,
+          }}
+        >
+          <div className="short:scale-50 origin-center">
+            {isEmpty ? (
+              <div className="flex flex-col items-center gap-1 text-[#f4e9c1]/25">
+                <span className="text-4xl leading-none" style={{ color: h.accent, opacity: 0.35 }}>{h.sigil}</span>
+              </div>
+            ) : (
+              <SpritePreview appearance={slot.appearance} scale={4} />
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       <div className="mb-2 text-[9px] tracking-[0.3em] uppercase" style={{ color: h.accent }}>
