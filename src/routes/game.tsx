@@ -1504,9 +1504,15 @@ function GamePage() {
           localStorage.setItem("cave-wall-restore-v1", "1");
         }
       } catch { /* ignore */ }
+      // Legacy migration: earlier versions stored a single global smeltJob.
+      // If present, attach it to the first furnace in the world so the
+      // player doesn't lose an in-progress smelt.
       if (data.smeltJob && data.smeltJob.endsAt && data.smeltJob.barKind) {
-        smeltJobRef.current = data.smeltJob;
-        setSmeltJob(data.smeltJob);
+        const built = data.built ?? [];
+        const firstFurnace = built.find((b) => b.kind === "furnace");
+        if (firstFurnace && !firstFurnace.smeltJob) {
+          firstFurnace.smeltJob = data.smeltJob;
+        }
       }
 
       carriedLogsRef.current = data.carriedLogs ?? 0;
