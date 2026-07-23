@@ -2923,7 +2923,15 @@ function GamePage() {
                     groundLogsRef.current = [...groundLogsRef.current, ...newLogs];
                     enforceCombinedGroundLimit();
                     const seedCount = 1 + Math.floor(Math.random() * 2);
-                    setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds + seedCount }));
+                    const newPalmSeeds: GroundSeed[] = [];
+                    for (let i = 0; i < seedCount; i++) {
+                      newPalmSeeds.push({
+                        id: `palmseed-${palm.wx}-${nowMs}-${i}`,
+                        x: palm.wx + 18 + i * 6,
+                        kind: "palmSeed",
+                      });
+                    }
+                    seedsRef.current = [...seedsRef.current, ...newPalmSeeds];
                     flashPickup(t("msg.palmFelled", { logs: logCount, seeds: seedCount }));
                   }
                   saveWorld();
