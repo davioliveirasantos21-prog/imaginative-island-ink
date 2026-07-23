@@ -4068,7 +4068,16 @@ function GamePage() {
             selKind === "torch"     ? inventoryRef.current.torches : 0;
           const isBuiltInTool = selKind === "spear" || selKind === "axe" || selKind === "hoe" || selKind === "pick" || selKind === "copperPick" || selKind === "copperHammer" || selKind === "ironPick" || selKind === "ironAxe" || selKind === "ironSpear" || selKind === "ironHammer";
           const hasDefaultHeldArt = isBuiltInTool || selKind === "stone";
-          const _heldPixels = selKind ? getItemVariantPixels(selKind as ItemKind, "held") : undefined;
+          const _heldFallbackKind: ItemKind | undefined =
+            selKind === "ironPick" ? "copperPick" :
+            selKind === "ironAxe" ? "axe" :
+            selKind === "ironSpear" ? "spear" :
+            selKind === "ironHammer" ? "copperHammer" :
+            undefined;
+          const _heldPixels = selKind
+            ? (getItemVariantPixels(selKind as ItemKind, "held") ??
+               (_heldFallbackKind ? getItemVariantPixels(_heldFallbackKind, "held") : undefined))
+            : undefined;
           const canRenderHeld = selKind != null && selCount > 0 && nLogs === 0 && (hasDefaultHeldArt || !!_heldPixels) && !stuckWebRef.current;
           if (canRenderHeld) {
             const facing = s.facing;
