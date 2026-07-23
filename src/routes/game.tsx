@@ -2825,6 +2825,7 @@ function GamePage() {
                   flashPickup(t("msg.tree", { n: nextHP, max: maxHits }));
                 } else {
                   treeHPRef.current.delete(hpKey);
+                  addSkillXP("mining", 1);
                   if (chopTarget.isPlanted) {
                     plantedRef.current = plantedRef.current.filter((pl) => pl !== chopTarget.treeObj);
                   } else {
