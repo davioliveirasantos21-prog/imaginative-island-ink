@@ -1011,8 +1011,8 @@ function GamePage() {
     deliveredBronzeMetal: number;
   };
   type ForgeJob = {
-    rawKind: "copperMetal" | "bronzeMetal";
-    barKind: "copperBar" | "bronzeBar";
+    rawKind: "copperMetal" | "bronzeMetal" | "ironMetal";
+    barKind: "copperBar" | "bronzeBar" | "ironBar";
     barName: string;
     hits: number;
     hitsRequired: number;
