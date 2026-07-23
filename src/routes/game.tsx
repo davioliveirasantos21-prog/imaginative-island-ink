@@ -3891,6 +3891,8 @@ function GamePage() {
             selKind === "bronzeMetal" ? inventoryRef.current.bronzeMetal :
             selKind === "copperBar" ? inventoryRef.current.copperBar :
             selKind === "bronzeBar" ? inventoryRef.current.bronzeBar :
+            selKind === "ironBar" ? inventoryRef.current.ironBar :
+            selKind === "ironMetal" ? inventoryRef.current.ironMetal :
             selKind === "torch"     ? inventoryRef.current.torches : 0;
           const isBuiltInTool = selKind === "spear" || selKind === "axe" || selKind === "hoe" || selKind === "pick" || selKind === "copperPick" || selKind === "copperHammer";
           const hasDefaultHeldArt = isBuiltInTool || selKind === "stone";
