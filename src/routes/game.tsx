@@ -798,7 +798,7 @@ function GamePage() {
   // retract animation.
   const spearAttackRef = useRef<{ startedAt: number; angle: number; holdEndsAt: number | null } | null>(null);
   // Tool swing animation — set on click while holding pick or axe.
-  const toolSwingRef = useRef<{ startedAt: number; kind: "pick" | "copperPick" | "axe"; hasHit: boolean } | null>(null);
+  const toolSwingRef = useRef<{ startedAt: number; kind: "pick" | "copperPick" | "ironPick" | "axe" | "ironAxe"; hasHit: boolean } | null>(null);
   const lastToolSwingTimeRef = useRef<number>(0);
   // Latest pointer world position — updated on move so held spear tracks the cursor.
   const pointerWorldRef = useRef<{ x: number; y: number } | null>(null);
