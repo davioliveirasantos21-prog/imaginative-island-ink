@@ -261,6 +261,32 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
       setEditingItemInitial(null);
       return;
     }
+    // Custom items: prefer their own saved pixels; fall back to the base kind's
+    // defaults so the editor opens with what the clone currently looks like.
+    if (editingItem.customId) {
+      const ci = loadCustomItems().find((i) => i.id === editingItem.customId);
+      const own = ci?.[editingItem.variant];
+      if (own && Object.keys(own).length > 0) {
+        setEditingItemInitial(own);
+        return;
+      }
+      if (editingItem.variant === "held" && isHeldToolKind(editingItem.kind)) {
+        setEditingItemInitial(captureHeldDefaultPixels(editingItem.kind));
+        return;
+      }
+      if (editingItem.variant === "icon") {
+        let cancelled = false;
+        setEditingItemInitial(null);
+        captureIconDefaultPixels(editingItem.kind).then((pixels) => {
+          if (!cancelled) setEditingItemInitial(pixels);
+        });
+        return () => {
+          cancelled = true;
+        };
+      }
+      setEditingItemInitial({});
+      return;
+    }
     const override = getItemOverride(editingItem.kind)?.[editingItem.variant];
     if (override) {
       setEditingItemInitial(override);
