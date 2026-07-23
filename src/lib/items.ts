@@ -142,33 +142,40 @@ function sanitizePixels(m: unknown, maxW = ITEM_GRID, maxH = ITEM_GRID): ItemPix
 }
 
 /** Grid dimensions per variant — icon is the hotbar sprite, held is the
- *  larger canvas that fits the tool head + full shaft on the character. */
-export function getVariantGrid(variant: ItemVariant): { w: number; h: number } {
-  if (variant === "held") return { w: 16, h: 40 };
+ *  larger canvas that fits the tool head + full shaft on the character.
+ *  Carried resources (wood/bars) get a wide horizontal canvas since they're
+ *  rendered as a stack across the torso, no vertical shaft needed. */
+export function getVariantGrid(variant: ItemVariant, kind?: ItemKind): { w: number; h: number } {
+  if (variant === "held") {
+    if (kind === "wood" || kind === "copperBar" || kind === "bronzeBar" || kind === "ironBar") {
+      return { w: 32, h: 16 };
+    }
+    return { w: 16, h: 40 };
+  }
   return { w: ITEM_GRID, h: ITEM_GRID };
 }
 
-function sanitizePixelsForVariant(m: unknown, variant: ItemVariant): ItemPixels {
-  const g = getVariantGrid(variant);
+function sanitizePixelsForVariant(m: unknown, variant: ItemVariant, kind?: ItemKind): ItemPixels {
+  const g = getVariantGrid(variant, kind);
   return sanitizePixels(m, g.w, g.h);
 }
 
-function sanitizeOverride(v: unknown): ItemOverride {
+function sanitizeOverride(v: unknown, kind?: ItemKind): ItemOverride {
   if (!v || typeof v !== "object") return {};
   const raw = v as { icon?: unknown; held?: unknown; pixels?: unknown };
   const out: ItemOverride = {};
   // Legacy shape: a single { pixels } field applied to both icon + held.
   if (raw.pixels && !raw.icon && !raw.held) {
-    const legacyIcon = sanitizePixelsForVariant(raw.pixels, "icon");
+    const legacyIcon = sanitizePixelsForVariant(raw.pixels, "icon", kind);
     if (Object.keys(legacyIcon).length > 0) out.icon = legacyIcon;
     return out;
   }
   if (raw.icon) {
-    const p = sanitizePixelsForVariant(raw.icon, "icon");
+    const p = sanitizePixelsForVariant(raw.icon, "icon", kind);
     if (Object.keys(p).length > 0) out.icon = p;
   }
   if (raw.held) {
-    const p = sanitizePixelsForVariant(raw.held, "held");
+    const p = sanitizePixelsForVariant(raw.held, "held", kind);
     if (Object.keys(p).length > 0) out.held = p;
   }
   return out;
@@ -181,7 +188,7 @@ const DEFAULT_ITEM_OVERRIDES: ItemOverrides = (() => {
   const src = itemDefaultsRaw as Record<string, { icon?: unknown; held?: unknown }>;
   for (const [k, v] of Object.entries(src)) {
     if (!ITEM_KINDS.includes(k as ItemKind)) continue;
-    const ov = sanitizeOverride(v);
+    const ov = sanitizeOverride(v, k as ItemKind);
     if (ov.icon || ov.held) out[k as ItemKind] = ov;
   }
   return out;
@@ -197,7 +204,7 @@ export function loadItemOverrides(): ItemOverrides {
     const out: ItemOverrides = { ...DEFAULT_ITEM_OVERRIDES };
     for (const [k, v] of Object.entries(parsed ?? {})) {
       if (!ITEM_KINDS.includes(k as ItemKind)) continue;
-      const ov = sanitizeOverride(v);
+      const ov = sanitizeOverride(v, k as ItemKind);
       if (ov.icon || ov.held) out[k as ItemKind] = ov;
     }
     _cache = out;
@@ -240,7 +247,7 @@ export function saveItemVariant(
 ) {
   const all = loadItemOverrides();
   const cur = all[kind] ?? {};
-  const cleaned = sanitizePixelsForVariant(pixels, variant);
+  const cleaned = sanitizePixelsForVariant(pixels, variant, kind);
   const nextForKind: ItemOverride = { ...cur, [variant]: cleaned };
   if (Object.keys(cleaned).length === 0) delete nextForKind[variant];
   const next: ItemOverrides = { ...all };

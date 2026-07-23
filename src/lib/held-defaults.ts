@@ -271,15 +271,48 @@ const DEFAULT_SNAPSHOT_SKIN = "#e2b48c";
  */
 export function captureHeldDefaultPixels(kind: HeldToolKind): ItemPixels {
   if (typeof document === "undefined") return {};
+  const isCarriedResource =
+    kind === "wood" || kind === "copperBar" || kind === "bronzeBar" || kind === "ironBar";
+  const w = isCarriedResource ? 32 : HELD_GRID_W;
+  const h = isCarriedResource ? 16 : HELD_GRID_H;
   const c = document.createElement("canvas");
-  c.width = HELD_GRID_W;
-  c.height = HELD_GRID_H;
+  c.width = w;
+  c.height = h;
   const ctx = c.getContext("2d");
   if (!ctx) return {};
   ctx.imageSmoothingEnabled = false;
-  ctx.clearRect(0, 0, c.width, c.height);
-  drawHeldTool(ctx, kind, HELD_ANCHOR.x, HELD_ANCHOR.y, 1, DEFAULT_SNAPSHOT_SKIN);
-  return readPixels(ctx, c.width, c.height);
+  ctx.clearRect(0, 0, w, h);
+  if (isCarriedResource) {
+    // Draw ONLY the bar / log, centered horizontally in the wider canvas.
+    // No skin hands — the runtime overlays hands on the character on top of
+    // whatever art the admin paints here.
+    const barX = Math.floor((w - 14) / 2);
+    const barY = Math.floor((h - 3) / 2);
+    let base: string, hi: string, lo: string, edge: string;
+    if (kind === "wood") {
+      base = "#7a4a24"; hi = "#a06a34"; lo = "#5f3a1c"; edge = "#3a2010";
+    } else if (kind === "copperBar") {
+      base = "#b3541e"; hi = "#e08a3a"; lo = "#7a3812"; edge = "#2a1508";
+    } else if (kind === "bronzeBar") {
+      base = "#a37244"; hi = "#d6a15c"; lo = "#6d4826"; edge = "#2a1508";
+    } else {
+      base = "#a8b0bc"; hi = "#d8dee6"; lo = "#5a6270"; edge = "#2a2f38";
+    }
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(barX, barY + 3, 14, 1);
+    ctx.fillStyle = base;
+    ctx.fillRect(barX, barY, 14, 3);
+    ctx.fillStyle = hi;
+    ctx.fillRect(barX + 1, barY, 12, 1);
+    ctx.fillStyle = lo;
+    ctx.fillRect(barX, barY + 2, 14, 1);
+    ctx.fillStyle = edge;
+    ctx.fillRect(barX, barY, 1, 3);
+    ctx.fillRect(barX + 13, barY, 1, 3);
+  } else {
+    drawHeldTool(ctx, kind, HELD_ANCHOR.x, HELD_ANCHOR.y, 1, DEFAULT_SNAPSHOT_SKIN);
+  }
+  return readPixels(ctx, w, h);
 }
 
 export const HELD_TOOL_KINDS: HeldToolKind[] = ["spear", "axe", "hoe", "pick", "copperPick", "copperHammer", "wood", "copperBar", "bronzeBar", "ironBar"];

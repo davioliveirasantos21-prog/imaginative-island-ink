@@ -175,7 +175,7 @@ type SlotIconKind =
   | "stone" | "wood" | "seed"
   | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
   | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-  | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
+  | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
 
 function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md" | "lg" }) {
   const dim =
@@ -793,11 +793,11 @@ function GamePage() {
     stones: number; wood: number; seeds: number;
     axe: number; hoe: number; pick: number; copperPick: number; copperHammer: number; spear: number;
     berrySeeds: number; palmSeeds: number; mushrooms: number; herbs: number;
-    coal: number; copper: number; bronze: number; iron: number; copperMetal: number; bronzeMetal: number; copperBar: number; bronzeBar: number; torches: number;
+    coal: number; copper: number; bronze: number; iron: number; copperMetal: number; bronzeMetal: number; ironMetal: number; copperBar: number; bronzeBar: number; ironBar: number; torches: number;
   }>({
     stones: 0, wood: 0, seeds: 0, axe: 0, hoe: 0, pick: 0, copperPick: 0, copperHammer: 0, spear: 0,
     berrySeeds: 0, palmSeeds: 0, mushrooms: 0, herbs: 0,
-    coal: 0, copper: 0, bronze: 0, iron: 0, copperMetal: 0, bronzeMetal: 0, copperBar: 0, bronzeBar: 0, torches: 0,
+    coal: 0, copper: 0, bronze: 0, iron: 0, copperMetal: 0, bronzeMetal: 0, ironMetal: 0, copperBar: 0, bronzeBar: 0, ironBar: 0, torches: 0,
   });
 
   type Inv = typeof inventory;
@@ -811,7 +811,7 @@ function GamePage() {
   // Total bars currently in the player's hands. Mirrors the wood mechanic:
   // any bar in inventory means the player is physically holding it, blocking
   // hotbar use and slowing movement. Capped at MAX_CARRY_BARS (3 total).
-  const totalCarriedBars = inventory.copperBar + inventory.bronzeBar;
+  const totalCarriedBars = inventory.copperBar + inventory.bronzeBar + inventory.ironBar;
   const totalCarriedBarsRef = useRef(0);
   totalCarriedBarsRef.current = totalCarriedBars;
   // Hotbar selection — which inventory item is "held" for use (e.g. seed → plant).
@@ -819,7 +819,7 @@ function GamePage() {
     | "stone" | "wood" | "seed"
     | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
     | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-    | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
+    | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
   // Hotbar has exactly 10 slots. We surface only the items the player
   // actually owns, in a fixed priority order, and pad the rest with empty
   // slots so the UI always shows 10 boxes.
@@ -827,7 +827,7 @@ function GamePage() {
   const HOTBAR_PRIORITY: SlotKind[] = [
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
     "berrySeed", "palmSeed", "mushroom", "herb",
-    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "copperBar", "bronzeBar", "torch",
+    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "ironMetal", "copperBar", "bronzeBar", "ironBar", "torch",
   ];
   const countFor = (k: SlotKind): number => {
     switch (k) {
@@ -852,6 +852,8 @@ function GamePage() {
       case "bronzeMetal": return inventory.bronzeMetal;
       case "copperBar": return inventory.copperBar;
       case "bronzeBar": return inventory.bronzeBar;
+      case "ironBar": return inventory.ironBar;
+      case "ironMetal": return inventory.ironMetal;
       case "torch": return inventory.torches;
     }
   };
@@ -1175,6 +1177,8 @@ function GamePage() {
       case "bronzeMetal": return inv.bronzeMetal;
       case "copperBar": return inv.copperBar;
       case "bronzeBar": return inv.bronzeBar;
+      case "ironBar": return inv.ironBar;
+      case "ironMetal": return inv.ironMetal;
       case "torch": return inv.torches;
     }
   };
@@ -1461,8 +1465,10 @@ function GamePage() {
         iron: data.iron ?? 0,
         copperMetal: data.copperMetal ?? 0,
         bronzeMetal: data.bronzeMetal ?? 0,
+        ironMetal: (data as { ironMetal?: number }).ironMetal ?? 0,
         copperBar: data.copperBar ?? 0,
         bronzeBar: data.bronzeBar ?? 0,
+        ironBar: (data as { ironBar?: number }).ironBar ?? 0,
         torches: data.torches ?? 0,
       };
       // Keep the ref in sync immediately. In dev/preview Strict Mode the
@@ -1663,8 +1669,10 @@ function GamePage() {
           iron: inventoryRef.current.iron,
           copperMetal: inventoryRef.current.copperMetal,
           bronzeMetal: inventoryRef.current.bronzeMetal,
+          ironMetal: inventoryRef.current.ironMetal,
           copperBar: inventoryRef.current.copperBar,
           bronzeBar: inventoryRef.current.bronzeBar,
+          ironBar: inventoryRef.current.ironBar,
           torches: inventoryRef.current.torches,
           minedOres: Array.from(minedOresRef.current.entries()),
           caveOres: caveOresRef.current,
@@ -2518,6 +2526,7 @@ function GamePage() {
                 wood: Math.max(0, inv.wood - lost),
                 copperBar: 0,
                 bronzeBar: 0,
+                ironBar: 0,
               }));
               saveWorld();
             }
@@ -3804,28 +3813,34 @@ function GamePage() {
         // the hand slot). Uses metallic palettes so the bars read as forged.
         const nCopperBars = inventoryRef.current.copperBar;
         const nBronzeBars = inventoryRef.current.bronzeBar;
-        const nBars = nCopperBars + nBronzeBars;
+        const nIronBars = inventoryRef.current.ironBar;
+        const nBars = nCopperBars + nBronzeBars + nIronBars;
         if (nBars > 0 && carriedLogsRef.current === 0 && (!s.dead || s.deathT < DEATH_ANIM)) {
           const torsoBaseY = spriteY + 15;
           const barX = spriteX + 2;
-          // Stack copper first (bottom), bronze on top so bronze is visible.
-          const stack: Array<"copper" | "bronze"> = [];
+          // Stack copper first (bottom), bronze middle, iron on top.
+          const stack: Array<"copper" | "bronze" | "iron"> = [];
           for (let i = 0; i < nCopperBars; i++) stack.push("copper");
           for (let i = 0; i < nBronzeBars; i++) stack.push("bronze");
+          for (let i = 0; i < nIronBars; i++) stack.push("iron");
           for (let i = 0; i < stack.length; i++) {
             const by = torsoBaseY - i * 3;
-            const isCopper = stack[i] === "copper";
+            const kind = stack[i];
             if (i === 0) {
               ctx.fillStyle = "rgba(0,0,0,0.25)";
               ctx.fillRect(barX, by + 3, 12, 1);
             }
-            ctx.fillStyle = isCopper ? "#b3541e" : "#a37244";
+            const base = kind === "copper" ? "#b3541e" : kind === "bronze" ? "#a37244" : "#a8b0bc";
+            const hi = kind === "copper" ? "#e08a3a" : kind === "bronze" ? "#d6a15c" : "#d8dee6";
+            const lo = kind === "copper" ? "#7a3812" : kind === "bronze" ? "#6d4826" : "#5a6270";
+            const edge = kind === "iron" ? "#2a2f38" : "#2a1508";
+            ctx.fillStyle = base;
             ctx.fillRect(barX, by, 12, 3);
-            ctx.fillStyle = isCopper ? "#e08a3a" : "#d6a15c";
+            ctx.fillStyle = hi;
             ctx.fillRect(barX + 1, by, 10, 1);
-            ctx.fillStyle = isCopper ? "#7a3812" : "#6d4826";
+            ctx.fillStyle = lo;
             ctx.fillRect(barX, by + 2, 12, 1);
-            ctx.fillStyle = "#2a1508";
+            ctx.fillStyle = edge;
             ctx.fillRect(barX, by, 1, 3);
             ctx.fillRect(barX + 11, by, 1, 3);
           }
@@ -3876,6 +3891,8 @@ function GamePage() {
             selKind === "bronzeMetal" ? inventoryRef.current.bronzeMetal :
             selKind === "copperBar" ? inventoryRef.current.copperBar :
             selKind === "bronzeBar" ? inventoryRef.current.bronzeBar :
+            selKind === "ironBar" ? inventoryRef.current.ironBar :
+            selKind === "ironMetal" ? inventoryRef.current.ironMetal :
             selKind === "torch"     ? inventoryRef.current.torches : 0;
           const isBuiltInTool = selKind === "spear" || selKind === "axe" || selKind === "hoe" || selKind === "pick" || selKind === "copperPick" || selKind === "copperHammer";
           const hasDefaultHeldArt = isBuiltInTool || selKind === "stone";
@@ -4926,6 +4943,10 @@ function GamePage() {
           (selKindNow === "spear" && inv.spear > 0) ||
           (selKindNow === "stone" && inv.stones > 0);
         if (holdingTool) {
+          flashPickup(t("msg.handsFull"));
+          return;
+        }
+        if (totalCarriedBarsRef.current > 0) {
           flashPickup(t("msg.handsFull"));
           return;
         }
@@ -6594,9 +6615,25 @@ function GamePage() {
           // Wood withdrawals are capped by MAX_CARRY_LOGS since each wood
           // in inventory corresponds to a log visibly carried by the player.
           if (k === "wood") {
+            if (totalCarriedBarsRef.current > 0) {
+              flashPickup(t("msg.handsFull"));
+              return;
+            }
             const room = Math.max(0, MAX_CARRY_LOGS - carriedLogsRef.current);
             if (room <= 0) {
               flashPickup(t("msg.maxLogs", { n: MAX_CARRY_LOGS }));
+              return;
+            }
+            n = Math.min(n, room);
+          }
+          if (k === "copperBar" || k === "bronzeBar" || k === "ironBar") {
+            if (carriedLogsRef.current > 0) {
+              flashPickup(t("msg.handsFull"));
+              return;
+            }
+            const room = Math.max(0, MAX_CARRY_BARS - totalCarriedBarsRef.current);
+            if (room <= 0) {
+              flashPickup(t("msg.handsFull"));
               return;
             }
             n = Math.min(n, room);
