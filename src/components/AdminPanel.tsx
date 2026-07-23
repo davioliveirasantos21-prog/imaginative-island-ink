@@ -734,6 +734,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                       "pants-overrides-v1",
                       "custom-hairs-v1",
                       "custom-garments-v1",
+                      "custom-items-v1",
                     ];
                     const dump: Record<string, unknown> = {
                       exportedAt: new Date().toISOString(),
