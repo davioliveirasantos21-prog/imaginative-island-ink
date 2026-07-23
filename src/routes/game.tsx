@@ -1437,6 +1437,7 @@ function GamePage() {
         brokenTrees?: [number, number][];
         pickedProps?: string[];
         brokenPalms?: number[];
+        extraPalms?: PalmPos[];
         groundLogs?: GroundLog[];
         groundPebbles?: GroundPebble[];
         groundItems?: GroundItem[];
