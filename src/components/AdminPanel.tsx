@@ -878,6 +878,116 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                   );
                 })}
               </div>
+
+              {customItems.length > 0 && (
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="text-[10px] tracking-widest text-[#ffd166]">
+                    {t("admin.items.customTitle")}
+                  </div>
+                  <p className="text-[10px] text-[#f4e9c1]/60">
+                    {t("admin.items.customHint")}
+                  </p>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {customItems.map((ci) => (
+                      <div
+                        key={ci.id}
+                        className="flex flex-col gap-2 border-2 border-[#ffd166]/40 p-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={ci.name}
+                            onChange={(e) => {
+                              updateCustomItem(ci.id, { name: e.target.value });
+                              refreshCustomItems();
+                            }}
+                            className="flex-1 border-2 border-[#f4e9c1]/30 bg-[#0a141f] px-2 py-1 text-[11px] text-[#ffd166]"
+                          />
+                          <span className="text-[9px] uppercase tracking-widest text-[#f4e9c1]/50">
+                            {t(itemNameKey(ci.baseKind))}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {ITEM_VARIANTS.map((variant) => {
+                            const pixels = ci[variant];
+                            const hasVariant = !!pixels && Object.keys(pixels).length > 0;
+                            const previewUrl = hasVariant
+                              ? renderItemPixelsToDataURL(pixels!)
+                              : null;
+                            return (
+                              <div
+                                key={variant}
+                                className="flex flex-col items-center gap-1 border border-[#f4e9c1]/20 p-1"
+                              >
+                                <div className="text-[9px] uppercase tracking-widest text-[#f4e9c1]/70">
+                                  {t(`admin.items.variant.${variant}`)}
+                                </div>
+                                <div
+                                  className="flex h-12 w-12 items-center justify-center border border-[#f4e9c1]/20 bg-[#0a141f]"
+                                  style={{ imageRendering: "pixelated" }}
+                                >
+                                  {previewUrl ? (
+                                    <img
+                                      src={previewUrl}
+                                      alt=""
+                                      aria-hidden
+                                      className="h-10 w-10 object-contain"
+                                      style={{ imageRendering: "pixelated" }}
+                                    />
+                                  ) : (
+                                    <span className="text-[9px] text-[#f4e9c1]/40">
+                                      {t("admin.items.default")}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() =>
+                                      setEditingItem({
+                                        kind: ci.baseKind,
+                                        variant,
+                                        customId: ci.id,
+                                      })
+                                    }
+                                    className="border-2 border-[#ffd166]/60 px-2 py-1 text-[9px] uppercase text-[#ffd166]"
+                                  >
+                                    {hasVariant
+                                      ? t("admin.items.edit")
+                                      : t("admin.items.create")}
+                                  </button>
+                                  {hasVariant && (
+                                    <button
+                                      onClick={() => {
+                                        deleteCustomItemVariant(ci.id, variant);
+                                        refreshCustomItems();
+                                      }}
+                                      title={t("admin.items.delete")}
+                                      className="border-2 border-[#e94560]/60 px-2 py-1 text-[9px] text-[#e94560]"
+                                    >
+                                      ✕
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            onClick={() => {
+                              deleteCustomItem(ci.id);
+                              refreshCustomItems();
+                            }}
+                            className="border-2 border-[#e94560]/60 px-2 py-1 text-[9px] uppercase text-[#e94560]"
+                          >
+                            {t("admin.items.deleteClone")}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
