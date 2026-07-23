@@ -376,7 +376,7 @@ const CAVE_ENTRANCE_DRAW_H = 70;
 const CAVE_ENTRANCE_CLEAR = CAVE_ENTRANCE_DRAW_W / 2 + 5;
 // Ore mining: 10 HP each, regenerates 2 min after being fully mined.
 const ORE_MAX_HP = 10;
-const oreMaxHp = (kind: OreKind): number => (kind === "iron" ? 16 : ORE_MAX_HP);
+const oreMaxHp = (kind: OreKind): number => (kind === "iron" ? 26 : ORE_MAX_HP);
 // Regen delay is randomized per mined ore between MIN and MAX (ms).
 const ORE_REGEN_MIN_MS = 90000;
 const ORE_REGEN_MAX_MS = 90000;
