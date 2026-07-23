@@ -283,6 +283,7 @@ export const dictionaries: Record<Lang, Dict> = {
     "anvil.intro": "Segure o Martelo de Cobre no inventário e forje cobre bruto e bronze bruto em barras.",
     "anvil.forgeCopper": "Forjar barra de cobre",
     "anvil.forgeBronze": "Forjar barra de bronze",
+    "anvil.forgeIron": "Forjar barra de ferro",
     "anvil.needHammer": "Você precisa de um Martelo de Cobre no inventário.",
     "anvil.startForge": "Metal na bigorna — martele para forjar!",
     "anvil.forgeReady": "Barra pronta! Clique na bigorna para coletar.",
