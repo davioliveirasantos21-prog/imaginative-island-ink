@@ -690,6 +690,28 @@ function GamePage() {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [skillsOpen, setSkillsOpen] = useState(false);
+  // Skills: level + xp per discipline. Each level requires 10 xp (10 bars).
+  type SkillKey = "forge" | "combat" | "precision" | "mining";
+  type SkillState = { level: number; xp: number };
+  const makeSkills = (): Record<SkillKey, SkillState> => ({
+    forge: { level: 1, xp: 0 },
+    combat: { level: 1, xp: 0 },
+    precision: { level: 1, xp: 0 },
+    mining: { level: 1, xp: 0 },
+  });
+  const [skills, setSkills] = useState<Record<SkillKey, SkillState>>(makeSkills);
+  const skillsRef = useRef<Record<SkillKey, SkillState>>(skills);
+  const addSkillXP = (key: SkillKey, amount: number) => {
+    const cur = skillsRef.current[key];
+    let xp = cur.xp + amount;
+    let level = cur.level;
+    while (xp >= 10) { xp -= 10; level += 1; }
+    const next = { ...skillsRef.current, [key]: { level, xp } };
+    skillsRef.current = next;
+    setSkills(next);
+    try { saveWorldRef.current?.(); } catch { /* ignore */ }
+  };
+  const saveWorldRef = useRef<(() => void) | null>(null);
   const [character, setCharacter] = useState<Character | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
   const [dead, setDead] = useState(false);
