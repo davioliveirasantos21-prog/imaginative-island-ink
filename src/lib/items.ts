@@ -247,7 +247,7 @@ export function saveItemVariant(
 ) {
   const all = loadItemOverrides();
   const cur = all[kind] ?? {};
-  const cleaned = sanitizePixelsForVariant(pixels, variant);
+  const cleaned = sanitizePixelsForVariant(pixels, variant, kind);
   const nextForKind: ItemOverride = { ...cur, [variant]: cleaned };
   if (Object.keys(cleaned).length === 0) delete nextForKind[variant];
   const next: ItemOverrides = { ...all };
