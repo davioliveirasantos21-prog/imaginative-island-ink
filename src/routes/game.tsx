@@ -5919,8 +5919,15 @@ function GamePage() {
                     key: "settings",
                     label: t("settings.title"),
                     icon: IconSettings,
-                    pos: "right-3 bottom-24 sm:right-6 sm:bottom-28",
+                    pos: "right-3 bottom-20 sm:right-6 sm:bottom-24",
                     onClick: () => { setSettingsOpen(true); },
+                  },
+                  {
+                    key: "skills",
+                    label: t("gameMenu.skills.title"),
+                    icon: IconSkills,
+                    pos: "right-3 bottom-44 sm:right-6 sm:bottom-48",
+                    onClick: () => setSkillsOpen(true),
                   },
                   {
                     key: "exit",
@@ -5937,15 +5944,6 @@ function GamePage() {
                     pos: "left-[10.75rem] -top-1",
                     size: "h-20 w-20",
                     onClick: () => setCameraMenuOpen((v) => !v),
-                  },
-
-
-                  {
-                    key: "skills",
-                    label: t("gameMenu.skills.title"),
-                    icon: IconSkills,
-                    pos: "right-3 top-[70%] sm:right-6",
-                    onClick: () => setSkillsOpen(true),
                   },
 
                   {
