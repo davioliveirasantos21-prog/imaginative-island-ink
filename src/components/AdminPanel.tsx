@@ -338,6 +338,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
   const refreshPantsOverrides = () => setPantsOverrides(loadPantsOverrides());
   const refreshBeardOverrides = () => setBeardOverrides(loadBeardOverrides());
   const refreshItemOverrides = () => setItemOverrides(loadItemOverrides());
+  const refreshCustomItems = () => setCustomItems(loadCustomItems());
   const refreshSceneryOverrides = () => setSceneryOverrides(loadSceneryOverrides());
 
   return (
