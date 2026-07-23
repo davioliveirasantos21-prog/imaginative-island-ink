@@ -1461,8 +1461,10 @@ function GamePage() {
         iron: data.iron ?? 0,
         copperMetal: data.copperMetal ?? 0,
         bronzeMetal: data.bronzeMetal ?? 0,
+        ironMetal: (data as { ironMetal?: number }).ironMetal ?? 0,
         copperBar: data.copperBar ?? 0,
         bronzeBar: data.bronzeBar ?? 0,
+        ironBar: (data as { ironBar?: number }).ironBar ?? 0,
         torches: data.torches ?? 0,
       };
       // Keep the ref in sync immediately. In dev/preview Strict Mode the
