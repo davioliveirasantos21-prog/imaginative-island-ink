@@ -2063,7 +2063,7 @@ function GamePage() {
                 c.pendingSfx = null;
               }
               // Spear hitbox vs centipede — damage while the spear is thrusting.
-              if (spearAttackRef.current && getSelectedHotbarKind() === "spear" && inventoryRef.current.spear > 0) {
+              if (spearAttackRef.current && (getSelectedHotbarKind() === "spear" || getSelectedHotbarKind() === "ironSpear") && (inventoryRef.current.spear > 0 || inventoryRef.current.ironSpear > 0)) {
                 const sa = spearAttackRef.current;
                 const facing = s.facing;
                 const handWX = s.x + (facing === 1 ? 14 : 1);
