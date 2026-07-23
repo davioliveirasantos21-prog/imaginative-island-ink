@@ -45,6 +45,7 @@ import uiConfigAsset from "@/assets/ui-config.png.asset.json";
 import uiCustomAsset from "@/assets/ui-custom.png.asset.json";
 import uiMenuAsset from "@/assets/ui-menu.png.asset.json";
 import uiMissoesAsset from "@/assets/ui-missoes.png.asset.json";
+import uiSkillsAsset from "@/assets/ui-skills.png.asset.json";
 import uiSetinhaAbrirAsset from "@/assets/ui-setinha-abrir.png.asset.json";
 import uiSetinhaFecharAsset from "@/assets/ui-setinha-fechar.png.asset.json";
 import {
