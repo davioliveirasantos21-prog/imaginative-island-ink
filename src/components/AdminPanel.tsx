@@ -87,6 +87,15 @@ import {
 } from "@/lib/held-defaults";
 import { captureIconDefaultPixels } from "@/lib/item-icon-defaults";
 import {
+  loadCustomItems,
+  addCustomItem,
+  updateCustomItem,
+  deleteCustomItem,
+  saveCustomItemVariant,
+  deleteCustomItemVariant,
+  type CustomItem,
+} from "@/lib/custom-items";
+import {
   captureBuildDefaultPixels,
   captureCaveDefaultPixels,
   clearAllScenery,
