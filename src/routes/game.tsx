@@ -690,6 +690,28 @@ function GamePage() {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [skillsOpen, setSkillsOpen] = useState(false);
+  // Skills: level + xp per discipline. Each level requires 10 xp (10 bars).
+  type SkillKey = "forge" | "combat" | "precision" | "mining";
+  type SkillState = { level: number; xp: number };
+  const makeSkills = (): Record<SkillKey, SkillState> => ({
+    forge: { level: 1, xp: 0 },
+    combat: { level: 1, xp: 0 },
+    precision: { level: 1, xp: 0 },
+    mining: { level: 1, xp: 0 },
+  });
+  const [skills, setSkills] = useState<Record<SkillKey, SkillState>>(makeSkills);
+  const skillsRef = useRef<Record<SkillKey, SkillState>>(skills);
+  const addSkillXP = (key: SkillKey, amount: number) => {
+    const cur = skillsRef.current[key];
+    let xp = cur.xp + amount;
+    let level = cur.level;
+    while (xp >= 10) { xp -= 10; level += 1; }
+    const next = { ...skillsRef.current, [key]: { level, xp } };
+    skillsRef.current = next;
+    setSkills(next);
+    try { saveWorldRef.current?.(); } catch { /* ignore */ }
+  };
+  const saveWorldRef = useRef<(() => void) | null>(null);
   const [character, setCharacter] = useState<Character | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
   const [dead, setDead] = useState(false);
@@ -1509,6 +1531,7 @@ function GamePage() {
         cave2MinedOres?: [string, number][];
         placedTorchesCave2?: PlacedTorch[];
         salitreDiscovered?: boolean;
+        skills?: Partial<Record<SkillKey, SkillState>>;
       };
       const loadedInventory: Inv = {
         stones: data.stones ?? 0,
@@ -1580,6 +1603,18 @@ function GamePage() {
       placedTorchesCave2Ref.current = data.placedTorchesCave2 ?? [];
       salitreDiscoveredRef.current = data.salitreDiscovered ?? false;
       setSalitreDiscovered(salitreDiscoveredRef.current);
+      {
+        const base = makeSkills();
+        const raw = data.skills ?? {};
+        for (const k of Object.keys(base) as SkillKey[]) {
+          const s = raw[k];
+          if (s && typeof s.level === "number" && typeof s.xp === "number") {
+            base[k] = { level: Math.max(1, Math.floor(s.level)), xp: Math.max(0, Math.min(9, Math.floor(s.xp))) };
+          }
+        }
+        skillsRef.current = base;
+        setSkills(base);
+      }
       caveWallBrokenRef.current = !!data.caveWallBroken;
       // One-time migration: restore the cave wall for players who broke it
       // before the copper-pickaxe requirement was enforced correctly.
@@ -1791,12 +1826,14 @@ function GamePage() {
           cave2MinedOres: Array.from(cave2MinedOresRef.current.entries()),
           placedTorchesCave2: placedTorchesCave2Ref.current,
           salitreDiscovered: salitreDiscoveredRef.current,
+          skills: skillsRef.current,
         }),
       );
     } catch {
       /* ignore */
     }
   };
+  saveWorldRef.current = saveWorld;
   const flashPickup = (msg: string) => {
     setPickupFlash(msg);
     window.setTimeout(() => setPickupFlash((cur) => (cur === msg ? null : cur)), 1200);
@@ -1932,6 +1969,7 @@ function GamePage() {
           setStuckActive(false);
           setStuckProgress(0);
           flashPickup(t("cave2.freed"));
+          addSkillXP("combat", 2);
         }
         return;
       }
@@ -2111,6 +2149,7 @@ function GamePage() {
                     if (c.hp <= 0) {
                       c.dead = true;
                       flashPickup(t("cave2.centipedeSlain"));
+                      addSkillXP("combat", 2);
                       // Death cry — reuse the wall-attack shrieks.
                       const deathCry = Math.random() < 0.5 ? lacraiaParedeAtacando1Asset.url : lacraiaParedeAtacando2Asset.url;
                       playOneShotReverb(deathCry, Math.min(1, (ambientVolume / 100) * 1.0));
@@ -2709,6 +2748,7 @@ function GamePage() {
                   minedOresRef.current = nextMined;
                 }
                 dropGroundItems(ore.x, modeRef.current as "cave" | "cave2", ["stone", ore.kind]);
+                addSkillXP("mining", 1);
               }
               saveWorld();
             }
@@ -2785,6 +2825,7 @@ function GamePage() {
                   flashPickup(t("msg.tree", { n: nextHP, max: maxHits }));
                 } else {
                   treeHPRef.current.delete(hpKey);
+                  addSkillXP("mining", 1);
                   if (chopTarget.isPlanted) {
                     plantedRef.current = plantedRef.current.filter((pl) => pl !== chopTarget.treeObj);
                   } else {
@@ -4317,6 +4358,7 @@ function GamePage() {
           setStuckActive(false);
           setStuckProgress(0);
           flashPickup(t("cave2.freed"));
+          addSkillXP("combat", 2);
         }
         return;
       }
@@ -4676,6 +4718,7 @@ function GamePage() {
             nextMined.set(ore.id, Date.now() + delay2);
             cave2MinedOresRef.current = nextMined;
             dropGroundItems(ore.x, "cave2", ["stone", ore.kind]);
+            addSkillXP("mining", 1);
             if (ore.kind === "iron" && !salitreDiscoveredRef.current) {
               salitreDiscoveredRef.current = true;
               setSalitreDiscovered(true);
@@ -4987,6 +5030,7 @@ function GamePage() {
           if (b.kind === "anvil" && b.forgeJob) {
             const job = b.forgeJob;
             job.hits += 1;
+            addSkillXP("forge", 1);
             playOneShot(hammerSfxAsset.url, (ambientVolume / 100) * 0.7);
             if (job.hits >= job.hitsRequired) {
               flashPickup(t("anvil.forgeReady"));
@@ -5370,6 +5414,7 @@ function GamePage() {
 
           // Final blow — remove HP entry and fell the tree.
           treeHPRef.current.delete(hpKey);
+          addSkillXP("mining", 1);
           if (bestTree) {
             treesBrokenRef.current.set(chopTarget.x, nowMs);
           } else if (bestPlanted) {
@@ -6157,10 +6202,26 @@ function GamePage() {
                           <rect x="8"  y="10" width="1" height="1" fill="#c94a3a" />
                         </>
                       )},
+                      { key: "mining", color: "#8aa0c0", pixel: (
+                        // pickaxe (diagonal head + wooden handle)
+                        <>
+                          <rect x="2"  y="3" width="3" height="1" fill="#6b6b78" />
+                          <rect x="4"  y="4" width="3" height="1" fill="#8a8a94" />
+                          <rect x="6"  y="5" width="3" height="1" fill="#6b6b78" />
+                          <rect x="8"  y="6" width="3" height="1" fill="#8a8a94" />
+                          <rect x="10" y="7" width="3" height="1" fill="#6b6b78" />
+                          <rect x="12" y="8" width="3" height="1" fill="#3a3a44" />
+                          <rect x="7"  y="7" width="2" height="1" fill="#c9b48a" />
+                          <rect x="8"  y="8" width="2" height="8" fill="#8a5a2a" />
+                          <rect x="8"  y="8" width="1" height="8" fill="#a06a34" />
+                          <rect x="7"  y="16" width="4" height="1" fill="#5a3a1a" />
+                        </>
+                      )},
                     ] as const).map((sk) => {
-                      const level = 1;
-                      const xp = 0;
-                      const xpMax = 100;
+                      const state = skills[sk.key as SkillKey];
+                      const level = state.level;
+                      const xp = state.xp;
+                      const xpMax = 10;
                       const pct = Math.round((xp / xpMax) * 100);
                       return (
                         <div
@@ -6864,6 +6925,7 @@ function GamePage() {
                               const job = f?.smeltJob;
                               if (!f || !job || Date.now() < job.endsAt) return;
                               f.smeltJob = undefined;
+                              addSkillXP("forge", 1);
                               setInventory((inv) => {
                                 const next = { ...inv, [job.barKind]: (inv[job.barKind] as number) + job.barQty } as Inv;
                                 inventoryRef.current = next;
@@ -6924,6 +6986,7 @@ function GamePage() {
                             endsAt: startedAt + SMELT_DURATION_MS,
                           };
                           f.smeltJob = job;
+                          addSkillXP("forge", 1);
                           setSmeltNow(startedAt);
                           saveWorld();
                         }}
