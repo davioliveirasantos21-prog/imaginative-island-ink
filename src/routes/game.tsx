@@ -4547,7 +4547,7 @@ function GamePage() {
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               cave2OreHPRef.current.set(ore.id, nextHP);
-              flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
+              
               saveWorld();
               return;
             }
