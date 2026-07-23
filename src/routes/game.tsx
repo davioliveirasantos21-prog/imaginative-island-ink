@@ -5940,6 +5940,13 @@ function GamePage() {
 
 
                   {
+                    key: "skills",
+                    label: t("gameMenu.skills.title"),
+                    icon: IconSkills,
+                    pos: "right-3 bottom-[42%] sm:right-6",
+                    onClick: () => setSkillsOpen(true),
+                  },
+                  {
                     key: "tutorial",
                     label: t("gameMenu.tutorial.title"),
                     icon: IconHelp,
