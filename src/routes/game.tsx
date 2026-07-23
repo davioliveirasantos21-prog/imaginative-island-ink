@@ -4462,7 +4462,7 @@ function GamePage() {
         if (tryPickupGroundItem(worldX, worldY, "cave", withinReach)) return;
 
         // Mining: click an ore. Requires the pickaxe slot to be selected.
-        if (getSelectedHotbarKind() !== "pick" && getSelectedHotbarKind() !== "copperPick") {
+        if (getSelectedHotbarKind() !== "pick" && getSelectedHotbarKind() !== "copperPick" && getSelectedHotbarKind() !== "ironPick") {
           const heldKind = getSelectedHotbarKind();
           let bestOre: CaveOre | null = null;
           let bestOreD = 18;
