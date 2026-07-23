@@ -317,6 +317,14 @@ function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md
       </span>
     );
   }
+  if (kind === "ironBar") {
+    return (
+      <span aria-hidden className={`inline-flex items-center justify-center ${dim}`} style={imgStyle}>
+        <span className="inline-block h-2 w-4 sm:h-2.5 sm:w-5 bg-[#a8b0bc] border border-[#2a2f38]" style={{ boxShadow: "inset -1px -1px 0 #d8dee6, inset 1px 1px 0 #eef1f6" }} />
+      </span>
+    );
+  }
+
   if (kind === "torch") {
     return <img src={torchIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={imgStyle} />;
   }
