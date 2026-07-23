@@ -175,7 +175,7 @@ type SlotIconKind =
   | "stone" | "wood" | "seed"
   | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
   | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-  | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "copperBar" | "bronzeBar" | "torch";
+  | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
 
 function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md" | "lg" }) {
   const dim =
