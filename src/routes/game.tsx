@@ -6970,6 +6970,7 @@ function GamePage() {
                             endsAt: startedAt + SMELT_DURATION_MS,
                           };
                           f.smeltJob = job;
+                          addSkillXP("forge", 1);
                           setSmeltNow(startedAt);
                           saveWorld();
                         }}
