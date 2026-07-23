@@ -1383,7 +1383,9 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
       {editingItem && editingItemInitial !== null && (
         <ItemPixelEditor
           title={t("admin.items.editingVariant", {
-            name: t(itemNameKey(editingItem.kind)),
+            name: editingItem.customId
+              ? (customItems.find((i) => i.id === editingItem.customId)?.name ?? t(itemNameKey(editingItem.kind)))
+              : t(itemNameKey(editingItem.kind)),
             variant: t(`admin.items.variant.${editingItem.variant}`),
           })}
           initial={editingItemInitial}
@@ -1394,12 +1396,21 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
             setEditingItemInitial(null);
           }}
           onSave={(pixels) => {
-            if (Object.keys(pixels).length === 0) {
-              deleteItemVariant(editingItem.kind, editingItem.variant);
+            if (editingItem.customId) {
+              if (Object.keys(pixels).length === 0) {
+                deleteCustomItemVariant(editingItem.customId, editingItem.variant);
+              } else {
+                saveCustomItemVariant(editingItem.customId, editingItem.variant, pixels);
+              }
+              refreshCustomItems();
             } else {
-              saveItemVariant(editingItem.kind, editingItem.variant, pixels);
+              if (Object.keys(pixels).length === 0) {
+                deleteItemVariant(editingItem.kind, editingItem.variant);
+              } else {
+                saveItemVariant(editingItem.kind, editingItem.variant, pixels);
+              }
+              refreshItemOverrides();
             }
-            refreshItemOverrides();
             setEditingItem(null);
             setEditingItemInitial(null);
           }}
