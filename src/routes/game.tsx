@@ -6445,7 +6445,7 @@ function GamePage() {
                         <span>→</span>
                         <span className="inline-flex items-center gap-1">{r.barQty}× <SlotIcon kind={r.barKind} size="sm" /></span>
                         <span className="ml-2 text-[#ffd166]/80">
-                          {t("anvil.hitsLabel", { n: FORGE_HITS_REQUIRED })}
+                          {t("anvil.hitsLabel", { n: r.hitsRequired })}
                         </span>
                       </div>
                     </button>
