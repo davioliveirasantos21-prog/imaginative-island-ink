@@ -1025,6 +1025,8 @@ export const dictionaries: Record<Lang, Dict> = {
     "gameMenu.skills.combat.desc": "Aumenta tu daño cuerpo a cuerpo y resistencia contra criaturas.",
     "gameMenu.skills.precision.name": "Precisión",
     "gameMenu.skills.precision.desc": "Mejora la puntería, el alcance y la probabilidad de golpe crítico.",
+    "gameMenu.skills.mining.name": "Minería",
+    "gameMenu.skills.mining.desc": "Mejora al romper minerales y árboles.",
     "gameMenu.camera.title": "Cámara",
     "gameMenu.camera.move": "Mover cámara",
     "gameMenu.camera.reset": "Restablecer",
