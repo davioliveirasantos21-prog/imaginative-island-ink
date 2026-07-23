@@ -2522,6 +2522,7 @@ function GamePage() {
                 wood: Math.max(0, inv.wood - lost),
                 copperBar: 0,
                 bronzeBar: 0,
+                ironBar: 0,
               }));
               saveWorld();
             }
