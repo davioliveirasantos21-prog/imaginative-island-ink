@@ -257,6 +257,7 @@ export const dictionaries: Record<Lang, Dict> = {
     "furnace.intro": "Adicione 1 carvão para queimar 4 unidades e obter 4 barras.",
     "furnace.smeltCopper": "Fundir cobre",
     "furnace.smeltBronze": "Fundir bronze",
+    "furnace.smeltIron": "Fundir minério de ferro",
     "furnace.burnWood": "Queimar madeira em carvão",
     "furnace.burnSalitre": "Queimar salitre em carvão",
     "furnace.recipe": "1 carvão + 4 unidades → 4 barras",
