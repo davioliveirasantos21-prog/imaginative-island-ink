@@ -7751,6 +7751,13 @@ function drawScene(
     }
   }
 
+  // ----- Extra palms planted by the player anywhere on the island -----
+  for (const p of world.extraPalms) {
+    const sx = p.wx - camX;
+    if (sx < -40 || sx > VW + 40) continue;
+    drawPalm(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), p.variant);
+  }
+
   drawButterflies(ctx, camX, time, BEACH_LEFT_END + 40, BEACH_START - 40);
 }
 
