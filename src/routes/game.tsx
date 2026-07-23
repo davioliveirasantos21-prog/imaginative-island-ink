@@ -6073,12 +6073,12 @@ function GamePage() {
           ) : null}
           {skillsOpen ? (
             <div
-              className="absolute inset-0 z-40 flex items-center justify-center bg-black/85 p-4 animate-fade-in"
+              className="absolute inset-0 z-40 flex items-center justify-center bg-black/85 p-3 sm:p-6 animate-fade-in"
               onClick={() => setSkillsOpen(false)}
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-md text-[#e8dcb0] animate-scale-in font-pixel"
+                className="relative w-full max-w-lg text-[#e8dcb0] animate-scale-in font-pixel"
                 style={{
                   background: "#2a1f14",
                   imageRendering: "pixelated",
@@ -6088,7 +6088,7 @@ function GamePage() {
               >
                 {/* inner parchment/stone panel */}
                 <div
-                  className="relative m-2 p-4"
+                  className="relative m-2 p-4 sm:p-5"
                   style={{
                     background:
                       "repeating-linear-gradient(0deg, #3a2a1a 0px, #3a2a1a 2px, #33251616 2px, #33251616 4px), #3a2a1a",
@@ -6096,16 +6096,16 @@ function GamePage() {
                   }}
                 >
                   {/* header */}
-                  <div className="mb-3 flex items-center justify-center gap-3">
-                    <span className="text-[#8a6a3a] text-[10px]">◆</span>
-                    <div className="text-center text-[10px] tracking-[0.35em] text-[#ffd166] uppercase" style={{ textShadow: "2px 2px 0 #000" }}>
+                  <div className="mb-4 flex items-center justify-center gap-3">
+                    <span className="text-[#8a6a3a] text-xs sm:text-sm">◆</span>
+                    <div className="text-center text-xs sm:text-sm tracking-[0.35em] text-[#ffd166] uppercase" style={{ textShadow: "2px 2px 0 #000" }}>
                       {t("gameMenu.skills.title")}
                     </div>
-                    <span className="text-[#8a6a3a] text-[10px]">◆</span>
+                    <span className="text-[#8a6a3a] text-xs sm:text-sm">◆</span>
                   </div>
-                  <div className="mb-4 h-[3px] w-full" style={{ background: "repeating-linear-gradient(90deg, #6b4a2b 0 6px, #2a1f14 6px 10px)" }} />
+                  <div className="mb-5 h-[3px] w-full" style={{ background: "repeating-linear-gradient(90deg, #6b4a2b 0 6px, #2a1f14 6px 10px)" }} />
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-3">
                     {([
                       { key: "forge",     color: "#d97a2e", pixel: (
                         // hammer (vertical, chunky head)
@@ -6165,35 +6165,35 @@ function GamePage() {
                       return (
                         <div
                           key={sk.key}
-                          className="p-2"
+                          className="p-3"
                           style={{
                             background: "#241811",
                             boxShadow: "inset 0 0 0 2px #0a0603, inset 0 0 0 3px #6b4a2b",
                           }}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-4">
                             <div
-                              className="flex h-10 w-10 items-center justify-center shrink-0"
+                              className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center shrink-0"
                               style={{ background: "#0a0603", boxShadow: "inset 0 0 0 2px #6b4a2b" }}
                             >
-                              <svg viewBox="0 0 18 18" width="28" height="28" style={{ imageRendering: "pixelated", shapeRendering: "crispEdges" }}>
+                              <svg viewBox="0 0 18 18" width="34" height="34" className="sm:w-10 sm:h-10" style={{ imageRendering: "pixelated", shapeRendering: "crispEdges" }}>
                                 {sk.pixel}
                               </svg>
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-baseline justify-between gap-2">
-                                <span className="text-[9px] tracking-[0.2em] uppercase text-[#e8dcb0]" style={{ textShadow: "1px 1px 0 #000" }}>
+                                <span className="text-xs sm:text-sm tracking-[0.15em] uppercase text-[#e8dcb0]" style={{ textShadow: "1px 1px 0 #000" }}>
                                   {t(`gameMenu.skills.${sk.key}.name`)}
                                 </span>
-                                <span className="text-[9px] tabular-nums text-[#ffd166]" style={{ textShadow: "1px 1px 0 #000" }}>
+                                <span className="text-xs sm:text-sm tabular-nums text-[#ffd166]" style={{ textShadow: "1px 1px 0 #000" }}>
                                   Lv.{level}
                                 </span>
                               </div>
-                              <div className="text-[8px] leading-snug text-[#c9b48a] mt-1" style={{ fontFamily: "ui-monospace, monospace", letterSpacing: 0 }}>
+                              <div className="text-[10px] sm:text-xs leading-relaxed text-[#c9b48a] mt-1.5" style={{ fontFamily: "ui-monospace, monospace", letterSpacing: 0 }}>
                                 {t(`gameMenu.skills.${sk.key}.desc`)}
                               </div>
                               {/* pixel xp bar (segmented) */}
-                              <div className="mt-2 flex gap-[2px] h-2 w-full" style={{ background: "#0a0603", padding: "1px", boxShadow: "inset 0 0 0 1px #6b4a2b" }}>
+                              <div className="mt-3 flex gap-[2px] h-2.5 w-full" style={{ background: "#0a0603", padding: "1px", boxShadow: "inset 0 0 0 1px #6b4a2b" }}>
                                 {Array.from({ length: 10 }).map((_, i) => (
                                   <div
                                     key={i}
@@ -6209,14 +6209,14 @@ function GamePage() {
                     })}
                   </div>
 
-                  <div className="mt-4 text-center text-[8px] tracking-[0.2em] uppercase text-[#8a6a3a]">
+                  <div className="mt-5 text-center text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#8a6a3a]">
                     {t("gameMenu.skills.hint")}
                   </div>
 
-                  <div className="mt-4 flex justify-center">
+                  <div className="mt-5 flex justify-center">
                     <button
                       onClick={() => setSkillsOpen(false)}
-                      className="px-6 py-2 text-[9px] tracking-[0.3em] text-[#ffd166] uppercase active:translate-y-[2px] transition-transform font-pixel"
+                      className="px-8 py-2.5 text-xs sm:text-sm tracking-[0.3em] text-[#ffd166] uppercase active:translate-y-[2px] transition-transform font-pixel"
                       style={{
                         background: "#5a3a1a",
                         boxShadow: "inset 0 0 0 2px #0a0603, inset 0 0 0 3px #8a6a3a, 0 4px 0 #1a0f06",
