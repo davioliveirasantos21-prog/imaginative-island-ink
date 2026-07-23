@@ -668,6 +668,7 @@ export const dictionaries: Record<Lang, Dict> = {
     "furnace.intro": "Add 1 coal to burn 4 units into 4 bars.",
     "furnace.smeltCopper": "Smelt copper",
     "furnace.smeltBronze": "Smelt bronze",
+    "furnace.smeltIron": "Smelt iron ore",
     "furnace.burnWood": "Burn wood into coal",
     "furnace.burnSalitre": "Burn saltpeter into coal",
     "furnace.recipe": "1 coal + 4 units → 4 bars",
