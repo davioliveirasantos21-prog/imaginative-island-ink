@@ -6232,8 +6232,9 @@ function GamePage() {
             return (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 overflow-y-auto pr-1" style={{ minHeight: 0 }}>
                 {recipes.map((r) => {
+                  const ironNeed = r.ironMetal ?? 0;
                   const canCraft =
-                    inventory.wood >= r.wood && inventory.stones >= r.stones && inventory.coal >= r.coal && inventory.copper >= r.copper && inventory.copperMetal >= r.copperMetal;
+                    inventory.wood >= r.wood && inventory.stones >= r.stones && inventory.coal >= r.coal && inventory.copper >= r.copper && inventory.copperMetal >= r.copperMetal && inventory.ironMetal >= ironNeed;
                   return (
                     <CraftTile
                       key={r.key}
@@ -6249,6 +6250,7 @@ function GamePage() {
                             coal: inv.coal - r.coal,
                             copper: inv.copper - r.copper,
                             copperMetal: inv.copperMetal - r.copperMetal,
+                            ironMetal: inv.ironMetal - ironNeed,
                             [r.invField]: (inv[r.invField] as number) + (r.yield ?? 1),
                           };
                           inventoryRef.current = next;
@@ -6268,6 +6270,7 @@ function GamePage() {
                         r.coal > 0 ? { qty: r.coal, kind: "coal" as SlotIconKind, affordable: inventory.coal >= r.coal } : null,
                         r.copper > 0 ? { qty: r.copper, kind: "copper" as SlotIconKind, affordable: inventory.copper >= r.copper } : null,
                         r.copperMetal > 0 ? { qty: r.copperMetal, kind: "copperMetal" as SlotIconKind, affordable: inventory.copperMetal >= r.copperMetal } : null,
+                        ironNeed > 0 ? { qty: ironNeed, kind: "ironMetal" as SlotIconKind, affordable: inventory.ironMetal >= ironNeed } : null,
                       ].filter(Boolean) as { qty: number; kind: SlotIconKind; affordable: boolean }[]}
                     />
                   );
