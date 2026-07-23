@@ -1220,6 +1220,10 @@ function GamePage() {
       case "pick": return inv.pick;
       case "copperPick": return inv.copperPick;
       case "copperHammer": return inv.copperHammer;
+      case "ironPick": return inv.ironPick;
+      case "ironAxe": return inv.ironAxe;
+      case "ironSpear": return inv.ironSpear;
+      case "ironHammer": return inv.ironHammer;
 
       case "spear": return inv.spear;
       case "berrySeed": return inv.berrySeeds;
