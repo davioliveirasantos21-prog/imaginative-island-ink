@@ -4934,6 +4934,10 @@ function GamePage() {
           flashPickup(t("msg.handsFull"));
           return;
         }
+        if (totalCarriedBarsRef.current > 0) {
+          flashPickup(t("msg.handsFull"));
+          return;
+        }
         if (carriedLogsRef.current >= MAX_CARRY_LOGS) {
           flashPickup(t("msg.maxLogs", { n: MAX_CARRY_LOGS }));
           return;
