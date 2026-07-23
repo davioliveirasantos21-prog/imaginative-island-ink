@@ -996,7 +996,7 @@ function GamePage() {
   const minedRocksRef = useRef<Map<number, number>>(new Map()); // key = worldX
   const extraRocksRef = useRef<{ x: number }[]>([]);
   type GroundLog = { id: string; x: number; droppedAt?: number };
-  type GroundSeed = { id: string; x: number };
+  type GroundSeed = { id: string; x: number; kind?: "seed" | "palmSeed" };
   type GroundPebble = { id: string; x: number; variant: number };
   type PlantedTree = { id: string; x: number; plantedAt: number; variant: number };
    type GroundItem = { id: string; x: number; kind: ItemKind; mode: "world" | "cave" | "cave2"; droppedAt: number };
