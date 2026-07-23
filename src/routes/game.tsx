@@ -2662,7 +2662,7 @@ function GamePage() {
           const playerCenter = player.x + SPRITE_W / 2;
           const isFacingRight = player.facing === 1;
 
-          if (ts.kind === "pick" || ts.kind === "copperPick") {
+          if (ts.kind === "pick" || ts.kind === "copperPick" || ts.kind === "ironPick") {
             let bestOre: CaveOre | null = null;
             let bestOreD = 60;
             const currentOres = modeRef.current === "cave2" ? cave2OresRef.current : caveOresRef.current;
