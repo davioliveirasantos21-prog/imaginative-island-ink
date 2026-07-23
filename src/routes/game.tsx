@@ -4359,7 +4359,9 @@ function GamePage() {
       // without a spear still shows a hint.
       if (modeRef.current === "cave2") {
         const heldKind = getSelectedHotbarKind();
-        const hasSpear = heldKind === "spear" && inventoryRef.current.spear > 0;
+        const hasSpear =
+          (heldKind === "spear" && inventoryRef.current.spear > 0) ||
+          (heldKind === "ironSpear" && inventoryRef.current.ironSpear > 0);
         if (!hasSpear) {
           for (const c of cave2CentipedesRef.current) {
             if (c.dead || !c.active) continue;
