@@ -4565,6 +4565,10 @@ function GamePage() {
             nextMined.set(ore.id, Date.now() + delay2);
             cave2MinedOresRef.current = nextMined;
             dropGroundItems(ore.x, "cave2", ["stone", ore.kind]);
+            if (ore.kind === "iron" && !salitreDiscoveredRef.current) {
+              salitreDiscoveredRef.current = true;
+              setSalitreDiscovered(true);
+            }
             
             saveWorld();
             return;
