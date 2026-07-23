@@ -142,14 +142,21 @@ function sanitizePixels(m: unknown, maxW = ITEM_GRID, maxH = ITEM_GRID): ItemPix
 }
 
 /** Grid dimensions per variant — icon is the hotbar sprite, held is the
- *  larger canvas that fits the tool head + full shaft on the character. */
-export function getVariantGrid(variant: ItemVariant): { w: number; h: number } {
-  if (variant === "held") return { w: 16, h: 40 };
+ *  larger canvas that fits the tool head + full shaft on the character.
+ *  Carried resources (wood/bars) get a wide horizontal canvas since they're
+ *  rendered as a stack across the torso, no vertical shaft needed. */
+export function getVariantGrid(variant: ItemVariant, kind?: ItemKind): { w: number; h: number } {
+  if (variant === "held") {
+    if (kind === "wood" || kind === "copperBar" || kind === "bronzeBar" || kind === "ironBar") {
+      return { w: 32, h: 16 };
+    }
+    return { w: 16, h: 40 };
+  }
   return { w: ITEM_GRID, h: ITEM_GRID };
 }
 
-function sanitizePixelsForVariant(m: unknown, variant: ItemVariant): ItemPixels {
-  const g = getVariantGrid(variant);
+function sanitizePixelsForVariant(m: unknown, variant: ItemVariant, kind?: ItemKind): ItemPixels {
+  const g = getVariantGrid(variant, kind);
   return sanitizePixels(m, g.w, g.h);
 }
 
