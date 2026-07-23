@@ -2791,6 +2791,7 @@ function GamePage() {
               for (const side of ["left", "right"] as const) scanPalmList(getPalms(side), false);
               scanPalmList(extraPalmsRef.current, true);
               if (bestPalm) {
+                const palm: PalmPos = bestPalm;
                 const usingAxe = inventoryRef.current.axe > 0;
                 if (usingAxe) {
                   ts.hasHit = true;
