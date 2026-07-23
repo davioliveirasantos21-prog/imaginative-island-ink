@@ -1532,6 +1532,8 @@ function GamePage() {
       }
       placedTorchesRef.current = data.placedTorches ?? [];
       placedTorchesCave2Ref.current = data.placedTorchesCave2 ?? [];
+      salitreDiscoveredRef.current = data.salitreDiscovered ?? false;
+      setSalitreDiscovered(salitreDiscoveredRef.current);
       caveWallBrokenRef.current = !!data.caveWallBroken;
       // One-time migration: restore the cave wall for players who broke it
       // before the copper-pickaxe requirement was enforced correctly.
