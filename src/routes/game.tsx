@@ -6348,11 +6348,12 @@ function GamePage() {
               type ARow = {
                 key: string;
                 label: string;
-                rawKind: "copperMetal" | "bronzeMetal";
+                rawKind: "copperMetal" | "bronzeMetal" | "ironMetal";
                 rawQty: number;
-                barKind: "copperBar" | "bronzeBar";
+                barKind: "copperBar" | "bronzeBar" | "ironBar";
                 barName: string;
                 barQty: number;
+                hitsRequired: number;
                 canRun: boolean;
               };
               const rows: ARow[] = [
@@ -6364,6 +6365,7 @@ function GamePage() {
                   barKind: "copperBar",
                   barName: t("item.copperBar"),
                   barQty: 1,
+                  hitsRequired: FORGE_HITS_REQUIRED,
                   canRun: !activeJob && hasHammer && inventory.copperMetal >= 8,
                 },
                 {
@@ -6374,8 +6376,22 @@ function GamePage() {
                   barKind: "bronzeBar",
                   barName: t("item.bronzeBar"),
                   barQty: 1,
+                  hitsRequired: FORGE_HITS_REQUIRED,
                   canRun: !activeJob && hasHammer && inventory.bronzeMetal >= 8,
                 },
+                ...(salitreDiscovered
+                  ? [{
+                      key: "iron",
+                      label: t("anvil.forgeIron"),
+                      rawKind: "ironMetal" as const,
+                      barKind: "ironBar" as const,
+                      barName: t("item.ironBar"),
+                      rawQty: 8,
+                      barQty: 1,
+                      hitsRequired: 10,
+                      canRun: !activeJob && hasHammer && inventory.ironMetal >= 8,
+                    }]
+                  : []),
               ];
               return (
                 <div className="grid grid-cols-1 gap-2">
