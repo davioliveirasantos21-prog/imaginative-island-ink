@@ -5878,6 +5878,7 @@ function GamePage() {
                 const IconZoom = pngIcon(uiCameraAsset.url, t("gameMenu.camera.title"));
                 const IconHelp = pngIcon(uiMissoesAsset.url, t("gameMenu.tutorial.title"));
                 const IconExit = pngIcon(uiMenuAsset.url, t("game.leave"));
+                const IconSkills = pngIcon(uiSkillsAsset.url, t("gameMenu.skills.title"));
                 void stroke;
 
                 type CornerBtn = {
