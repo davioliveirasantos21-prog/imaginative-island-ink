@@ -2651,7 +2651,6 @@ function GamePage() {
                   minedOresRef.current = nextMined;
                 }
                 dropGroundItems(ore.x, modeRef.current as "cave" | "cave2", ["stone", ore.kind]);
-                flashPickup(t(`msg.mined.${ore.kind}`));
               }
               saveWorld();
             }
