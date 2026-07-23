@@ -1171,8 +1171,8 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
             variant: t(`admin.items.variant.${editingItem.variant}`),
           })}
           initial={editingItemInitial}
-          gridW={getVariantGrid(editingItem.variant).w}
-          gridH={getVariantGrid(editingItem.variant).h}
+          gridW={getVariantGrid(editingItem.variant, editingItem.kind).w}
+          gridH={getVariantGrid(editingItem.variant, editingItem.kind).h}
           onClose={() => {
             setEditingItem(null);
             setEditingItemInitial(null);
