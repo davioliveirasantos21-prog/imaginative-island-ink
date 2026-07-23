@@ -87,6 +87,15 @@ import {
 } from "@/lib/held-defaults";
 import { captureIconDefaultPixels } from "@/lib/item-icon-defaults";
 import {
+  loadCustomItems,
+  addCustomItem,
+  updateCustomItem,
+  deleteCustomItem,
+  saveCustomItemVariant,
+  deleteCustomItemVariant,
+  type CustomItem,
+} from "@/lib/custom-items";
+import {
   captureBuildDefaultPixels,
   captureCaveDefaultPixels,
   clearAllScenery,
@@ -224,7 +233,8 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
   const [pantsOverrides, setPantsOverrides] = useState<PantsStyleOverrides>({});
   const [beardOverrides, setBeardOverrides] = useState<BeardStyleOverrides>({});
   const [itemOverrides, setItemOverrides] = useState<ItemOverrides>({});
-  const [editingItem, setEditingItem] = useState<{ kind: ItemKind; variant: ItemVariant } | null>(null);
+  const [customItems, setCustomItems] = useState<CustomItem[]>([]);
+  const [editingItem, setEditingItem] = useState<{ kind: ItemKind; variant: ItemVariant; customId?: string } | null>(null);
   // Pre-loaded default pixels for the current icon editor session — resolved
   // from PNG assets or programmatic CSS renderings so the editor opens with
   // the miniature that's currently visible in the hotbar, not a blank canvas.
@@ -249,6 +259,32 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (!editingItem) {
       setEditingItemInitial(null);
+      return;
+    }
+    // Custom items: prefer their own saved pixels; fall back to the base kind's
+    // defaults so the editor opens with what the clone currently looks like.
+    if (editingItem.customId) {
+      const ci = loadCustomItems().find((i) => i.id === editingItem.customId);
+      const own = ci?.[editingItem.variant];
+      if (own && Object.keys(own).length > 0) {
+        setEditingItemInitial(own);
+        return;
+      }
+      if (editingItem.variant === "held" && isHeldToolKind(editingItem.kind)) {
+        setEditingItemInitial(captureHeldDefaultPixels(editingItem.kind));
+        return;
+      }
+      if (editingItem.variant === "icon") {
+        let cancelled = false;
+        setEditingItemInitial(null);
+        captureIconDefaultPixels(editingItem.kind).then((pixels) => {
+          if (!cancelled) setEditingItemInitial(pixels);
+        });
+        return () => {
+          cancelled = true;
+        };
+      }
+      setEditingItemInitial({});
       return;
     }
     const override = getItemOverride(editingItem.kind)?.[editingItem.variant];
@@ -290,6 +326,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
     setPantsOverrides(loadPantsOverrides());
     setBeardOverrides(loadBeardOverrides());
     setItemOverrides(loadItemOverrides());
+    setCustomItems(loadCustomItems());
     setSceneryOverrides(loadSceneryOverrides());
   }, []);
 
@@ -301,6 +338,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
   const refreshPantsOverrides = () => setPantsOverrides(loadPantsOverrides());
   const refreshBeardOverrides = () => setBeardOverrides(loadBeardOverrides());
   const refreshItemOverrides = () => setItemOverrides(loadItemOverrides());
+  const refreshCustomItems = () => setCustomItems(loadCustomItems());
   const refreshSceneryOverrides = () => setSceneryOverrides(loadSceneryOverrides());
 
   return (
@@ -696,6 +734,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                       "pants-overrides-v1",
                       "custom-hairs-v1",
                       "custom-garments-v1",
+                      "custom-items-v1",
                     ];
                     const dump: Record<string, unknown> = {
                       exportedAt: new Date().toISOString(),
@@ -801,38 +840,28 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                         })}
                       </div>
                       <div className="flex items-center gap-1">
-                        <select
-                          defaultValue=""
-                          onChange={(e) => {
-                            const target = e.target.value as ItemKind | "";
-                            e.target.value = "";
-                            if (!target || target === k) return;
-                            // Clone THIS item's sprites into the chosen target.
-                            (async () => {
-                              const srcOv = getItemOverride(k);
-                              const icon =
-                                srcOv?.icon ?? (await captureIconDefaultPixels(k));
-                              const held =
-                                srcOv?.held ??
-                                (isHeldToolKind(k) ? captureHeldDefaultPixels(k) : undefined);
-                              if (icon && Object.keys(icon).length > 0) {
-                                saveItemVariant(target, "icon", icon);
-                              }
-                              if (held && Object.keys(held).length > 0 && isHeldToolKind(target)) {
-                                saveItemVariant(target, "held", held);
-                              }
-                              refreshItemOverrides();
-                            })();
+                        <button
+                          onClick={async () => {
+                            // Clone THIS item into a brand-new custom item so
+                            // the admin can rename it and tweak its pixels.
+                            const srcOv = getItemOverride(k);
+                            const icon =
+                              srcOv?.icon ?? (await captureIconDefaultPixels(k));
+                            const held =
+                              srcOv?.held ??
+                              (isHeldToolKind(k) ? captureHeldDefaultPixels(k) : undefined);
+                            addCustomItem({
+                              baseKind: k,
+                              name: `${t(itemNameKey(k))} (cópia)`,
+                              icon: icon && Object.keys(icon).length > 0 ? icon : undefined,
+                              held: held && Object.keys(held).length > 0 ? held : undefined,
+                            });
+                            refreshCustomItems();
                           }}
-                          className="flex-1 border-2 border-[#f4e9c1]/30 bg-[#0a141f] px-1 py-1 text-[9px] uppercase tracking-wider text-[#f4e9c1]"
+                          className="flex-1 border-2 border-[#ffd166]/60 px-2 py-1 text-[9px] uppercase tracking-wider text-[#ffd166] hover:bg-[#ffd166]/10"
                         >
-                          <option value="">{t("admin.items.cloneTo")}</option>
-                          {ITEM_KINDS.filter((sk) => sk !== k).map((sk) => (
-                            <option key={sk} value={sk}>
-                              {t(itemNameKey(sk))}
-                            </option>
-                          ))}
-                        </select>
+                          {t("admin.items.clone")}
+                        </button>
                         {ov && (ov.icon || ov.held) && (
                           <button
                             onClick={() => {
@@ -849,6 +878,116 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                   );
                 })}
               </div>
+
+              {customItems.length > 0 && (
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="text-[10px] tracking-widest text-[#ffd166]">
+                    {t("admin.items.customTitle")}
+                  </div>
+                  <p className="text-[10px] text-[#f4e9c1]/60">
+                    {t("admin.items.customHint")}
+                  </p>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {customItems.map((ci) => (
+                      <div
+                        key={ci.id}
+                        className="flex flex-col gap-2 border-2 border-[#ffd166]/40 p-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={ci.name}
+                            onChange={(e) => {
+                              updateCustomItem(ci.id, { name: e.target.value });
+                              refreshCustomItems();
+                            }}
+                            className="flex-1 border-2 border-[#f4e9c1]/30 bg-[#0a141f] px-2 py-1 text-[11px] text-[#ffd166]"
+                          />
+                          <span className="text-[9px] uppercase tracking-widest text-[#f4e9c1]/50">
+                            {t(itemNameKey(ci.baseKind))}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {ITEM_VARIANTS.map((variant) => {
+                            const pixels = ci[variant];
+                            const hasVariant = !!pixels && Object.keys(pixels).length > 0;
+                            const previewUrl = hasVariant
+                              ? renderItemPixelsToDataURL(pixels!)
+                              : null;
+                            return (
+                              <div
+                                key={variant}
+                                className="flex flex-col items-center gap-1 border border-[#f4e9c1]/20 p-1"
+                              >
+                                <div className="text-[9px] uppercase tracking-widest text-[#f4e9c1]/70">
+                                  {t(`admin.items.variant.${variant}`)}
+                                </div>
+                                <div
+                                  className="flex h-12 w-12 items-center justify-center border border-[#f4e9c1]/20 bg-[#0a141f]"
+                                  style={{ imageRendering: "pixelated" }}
+                                >
+                                  {previewUrl ? (
+                                    <img
+                                      src={previewUrl}
+                                      alt=""
+                                      aria-hidden
+                                      className="h-10 w-10 object-contain"
+                                      style={{ imageRendering: "pixelated" }}
+                                    />
+                                  ) : (
+                                    <span className="text-[9px] text-[#f4e9c1]/40">
+                                      {t("admin.items.default")}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() =>
+                                      setEditingItem({
+                                        kind: ci.baseKind,
+                                        variant,
+                                        customId: ci.id,
+                                      })
+                                    }
+                                    className="border-2 border-[#ffd166]/60 px-2 py-1 text-[9px] uppercase text-[#ffd166]"
+                                  >
+                                    {hasVariant
+                                      ? t("admin.items.edit")
+                                      : t("admin.items.create")}
+                                  </button>
+                                  {hasVariant && (
+                                    <button
+                                      onClick={() => {
+                                        deleteCustomItemVariant(ci.id, variant);
+                                        refreshCustomItems();
+                                      }}
+                                      title={t("admin.items.delete")}
+                                      className="border-2 border-[#e94560]/60 px-2 py-1 text-[9px] text-[#e94560]"
+                                    >
+                                      ✕
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            onClick={() => {
+                              deleteCustomItem(ci.id);
+                              refreshCustomItems();
+                            }}
+                            className="border-2 border-[#e94560]/60 px-2 py-1 text-[9px] uppercase text-[#e94560]"
+                          >
+                            {t("admin.items.deleteClone")}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1244,7 +1383,9 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
       {editingItem && editingItemInitial !== null && (
         <ItemPixelEditor
           title={t("admin.items.editingVariant", {
-            name: t(itemNameKey(editingItem.kind)),
+            name: editingItem.customId
+              ? (customItems.find((i) => i.id === editingItem.customId)?.name ?? t(itemNameKey(editingItem.kind)))
+              : t(itemNameKey(editingItem.kind)),
             variant: t(`admin.items.variant.${editingItem.variant}`),
           })}
           initial={editingItemInitial}
@@ -1255,12 +1396,21 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
             setEditingItemInitial(null);
           }}
           onSave={(pixels) => {
-            if (Object.keys(pixels).length === 0) {
-              deleteItemVariant(editingItem.kind, editingItem.variant);
+            if (editingItem.customId) {
+              if (Object.keys(pixels).length === 0) {
+                deleteCustomItemVariant(editingItem.customId, editingItem.variant);
+              } else {
+                saveCustomItemVariant(editingItem.customId, editingItem.variant, pixels);
+              }
+              refreshCustomItems();
             } else {
-              saveItemVariant(editingItem.kind, editingItem.variant, pixels);
+              if (Object.keys(pixels).length === 0) {
+                deleteItemVariant(editingItem.kind, editingItem.variant);
+              } else {
+                saveItemVariant(editingItem.kind, editingItem.variant, pixels);
+              }
+              refreshItemOverrides();
             }
-            refreshItemOverrides();
             setEditingItem(null);
             setEditingItemInitial(null);
           }}
