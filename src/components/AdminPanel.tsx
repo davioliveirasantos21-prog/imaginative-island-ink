@@ -810,11 +810,6 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                             const srcOv = getItemOverride(src);
                             // Fall back to captured defaults so the user can
                             // clone from items that haven't been edited yet.
-                            const iconPx =
-                              srcOv?.icon ??
-                              (isHeldToolKind(src) || true
-                                ? undefined
-                                : undefined);
                             (async () => {
                               const icon =
                                 srcOv?.icon ?? (await captureIconDefaultPixels(src));
@@ -829,7 +824,6 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                               }
                               refreshItemOverrides();
                             })();
-                            void iconPx;
                           }}
                           className="flex-1 border-2 border-[#f4e9c1]/30 bg-[#0a141f] px-1 py-1 text-[9px] uppercase tracking-wider text-[#f4e9c1]"
                         >
