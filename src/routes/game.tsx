@@ -1712,6 +1712,7 @@ function GamePage() {
           brokenTrees: Array.from(treesBrokenRef.current.entries()),
           pickedProps: Array.from(pickedPropsRef.current),
           brokenPalms: Array.from(brokenPalmsRef.current),
+          extraPalms: extraPalmsRef.current,
           rockHP: Array.from(rockHPRef.current.entries()),
           minedRocks: Array.from(minedRocksRef.current.entries()),
           extraRocks: extraRocksRef.current,
