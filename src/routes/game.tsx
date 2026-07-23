@@ -4636,7 +4636,7 @@ function GamePage() {
         // Mining ores inside cave 2 (only inside cleared safe segments,
         // but we also allow mining any ore that has spawned — new ores
         // only spawn in cleared segments anyway).
-        if (getSelectedHotbarKind() !== "pick" && getSelectedHotbarKind() !== "copperPick") {
+        if (getSelectedHotbarKind() !== "pick" && getSelectedHotbarKind() !== "copperPick" && getSelectedHotbarKind() !== "ironPick") {
           const heldKind = getSelectedHotbarKind();
           let bestOre: CaveOre | null = null;
           let bestOreD = 18;
