@@ -3697,7 +3697,7 @@ function GamePage() {
               facing: s.facing,
               animT: s.animT,
               grounded: s.grounded,
-              carrying: carriedLogsRef.current,
+              carrying: carriedLogsRef.current + totalCarriedBarsRef.current,
             },
           );
           octx.globalCompositeOperation = "source-atop";
@@ -3715,7 +3715,7 @@ function GamePage() {
               facing: s.facing,
               animT: s.animT,
               grounded: s.grounded,
-              carrying: carriedLogsRef.current,
+              carrying: carriedLogsRef.current + totalCarriedBarsRef.current,
             },
           );
         }
