@@ -5944,9 +5944,10 @@ function GamePage() {
                     key: "skills",
                     label: t("gameMenu.skills.title"),
                     icon: IconSkills,
-                    pos: "right-3 bottom-[42%] sm:right-6",
+                    pos: "right-3 top-[70%] sm:right-6",
                     onClick: () => setSkillsOpen(true),
                   },
+
                   {
                     key: "tutorial",
                     label: t("gameMenu.tutorial.title"),
@@ -6074,68 +6075,111 @@ function GamePage() {
           ) : null}
           {skillsOpen ? (
             <div
-              className="absolute inset-0 z-40 flex items-center justify-center bg-black/80 p-4 animate-fade-in"
+              className="absolute inset-0 z-40 flex items-center justify-center bg-black/85 p-4 animate-fade-in"
               onClick={() => setSkillsOpen(false)}
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-md overflow-hidden border-4 border-[#1a1a1a] text-[#f4e9c1] animate-scale-in"
+                className="relative w-full max-w-md text-[#e8dcb0] animate-scale-in font-pixel"
                 style={{
-                  backgroundImage: `url(${skillsBgAsset.url})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
+                  background: "#2a1f14",
                   imageRendering: "pixelated",
-                  boxShadow: "0 10px 0 #000, inset 0 0 40px rgba(0,0,0,0.65), inset 0 0 0 2px #4a3a2a",
+                  boxShadow:
+                    "0 0 0 3px #0a0603, 0 0 0 6px #6b4a2b, 0 0 0 9px #0a0603, 8px 8px 0 #000",
                 }}
               >
+                {/* inner parchment/stone panel */}
                 <div
-                  className="pointer-events-none absolute inset-0"
-                  style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.78) 100%)" }}
-                />
-
-                <div className="relative p-6">
-                  <div className="mb-1 text-center text-xs tracking-[0.4em] text-[#ffd166] uppercase font-pixel" style={{ textShadow: "0 2px 0 #000, 0 0 12px rgba(255,140,66,0.6)" }}>
-                    ✦ {t("gameMenu.skills.title")} ✦
+                  className="relative m-2 p-4"
+                  style={{
+                    background:
+                      "repeating-linear-gradient(0deg, #3a2a1a 0px, #3a2a1a 2px, #33251616 2px, #33251616 4px), #3a2a1a",
+                    boxShadow: "inset 0 0 0 2px #0a0603, inset 0 0 0 4px #8a6a3a",
+                  }}
+                >
+                  {/* header */}
+                  <div className="mb-3 flex items-center justify-center gap-3">
+                    <span className="text-[#8a6a3a] text-[10px]">◆</span>
+                    <div className="text-center text-[10px] tracking-[0.35em] text-[#ffd166] uppercase" style={{ textShadow: "2px 2px 0 #000" }}>
+                      {t("gameMenu.skills.title")}
+                    </div>
+                    <span className="text-[#8a6a3a] text-[10px]">◆</span>
                   </div>
-                  <div className="mb-5 mx-auto h-[2px] w-32 bg-gradient-to-r from-transparent via-[#ffd166] to-transparent" />
+                  <div className="mb-4 h-[3px] w-full" style={{ background: "repeating-linear-gradient(90deg, #6b4a2b 0 6px, #2a1f14 6px 10px)" }} />
 
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
                     {([
-                      { key: "forge",     emoji: "🔨", color: "#ff8c42", tint: "rgba(255,140,66,0.18)" },
-                      { key: "combat",    emoji: "⚔", color: "#e63946", tint: "rgba(230,57,70,0.18)" },
-                      { key: "precision", emoji: "🏹", color: "#8fd694", tint: "rgba(143,214,148,0.18)" },
+                      { key: "forge",     color: "#d97a2e", pixel: (
+                        // hammer
+                        <>
+                          <rect x="9" y="2" width="6" height="4" fill="#c9b48a" />
+                          <rect x="8" y="3" width="8" height="2" fill="#f4e2b0" />
+                          <rect x="11" y="6" width="2" height="10" fill="#5a3a1a" />
+                        </>
+                      )},
+                      { key: "combat",    color: "#c94a3a", pixel: (
+                        // sword
+                        <>
+                          <rect x="11" y="1" width="2" height="10" fill="#e8e8f0" />
+                          <rect x="10" y="2" width="4" height="8" fill="#c4c4d0" />
+                          <rect x="8" y="10" width="8" height="2" fill="#8a6a3a" />
+                          <rect x="11" y="12" width="2" height="4" fill="#5a3a1a" />
+                        </>
+                      )},
+                      { key: "precision", color: "#6aa06a", pixel: (
+                        // bow & arrow
+                        <>
+                          <rect x="4" y="3" width="2" height="10" fill="#5a3a1a" />
+                          <rect x="5" y="2" width="2" height="2" fill="#5a3a1a" />
+                          <rect x="5" y="12" width="2" height="2" fill="#5a3a1a" />
+                          <rect x="6" y="7" width="10" height="2" fill="#c9b48a" />
+                          <rect x="14" y="6" width="2" height="4" fill="#e8dcb0" />
+                        </>
+                      )},
                     ] as const).map((sk) => {
                       const level = 1;
                       const xp = 0;
                       const xpMax = 100;
+                      const pct = Math.round((xp / xpMax) * 100);
                       return (
                         <div
                           key={sk.key}
-                          className="border-2 border-[#1a1a1a] p-3"
-                          style={{ background: `linear-gradient(180deg, rgba(0,0,0,0.55), ${sk.tint})`, boxShadow: "inset 0 0 0 1px #4a3a2a" }}
+                          className="p-2"
+                          style={{
+                            background: "#241811",
+                            boxShadow: "inset 0 0 0 2px #0a0603, inset 0 0 0 3px #6b4a2b",
+                          }}
                         >
                           <div className="flex items-center gap-3">
                             <div
-                              className="flex h-10 w-10 items-center justify-center text-xl border-2 border-[#1a1a1a]"
-                              style={{ background: "rgba(0,0,0,0.55)", boxShadow: `inset 0 0 10px ${sk.color}55`, textShadow: `0 0 8px ${sk.color}` }}
+                              className="flex h-10 w-10 items-center justify-center shrink-0"
+                              style={{ background: "#0a0603", boxShadow: "inset 0 0 0 2px #6b4a2b" }}
                             >
-                              {sk.emoji}
+                              <svg viewBox="0 0 18 18" width="28" height="28" style={{ imageRendering: "pixelated", shapeRendering: "crispEdges" }}>
+                                {sk.pixel}
+                              </svg>
                             </div>
-                            <div className="flex-1">
-                              <div className="flex items-baseline justify-between">
-                                <span className="text-[11px] tracking-[0.25em] uppercase text-[#f4e9c1]" style={{ textShadow: "0 1px 0 #000" }}>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-baseline justify-between gap-2">
+                                <span className="text-[9px] tracking-[0.2em] uppercase text-[#e8dcb0]" style={{ textShadow: "1px 1px 0 #000" }}>
                                   {t(`gameMenu.skills.${sk.key}.name`)}
                                 </span>
-                                <span className="text-[10px] tabular-nums" style={{ color: sk.color, textShadow: "0 1px 0 #000" }}>
-                                  Lv {level}
+                                <span className="text-[9px] tabular-nums text-[#ffd166]" style={{ textShadow: "1px 1px 0 #000" }}>
+                                  Lv.{level}
                                 </span>
                               </div>
-                              <div className="text-[9px] leading-snug text-[#f4e9c1]/70 mt-0.5">
+                              <div className="text-[8px] leading-snug text-[#c9b48a] mt-1" style={{ fontFamily: "ui-monospace, monospace", letterSpacing: 0 }}>
                                 {t(`gameMenu.skills.${sk.key}.desc`)}
                               </div>
-                              <div className="mt-2 h-2 w-full border border-[#1a1a1a]" style={{ background: "rgba(0,0,0,0.6)" }}>
-                                <div className="h-full" style={{ width: `${(xp / xpMax) * 100}%`, background: `linear-gradient(90deg, ${sk.color}, #ffd166)` }} />
+                              {/* pixel xp bar (segmented) */}
+                              <div className="mt-2 flex gap-[2px] h-2 w-full" style={{ background: "#0a0603", padding: "1px", boxShadow: "inset 0 0 0 1px #6b4a2b" }}>
+                                {Array.from({ length: 10 }).map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className="flex-1"
+                                    style={{ background: i * 10 < pct ? sk.color : "#1a0f06" }}
+                                  />
+                                ))}
                               </div>
                             </div>
                           </div>
@@ -6144,15 +6188,19 @@ function GamePage() {
                     })}
                   </div>
 
-                  <div className="mt-4 text-center text-[9px] tracking-widest uppercase text-[#f4e9c1]/50">
+                  <div className="mt-4 text-center text-[8px] tracking-[0.2em] uppercase text-[#8a6a3a]">
                     {t("gameMenu.skills.hint")}
                   </div>
 
-                  <div className="mt-5 flex justify-center">
+                  <div className="mt-4 flex justify-center">
                     <button
                       onClick={() => setSkillsOpen(false)}
-                      className="border-2 border-[#1a1a1a] px-6 py-2 text-[10px] tracking-[0.3em] text-[#ffd166] uppercase hover:brightness-110 active:translate-y-[2px] transition-all"
-                      style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #1a0f06", textShadow: "0 1px 0 #000" }}
+                      className="px-6 py-2 text-[9px] tracking-[0.3em] text-[#ffd166] uppercase active:translate-y-[2px] transition-transform font-pixel"
+                      style={{
+                        background: "#5a3a1a",
+                        boxShadow: "inset 0 0 0 2px #0a0603, inset 0 0 0 3px #8a6a3a, 0 4px 0 #1a0f06",
+                        textShadow: "1px 1px 0 #000",
+                      }}
                     >
                       {t("settings.close")}
                     </button>
@@ -6161,6 +6209,7 @@ function GamePage() {
               </div>
             </div>
           ) : null}
+
           {isMobile ? (
             <div
               className="pointer-events-none absolute inset-0 flex items-end justify-between p-3 sm:p-5"
