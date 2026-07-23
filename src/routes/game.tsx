@@ -38,7 +38,7 @@ import woodPanelBg from "@/assets/wood-panel-bg.jpg";
 
 import uiBuildAsset from "@/assets/ui-build.png.asset.json";
 import uiMapaAsset from "@/assets/ui-mapa.png.asset.json";
-import ironOreAsset from "@/assets/iron-ore.png.asset.json";
+import ironOreAsset from "@/assets/iron-ore-cave.png.asset.json";
 import uiCameraAsset from "@/assets/ui-camera.png.asset.json";
 import stoneBgAsset from "@/assets/stone-bg.png.asset.json";
 import uiConfigAsset from "@/assets/ui-config.png.asset.json";
@@ -376,7 +376,7 @@ const CAVE_ENTRANCE_DRAW_H = 70;
 const CAVE_ENTRANCE_CLEAR = CAVE_ENTRANCE_DRAW_W / 2 + 5;
 // Ore mining: 10 HP each, regenerates 2 min after being fully mined.
 const ORE_MAX_HP = 10;
-const oreMaxHp = (kind: OreKind): number => (kind === "iron" ? 16 : ORE_MAX_HP);
+const oreMaxHp = (kind: OreKind): number => (kind === "iron" ? 26 : ORE_MAX_HP);
 // Regen delay is randomized per mined ore between MIN and MAX (ms).
 const ORE_REGEN_MIN_MS = 90000;
 const ORE_REGEN_MAX_MS = 90000;
@@ -1011,8 +1011,8 @@ function GamePage() {
     deliveredBronzeMetal: number;
   };
   type ForgeJob = {
-    rawKind: "copperMetal" | "bronzeMetal";
-    barKind: "copperBar" | "bronzeBar";
+    rawKind: "copperMetal" | "bronzeMetal" | "ironMetal";
+    barKind: "copperBar" | "bronzeBar" | "ironBar";
     barName: string;
     hits: number;
     hitsRequired: number;
@@ -1094,7 +1094,7 @@ function GamePage() {
   const canCloseMenu = () => Date.now() - menuOpenedAtRef.current >= 500;
   // Smelting job type. Each furnace stores its OWN job on `Built.smeltJob`,
   // so multiple furnaces can smelt different things in parallel.
-  type SmeltJob = { barKind: "copperMetal" | "bronzeMetal" | "coal"; barName: string; barQty: number; startedAt: number; endsAt: number };
+  type SmeltJob = { barKind: "copperMetal" | "bronzeMetal" | "coal" | "ironMetal"; barName: string; barQty: number; startedAt: number; endsAt: number };
   const SMELT_DURATION_MS = 30000;
   // Initialize with Date.now() so the very first render of the furnace menu
   // computes remainingMs against a real timestamp — otherwise a stale `0` here
@@ -6217,20 +6217,24 @@ function GamePage() {
         <WoodMenu title={t("bench.title")} onClose={() => { if (canCloseMenu()) setBenchMenuOpen(false); }} wide>
           {(() => {
             type CraftKey = "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear" | "torch";
-            const recipes: { key: CraftKey; label: string; wood: number; stones: number; coal: number; copper: number; copperMetal: number; invField: keyof typeof inventory; yield?: number }[] = [
+            type Recipe = { key: CraftKey; label: string; wood: number; stones: number; coal: number; copper: number; copperMetal: number; ironMetal?: number; invField: keyof typeof inventory; yield?: number };
+            const recipes: Recipe[] = [
               { key: "axe",   label: t("craft.axe"),   wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "axe" },
-              { key: "hoe",   label: t("craft.hoe"),   wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "hoe" },
               { key: "pick",  label: t("craft.pick"),  wood: 2, stones: 2, coal: 0, copper: 0, copperMetal: 0, invField: "pick" },
               { key: "copperPick", label: t("craft.copperPick"), wood: 2, stones: 0, coal: 0, copper: 0, copperMetal: 2, invField: "copperPick" },
               { key: "copperHammer", label: t("craft.copperHammer"), wood: 2, stones: 0, coal: 0, copper: 0, copperMetal: 2, invField: "copperHammer" },
               { key: "spear", label: t("craft.spear"), wood: 2, stones: 1, coal: 0, copper: 0, copperMetal: 0, invField: "spear" },
               { key: "torch", label: t("craft.torch"), wood: 1, stones: 0, coal: 1, copper: 0, copperMetal: 0, invField: "torches", yield: 3 },
+              ...(salitreDiscovered
+                ? [{ key: "hoe" as const, label: t("craft.hoe"), wood: 2, stones: 0, coal: 0, copper: 0, copperMetal: 0, ironMetal: 1, invField: "hoe" as const }]
+                : []),
             ];
             return (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 overflow-y-auto pr-1" style={{ minHeight: 0 }}>
                 {recipes.map((r) => {
+                  const ironNeed = r.ironMetal ?? 0;
                   const canCraft =
-                    inventory.wood >= r.wood && inventory.stones >= r.stones && inventory.coal >= r.coal && inventory.copper >= r.copper && inventory.copperMetal >= r.copperMetal;
+                    inventory.wood >= r.wood && inventory.stones >= r.stones && inventory.coal >= r.coal && inventory.copper >= r.copper && inventory.copperMetal >= r.copperMetal && inventory.ironMetal >= ironNeed;
                   return (
                     <CraftTile
                       key={r.key}
@@ -6246,6 +6250,7 @@ function GamePage() {
                             coal: inv.coal - r.coal,
                             copper: inv.copper - r.copper,
                             copperMetal: inv.copperMetal - r.copperMetal,
+                            ironMetal: inv.ironMetal - ironNeed,
                             [r.invField]: (inv[r.invField] as number) + (r.yield ?? 1),
                           };
                           inventoryRef.current = next;
@@ -6265,6 +6270,7 @@ function GamePage() {
                         r.coal > 0 ? { qty: r.coal, kind: "coal" as SlotIconKind, affordable: inventory.coal >= r.coal } : null,
                         r.copper > 0 ? { qty: r.copper, kind: "copper" as SlotIconKind, affordable: inventory.copper >= r.copper } : null,
                         r.copperMetal > 0 ? { qty: r.copperMetal, kind: "copperMetal" as SlotIconKind, affordable: inventory.copperMetal >= r.copperMetal } : null,
+                        ironNeed > 0 ? { qty: ironNeed, kind: "ironMetal" as SlotIconKind, affordable: inventory.ironMetal >= ironNeed } : null,
                       ].filter(Boolean) as { qty: number; kind: SlotIconKind; affordable: boolean }[]}
                     />
                   );
@@ -6348,11 +6354,12 @@ function GamePage() {
               type ARow = {
                 key: string;
                 label: string;
-                rawKind: "copperMetal" | "bronzeMetal";
+                rawKind: "copperMetal" | "bronzeMetal" | "ironMetal";
                 rawQty: number;
-                barKind: "copperBar" | "bronzeBar";
+                barKind: "copperBar" | "bronzeBar" | "ironBar";
                 barName: string;
                 barQty: number;
+                hitsRequired: number;
                 canRun: boolean;
               };
               const rows: ARow[] = [
@@ -6364,6 +6371,7 @@ function GamePage() {
                   barKind: "copperBar",
                   barName: t("item.copperBar"),
                   barQty: 1,
+                  hitsRequired: FORGE_HITS_REQUIRED,
                   canRun: !activeJob && hasHammer && inventory.copperMetal >= 8,
                 },
                 {
@@ -6374,8 +6382,22 @@ function GamePage() {
                   barKind: "bronzeBar",
                   barName: t("item.bronzeBar"),
                   barQty: 1,
+                  hitsRequired: FORGE_HITS_REQUIRED,
                   canRun: !activeJob && hasHammer && inventory.bronzeMetal >= 8,
                 },
+                ...(salitreDiscovered
+                  ? [{
+                      key: "iron",
+                      label: t("anvil.forgeIron"),
+                      rawKind: "ironMetal" as const,
+                      barKind: "ironBar" as const,
+                      barName: t("item.ironBar"),
+                      rawQty: 8,
+                      barQty: 1,
+                      hitsRequired: 10,
+                      canRun: !activeJob && hasHammer && inventory.ironMetal >= 8,
+                    }]
+                  : []),
               ];
               return (
                 <div className="grid grid-cols-1 gap-2">
@@ -6414,7 +6436,7 @@ function GamePage() {
                           barKind: r.barKind,
                           barName: r.barName,
                           hits: 0,
-                          hitsRequired: FORGE_HITS_REQUIRED,
+                          hitsRequired: r.hitsRequired,
                         };
                         bumpWorld();
                         saveWorld();
@@ -6429,7 +6451,7 @@ function GamePage() {
                         <span>→</span>
                         <span className="inline-flex items-center gap-1">{r.barQty}× <SlotIcon kind={r.barKind} size="sm" /></span>
                         <span className="ml-2 text-[#ffd166]/80">
-                          {t("anvil.hitsLabel", { n: FORGE_HITS_REQUIRED })}
+                          {t("anvil.hitsLabel", { n: r.hitsRequired })}
                         </span>
                       </div>
                     </button>
@@ -6509,16 +6531,16 @@ function GamePage() {
               },
               ...(salitreDiscovered
                 ? [{
-                    key: "salitre",
-                    label: t("furnace.burnSalitre"),
-                    barKind: "coal" as const,
-                    barName: t("item.coal"),
-                    barQty: 16,
+                    key: "iron",
+                    label: t("furnace.smeltIron"),
+                    barKind: "ironMetal" as const,
+                    barName: t("item.ironMetal"),
+                    barQty: 1,
                     inputs: [
-                      { field: "iron" as keyof Inv, kind: "iron" as SlotKind, qty: 1 },
-                      { field: "wood" as keyof Inv, kind: "wood" as SlotKind, qty: 1 },
+                      { field: "coal" as keyof Inv, kind: "coal" as SlotKind, qty: 4 },
+                      { field: "iron" as keyof Inv, kind: "iron" as SlotKind, qty: 4 },
                     ],
-                    canRun: inventory.iron >= 1 && inventory.wood >= 1,
+                    canRun: inventory.coal >= 4 && inventory.iron >= 4,
                   }]
                 : []),
             ];
