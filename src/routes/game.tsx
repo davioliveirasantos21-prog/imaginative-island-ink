@@ -811,7 +811,7 @@ function GamePage() {
   // Total bars currently in the player's hands. Mirrors the wood mechanic:
   // any bar in inventory means the player is physically holding it, blocking
   // hotbar use and slowing movement. Capped at MAX_CARRY_BARS (3 total).
-  const totalCarriedBars = inventory.copperBar + inventory.bronzeBar;
+  const totalCarriedBars = inventory.copperBar + inventory.bronzeBar + inventory.ironBar;
   const totalCarriedBarsRef = useRef(0);
   totalCarriedBarsRef.current = totalCarriedBars;
   // Hotbar selection — which inventory item is "held" for use (e.g. seed → plant).
