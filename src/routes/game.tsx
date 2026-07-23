@@ -3596,6 +3596,39 @@ function GamePage() {
           ctx.fillRect(bx, by, 14, 1);
           ctx.fillStyle = "#58a8ff";
           ctx.fillRect(bx, by, Math.round(14 * rp), 1);
+
+          // Missing repair materials floating above — mirrors the blueprint
+          // hint style so damaged builds telegraph what they still need.
+          const done = b.repairDelivered ?? 0;
+          const total = b.repairCost ?? 0;
+          if (total > done) {
+            const mat = repairMaterialFor(b.kind);
+            const kind: ItemKind = mat === "wood" ? "wood" : "stone";
+            const label = `${done}/${total}`;
+            const iconSize = 12;
+            const cellGap = 2;
+            const charW = 3;
+            const charH = 5;
+            const charGap = 1;
+            const labelW = label.length * charW + (label.length - 1) * charGap;
+            const totalW = iconSize + cellGap + labelW;
+            const startX = Math.round(sx + 10 - totalW / 2);
+            const boxY = by - 20;
+            ctx.fillStyle = "rgba(0,0,0,0.65)";
+            ctx.fillRect(startX - 3, boxY - 2, totalW + 6, iconSize + 4);
+            ctx.imageSmoothingEnabled = false;
+            const img = getItemIconImage(kind);
+            if (img) {
+              ctx.drawImage(img, startX, boxY, iconSize, iconSize);
+            } else {
+              ctx.fillStyle = "#555";
+              ctx.fillRect(startX, boxY, iconSize, iconSize);
+            }
+            const tx = startX + iconSize + cellGap;
+            const ty = boxY + Math.floor((iconSize - charH) / 2);
+            const color = done > 0 ? "#ffe28a" : "#ff8a8a";
+            drawPixelText(ctx, label, tx, ty, color);
+          }
         }
       }
       for (const bp of blueprintsRef.current) {
