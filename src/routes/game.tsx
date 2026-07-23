@@ -688,6 +688,7 @@ function GamePage() {
   }, [ambientVolume]);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [skillsOpen, setSkillsOpen] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
   const [dead, setDead] = useState(false);
