@@ -8206,6 +8206,13 @@ function drawScene(
   for (const p of world.extraPalms) {
     const sx = p.wx - camX;
     if (sx < -40 || sx > VW + 40) continue;
+    if (p.plantedAt) {
+      const age = (world.now - p.plantedAt) / 1000;
+      if (age < SAPLING_GROW_S) {
+        drawSapling(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), Math.min(1, age / SAPLING_GROW_S));
+        continue;
+      }
+    }
     drawPalm(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), p.variant);
   }
 
