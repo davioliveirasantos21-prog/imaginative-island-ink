@@ -6108,30 +6108,53 @@ function GamePage() {
                   <div className="flex flex-col gap-2">
                     {([
                       { key: "forge",     color: "#d97a2e", pixel: (
-                        // hammer
+                        // hammer (vertical, chunky head)
                         <>
-                          <rect x="9" y="2" width="6" height="4" fill="#c9b48a" />
-                          <rect x="8" y="3" width="8" height="2" fill="#f4e2b0" />
-                          <rect x="11" y="6" width="2" height="10" fill="#5a3a1a" />
+                          <rect x="4"  y="3" width="10" height="5" fill="#6b6b78" />
+                          <rect x="4"  y="3" width="10" height="1" fill="#9a9aa8" />
+                          <rect x="4"  y="7" width="10" height="1" fill="#3a3a44" />
+                          <rect x="3"  y="4" width="1"  height="3" fill="#3a3a44" />
+                          <rect x="14" y="4" width="1"  height="3" fill="#3a3a44" />
+                          <rect x="8"  y="8" width="2"  height="1" fill="#c9b48a" />
+                          <rect x="8"  y="9" width="2"  height="7" fill="#8a5a2a" />
+                          <rect x="8"  y="9" width="1"  height="7" fill="#a06a34" />
+                          <rect x="7"  y="16" width="4" height="1" fill="#5a3a1a" />
                         </>
                       )},
                       { key: "combat",    color: "#c94a3a", pixel: (
-                        // sword
+                        // sword (vertical, pointing up)
                         <>
-                          <rect x="11" y="1" width="2" height="10" fill="#e8e8f0" />
-                          <rect x="10" y="2" width="4" height="8" fill="#c4c4d0" />
-                          <rect x="8" y="10" width="8" height="2" fill="#8a6a3a" />
-                          <rect x="11" y="12" width="2" height="4" fill="#5a3a1a" />
+                          <rect x="8" y="1"  width="2" height="1" fill="#f0f0f8" />
+                          <rect x="8" y="2"  width="2" height="9" fill="#e0e0ea" />
+                          <rect x="8" y="2"  width="1" height="9" fill="#f4f4fa" />
+                          <rect x="9" y="10" width="1" height="1" fill="#8a8a94" />
+                          <rect x="4" y="11" width="10" height="2" fill="#c9a24a" />
+                          <rect x="4" y="11" width="10" height="1" fill="#ecc770" />
+                          <rect x="3" y="12" width="1"  height="1" fill="#8a6a2a" />
+                          <rect x="14" y="12" width="1" height="1" fill="#8a6a2a" />
+                          <rect x="8" y="13" width="2" height="3" fill="#5a3a1a" />
+                          <rect x="8" y="14" width="2" height="1" fill="#8a5a2a" />
+                          <rect x="7" y="16" width="4" height="1" fill="#c9a24a" />
+                          <rect x="8" y="17" width="2" height="1" fill="#8a6a2a" />
                         </>
                       )},
                       { key: "precision", color: "#6aa06a", pixel: (
-                        // bow & arrow
+                        // bow with arrow, curved limbs
                         <>
-                          <rect x="4" y="3" width="2" height="10" fill="#5a3a1a" />
-                          <rect x="5" y="2" width="2" height="2" fill="#5a3a1a" />
-                          <rect x="5" y="12" width="2" height="2" fill="#5a3a1a" />
-                          <rect x="6" y="7" width="10" height="2" fill="#c9b48a" />
-                          <rect x="14" y="6" width="2" height="4" fill="#e8dcb0" />
+                          <rect x="6"  y="2" width="2" height="1" fill="#7a4a1a" />
+                          <rect x="5"  y="3" width="2" height="1" fill="#8a5a2a" />
+                          <rect x="4"  y="4" width="2" height="2" fill="#8a5a2a" />
+                          <rect x="3"  y="6" width="2" height="3" fill="#a06a34" />
+                          <rect x="3"  y="9"  width="2" height="3" fill="#a06a34" />
+                          <rect x="4"  y="12" width="2" height="2" fill="#8a5a2a" />
+                          <rect x="5"  y="14" width="2" height="1" fill="#8a5a2a" />
+                          <rect x="6"  y="15" width="2" height="1" fill="#7a4a1a" />
+                          <rect x="7"  y="3" width="1" height="13" fill="#e8dcb0" />
+                          <rect x="8"  y="9" width="7" height="1" fill="#c9b48a" />
+                          <rect x="15" y="8" width="1" height="3" fill="#c0c0cc" />
+                          <rect x="16" y="9" width="1" height="1" fill="#e0e0ea" />
+                          <rect x="8"  y="8" width="1" height="1" fill="#c94a3a" />
+                          <rect x="8"  y="10" width="1" height="1" fill="#c94a3a" />
                         </>
                       )},
                     ] as const).map((sk) => {
