@@ -2752,7 +2752,8 @@ function GamePage() {
               : null;
 
             if (chopTarget) {
-              const usingAxe = inventoryRef.current.axe > 0;
+              const usingIronAxe = inventoryRef.current.ironAxe > 0 && ts.kind === "ironAxe";
+              const usingAxe = usingIronAxe || inventoryRef.current.axe > 0;
               if (usingAxe || stoneChargesRef.current > 0 || inventoryRef.current.stones > 0) {
                 ts.hasHit = true;
                 const targetX = chopTarget.x;
@@ -2773,7 +2774,7 @@ function GamePage() {
                 const maxHits = TREE_MAX_HP;
                 const hpKey = chopTarget.isPlanted ? `p:${chopTarget.treeObj!.id}` : `n:${chopTarget.x}`;
                 const prevHP = treeHPRef.current.get(hpKey) ?? maxHits;
-                const damage = usingAxe ? 3 : 1;
+                const damage = usingIronAxe ? 3 : usingAxe ? 2 : 1;
                 const nextHP = prevHP - damage;
 
                 if (nextHP > 0) {
