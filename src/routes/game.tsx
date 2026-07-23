@@ -878,6 +878,10 @@ function GamePage() {
       case "pick": return inventory.pick;
       case "copperPick": return inventory.copperPick;
       case "copperHammer": return inventory.copperHammer;
+      case "ironPick": return inventory.ironPick;
+      case "ironAxe": return inventory.ironAxe;
+      case "ironSpear": return inventory.ironSpear;
+      case "ironHammer": return inventory.ironHammer;
       case "spear": return inventory.spear;
       case "berrySeed": return inventory.berrySeeds;
       case "palmSeed": return inventory.palmSeeds;
