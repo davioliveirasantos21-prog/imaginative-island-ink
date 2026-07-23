@@ -922,6 +922,12 @@ function GamePage() {
   const pickedPropsRef = useRef<Set<string>>(new Set());
   // Palms felled by the player — key is world-x of the palm base.
   const brokenPalmsRef = useRef<Set<number>>(new Set());
+  // Per-palm timestamp of when it was felled (performance.now()). Used to
+  // regrow palms naturally after PALM_REGROW_MS.
+  const brokenPalmsAtRef = useRef<Map<number, number>>(new Map());
+  const PALM_REGROW_MS = 120_000;
+  // Extra palms planted by the player (with palmSeed) at arbitrary x on the island.
+  const extraPalmsRef = useRef<PalmPos[]>([]);
   const palmHPRef = useRef<Map<number, number>>(new Map());
   const PALM_MAX_HP = 6;
   // Big forest rocks: mined with the pickaxe, drop several pebbles, then
