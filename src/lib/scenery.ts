@@ -177,6 +177,23 @@ export function subscribeSceneryOverrides(cb: () => void): () => void {
   };
 }
 
+/**
+ * Drop the in-memory cache and notify subscribers. Called when cloud-sync
+ * writes fresh data straight into localStorage (bypassing the patched
+ * setItem), so the next read picks up the new pixels.
+ */
+export function invalidateSceneryOverridesCache() {
+  _cache = null;
+  bump();
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("cloud-sync:write", (ev) => {
+    const key = (ev as CustomEvent<{ key?: string }>).detail?.key;
+    if (key === KEY) invalidateSceneryOverridesCache();
+  });
+}
+
 export function getSceneryOverridesVersion(): number {
   return _version;
 }
