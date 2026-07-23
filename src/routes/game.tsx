@@ -827,7 +827,7 @@ function GamePage() {
   const HOTBAR_PRIORITY: SlotKind[] = [
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
     "berrySeed", "palmSeed", "mushroom", "herb",
-    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "copperBar", "bronzeBar", "torch",
+    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "ironMetal", "copperBar", "bronzeBar", "ironBar", "torch",
   ];
   const countFor = (k: SlotKind): number => {
     switch (k) {
