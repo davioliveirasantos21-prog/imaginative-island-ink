@@ -6201,6 +6201,7 @@ function GamePage() {
                           <rect x="8"  y="8" width="1" height="1" fill="#c94a3a" />
                           <rect x="8"  y="10" width="1" height="1" fill="#c94a3a" />
                         </>
+                      )},
                       { key: "mining", color: "#8aa0c0", pixel: (
                         // pickaxe (diagonal head + wooden handle)
                         <>
