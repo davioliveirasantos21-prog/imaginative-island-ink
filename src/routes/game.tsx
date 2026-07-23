@@ -5321,6 +5321,36 @@ function GamePage() {
         }
       }
 
+      // 5b) Plant a palm seed — anywhere on the island (grass or beach),
+      // as long as it's on solid ground (not water, not inside the cave).
+      if (
+        heldKind === "palmSeed" &&
+        inventoryRef.current.palmSeeds > 0 &&
+        withinReach(worldX) &&
+        worldX > OCEAN_LEFT_END + 10 && worldX < OCEAN_START - 10
+      ) {
+        const groundYHere = GROUND_Y + beachSurfaceOffset(worldX);
+        if (worldY > groundYHere - 20 && worldY < groundYHere + 16) {
+          const px = Math.round(worldX);
+          const nearCave = Math.abs(px - caveEntranceXRef.current) <= CAVE_ENTRANCE_CLEAR;
+          const tooCloseNatural =
+            getPalms("left").some((p) => !brokenPalmsRef.current.has(p.wx) && Math.abs(p.wx - px) < 28) ||
+            getPalms("right").some((p) => !brokenPalmsRef.current.has(p.wx) && Math.abs(p.wx - px) < 28);
+          const tooCloseExtra = extraPalmsRef.current.some((p) => Math.abs(p.wx - px) < 28);
+          const tooClosePlanted = plantedRef.current.some((p) => Math.abs(p.x - px) < 28);
+          if (!nearCave && !tooCloseNatural && !tooCloseExtra && !tooClosePlanted) {
+            extraPalmsRef.current = [
+              ...extraPalmsRef.current,
+              { wx: px, variant: (Math.floor(Math.random() * 4)) as 0 | 1 | 2 | 3 },
+            ];
+            setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds - 1 }));
+            flashPickup(t("msg.seedPlanted"));
+            saveWorld();
+            return;
+          }
+        }
+      }
+
       // 6) Forage: click a bush / mushroom / flower / fern to pick it.
       //    Bushes break with a chance to drop berry seeds; mushrooms and
       //    plants go straight into the hotbar.
