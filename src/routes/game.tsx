@@ -2640,7 +2640,6 @@ function GamePage() {
               const nextHP = prevHP - damage;
               if (nextHP > 0) {
                 currentHP.set(ore.id, nextHP);
-                flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
               } else {
                 currentHP.delete(ore.id);
                 const nextMined = new Map(currentMined);
