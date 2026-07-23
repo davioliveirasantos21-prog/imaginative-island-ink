@@ -5413,6 +5413,7 @@ function GamePage() {
 
           // Final blow — remove HP entry and fell the tree.
           treeHPRef.current.delete(hpKey);
+          addSkillXP("mining", 1);
           if (bestTree) {
             treesBrokenRef.current.set(chopTarget.x, nowMs);
           } else if (bestPlanted) {
