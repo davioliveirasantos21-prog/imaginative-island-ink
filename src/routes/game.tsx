@@ -6603,9 +6603,25 @@ function GamePage() {
           // Wood withdrawals are capped by MAX_CARRY_LOGS since each wood
           // in inventory corresponds to a log visibly carried by the player.
           if (k === "wood") {
+            if (totalCarriedBarsRef.current > 0) {
+              flashPickup(t("msg.handsFull"));
+              return;
+            }
             const room = Math.max(0, MAX_CARRY_LOGS - carriedLogsRef.current);
             if (room <= 0) {
               flashPickup(t("msg.maxLogs", { n: MAX_CARRY_LOGS }));
+              return;
+            }
+            n = Math.min(n, room);
+          }
+          if (k === "copperBar" || k === "bronzeBar" || k === "ironBar") {
+            if (carriedLogsRef.current > 0) {
+              flashPickup(t("msg.handsFull"));
+              return;
+            }
+            const room = Math.max(0, MAX_CARRY_BARS - totalCarriedBarsRef.current);
+            if (room <= 0) {
+              flashPickup(t("msg.handsFull"));
               return;
             }
             n = Math.min(n, room);
