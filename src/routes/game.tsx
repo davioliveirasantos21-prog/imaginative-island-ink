@@ -922,6 +922,12 @@ function GamePage() {
   const pickedPropsRef = useRef<Set<string>>(new Set());
   // Palms felled by the player — key is world-x of the palm base.
   const brokenPalmsRef = useRef<Set<number>>(new Set());
+  // Per-palm timestamp of when it was felled (performance.now()). Used to
+  // regrow palms naturally after PALM_REGROW_MS.
+  const brokenPalmsAtRef = useRef<Map<number, number>>(new Map());
+  const PALM_REGROW_MS = 120_000;
+  // Extra palms planted by the player (with palmSeed) at arbitrary x on the island.
+  const extraPalmsRef = useRef<PalmPos[]>([]);
   const palmHPRef = useRef<Map<number, number>>(new Map());
   const PALM_MAX_HP = 6;
   // Big forest rocks: mined with the pickaxe, drop several pebbles, then
@@ -1431,6 +1437,7 @@ function GamePage() {
         brokenTrees?: [number, number][];
         pickedProps?: string[];
         brokenPalms?: number[];
+        extraPalms?: PalmPos[];
         groundLogs?: GroundLog[];
         groundPebbles?: GroundPebble[];
         groundItems?: GroundItem[];
@@ -1546,6 +1553,14 @@ function GamePage() {
       treesBrokenRef.current = new Map(data.brokenTrees ?? []);
       pickedPropsRef.current = new Set(data.pickedProps ?? []);
       brokenPalmsRef.current = new Set(data.brokenPalms ?? []);
+      // Seed regrow timestamps for any palms already broken at load time so
+      // they eventually regrow after PALM_REGROW_MS from now.
+      {
+        const nowLoad = performance.now();
+        brokenPalmsAtRef.current = new Map();
+        for (const wx of brokenPalmsRef.current) brokenPalmsAtRef.current.set(wx, nowLoad);
+      }
+      extraPalmsRef.current = (data.extraPalms ?? []).map((p) => ({ wx: p.wx, variant: (p.variant ?? 0) as 0 | 1 | 2 | 3 }));
       rockHPRef.current = new Map((data as { rockHP?: [number, number][] }).rockHP ?? []);
       minedRocksRef.current = new Map((data as { minedRocks?: [number, number][] }).minedRocks ?? []);
       extraRocksRef.current = ((data as { extraRocks?: { x: number }[] }).extraRocks ?? []);
@@ -1697,6 +1712,7 @@ function GamePage() {
           brokenTrees: Array.from(treesBrokenRef.current.entries()),
           pickedProps: Array.from(pickedPropsRef.current),
           brokenPalms: Array.from(brokenPalmsRef.current),
+          extraPalms: extraPalmsRef.current,
           rockHP: Array.from(rockHPRef.current.entries()),
           minedRocks: Array.from(minedRocksRef.current.entries()),
           extraRocks: extraRocksRef.current,
@@ -2756,10 +2772,11 @@ function GamePage() {
             // not whichever palm the mouse is over.
             if (!ts.hasHit) {
               let bestPalm: PalmPos | null = null;
+              let bestPalmIsExtra = false;
               let bestPalmD = 60;
-              for (const side of ["left", "right"] as const) {
-                for (const p of getPalms(side)) {
-                  if (brokenPalmsRef.current.has(p.wx)) continue;
+              const scanPalmList = (list: PalmPos[], isExtra: boolean) => {
+                for (const p of list) {
+                  if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
                   const trunkCenter = p.wx + 2;
                   if (isFacingRight && trunkCenter < playerCenter) continue;
                   if (!isFacingRight && trunkCenter > playerCenter) continue;
@@ -2767,31 +2784,40 @@ function GamePage() {
                   if (d <= 50 && d < bestPalmD) {
                     bestPalmD = d;
                     bestPalm = p;
+                    bestPalmIsExtra = isExtra;
                   }
                 }
-              }
+              };
+              for (const side of ["left", "right"] as const) scanPalmList(getPalms(side), false);
+              scanPalmList(extraPalmsRef.current, true);
               if (bestPalm) {
+                const palm: PalmPos = bestPalm;
                 const usingAxe = inventoryRef.current.axe > 0;
                 if (usingAxe) {
                   ts.hasHit = true;
                   const nowMs = performance.now();
                   playOneShot(woodHitSfxAsset.url, (ambientVolume / 100) * 0.7);
                   const damage = Math.ceil(PALM_MAX_HP / 3);
-                  const prevHP = palmHPRef.current.get(bestPalm.wx) ?? PALM_MAX_HP;
+                  const prevHP = palmHPRef.current.get(palm.wx) ?? PALM_MAX_HP;
                   const nextHP = prevHP - damage;
                   if (nextHP > 0) {
-                    palmHPRef.current.set(bestPalm.wx, nextHP);
+                    palmHPRef.current.set(palm.wx, nextHP);
                     flashPickup(t("msg.palm", { n: nextHP, max: PALM_MAX_HP }));
                   } else {
-                    palmHPRef.current.delete(bestPalm.wx);
-                    brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(bestPalm.wx);
+                    palmHPRef.current.delete(palm.wx);
+                    if (bestPalmIsExtra) {
+                      extraPalmsRef.current = extraPalmsRef.current.filter((pp) => pp !== palm);
+                    } else {
+                      brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(palm.wx);
+                      brokenPalmsAtRef.current.set(palm.wx, nowMs);
+                    }
                     const logCount = 2 + Math.floor(Math.random() * 2);
                     const nowPalm = Date.now();
                     const newLogs: GroundLog[] = [];
                     for (let i = 0; i < logCount; i++) {
                       newLogs.push({
-                        id: `palm-${bestPalm.wx}-${nowMs}-${i}`,
-                        x: bestPalm.wx + 4 + i * 11,
+                        id: `palm-${palm.wx}-${nowMs}-${i}`,
+                        x: palm.wx + 4 + i * 11,
                         droppedAt: nowPalm + i,
                       });
                     }
@@ -2885,6 +2911,27 @@ function GamePage() {
           }
         }
         if (dirty) saveWorld();
+      }
+      // ----- Regrow felled palms after PALM_REGROW_MS -----
+      if (brokenPalmsRef.current.size > 0) {
+        let palmDirty = false;
+        const nextSet = new Set(brokenPalmsRef.current);
+        for (const wx of brokenPalmsRef.current) {
+          if (!brokenPalmsAtRef.current.has(wx)) {
+            brokenPalmsAtRef.current.set(wx, nowMs);
+            continue;
+          }
+          const t = brokenPalmsAtRef.current.get(wx)!;
+          if (nowMs - t >= PALM_REGROW_MS) {
+            nextSet.delete(wx);
+            brokenPalmsAtRef.current.delete(wx);
+            palmDirty = true;
+          }
+        }
+        if (palmDirty) {
+          brokenPalmsRef.current = nextSet;
+          saveWorld();
+        }
       }
       const minedRocksSet = new Set<number>(minedRocksRef.current.keys());
 
@@ -3292,6 +3339,7 @@ function GamePage() {
           takenStones: takenStoneIds,
           pickedProps: pickedPropsRef.current,
           brokenPalms: brokenPalmsRef.current,
+          extraPalms: extraPalmsRef.current,
           minedRocks: minedRocksSet,
           extraRocks: extraRocksRef.current,
           groundLogs: groundLogsRef.current,
@@ -5273,6 +5321,36 @@ function GamePage() {
         }
       }
 
+      // 5b) Plant a palm seed — anywhere on the island (grass or beach),
+      // as long as it's on solid ground (not water, not inside the cave).
+      if (
+        heldKind === "palmSeed" &&
+        inventoryRef.current.palmSeeds > 0 &&
+        withinReach(worldX) &&
+        worldX > OCEAN_LEFT_END + 10 && worldX < OCEAN_START - 10
+      ) {
+        const groundYHere = GROUND_Y + beachSurfaceOffset(worldX);
+        if (worldY > groundYHere - 20 && worldY < groundYHere + 16) {
+          const px = Math.round(worldX);
+          const nearCave = Math.abs(px - caveEntranceXRef.current) <= CAVE_ENTRANCE_CLEAR;
+          const tooCloseNatural =
+            getPalms("left").some((p) => !brokenPalmsRef.current.has(p.wx) && Math.abs(p.wx - px) < 28) ||
+            getPalms("right").some((p) => !brokenPalmsRef.current.has(p.wx) && Math.abs(p.wx - px) < 28);
+          const tooCloseExtra = extraPalmsRef.current.some((p) => Math.abs(p.wx - px) < 28);
+          const tooClosePlanted = plantedRef.current.some((p) => Math.abs(p.x - px) < 28);
+          if (!nearCave && !tooCloseNatural && !tooCloseExtra && !tooClosePlanted) {
+            extraPalmsRef.current = [
+              ...extraPalmsRef.current,
+              { wx: px, variant: (Math.floor(Math.random() * 4)) as 0 | 1 | 2 | 3 },
+            ];
+            setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds - 1 }));
+            flashPickup(t("msg.seedPlanted"));
+            saveWorld();
+            return;
+          }
+        }
+      }
+
       // 6) Forage: click a bush / mushroom / flower / fern to pick it.
       //    Bushes break with a chance to drop berry seeds; mushrooms and
       //    plants go straight into the hotbar.
@@ -5403,12 +5481,11 @@ function GamePage() {
       //    player, NOT which one the mouse is over.
       if (getSelectedHotbarKind() !== "axe") {
         let bestPalm: PalmPos | null = null;
+        let bestPalmIsExtra = false;
         let bestPalmD = 18;
-        for (const side of ["left", "right"] as const) {
-          for (const p of getPalms(side)) {
-            if (brokenPalmsRef.current.has(p.wx)) continue;
-            // Only allow clicking palms actually drawn on screen — prevents
-            // hitting an off-camera "invisible" palm that isn't rendered.
+        const scanClickPalm = (list: PalmPos[], isExtra: boolean) => {
+          for (const p of list) {
+            if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
             const sxPalm = p.wx - camXRef.current;
             if (sxPalm < -20 || sxPalm > VW + 20) continue;
             const cx = p.wx + 2;
@@ -5418,10 +5495,14 @@ function GamePage() {
             if (d < bestPalmD && worldY > gY - 80 && worldY < gY + 12) {
               bestPalmD = d;
               bestPalm = p;
+              bestPalmIsExtra = isExtra;
             }
           }
-        }
+        };
+        for (const side of ["left", "right"] as const) scanClickPalm(getPalms(side), false);
+        scanClickPalm(extraPalmsRef.current, true);
         if (bestPalm) {
+          const palm: PalmPos = bestPalm;
           const heldForChop =
             getSelectedHotbarKind();
           const usingAxe = heldForChop === "axe" && inventoryRef.current.axe > 0;
@@ -5444,26 +5525,30 @@ function GamePage() {
               stoneChargesRef.current = TREE_MAX_HP - 1;
             }
           }
-          const prevHP = palmHPRef.current.get(bestPalm.wx) ?? PALM_MAX_HP;
+          const prevHP = palmHPRef.current.get(palm.wx) ?? PALM_MAX_HP;
           const nextHP = prevHP - damage;
           playOneShot(woodHitSfxAsset.url, (ambientVolume / 100) * 0.7);
           if (nextHP > 0) {
-            palmHPRef.current.set(bestPalm.wx, nextHP);
+            palmHPRef.current.set(palm.wx, nextHP);
             flashPickup(t("msg.palm", { n: nextHP, max: PALM_MAX_HP }));
             saveWorld();
             return;
           }
-          palmHPRef.current.delete(bestPalm.wx);
-          brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(bestPalm.wx);
-          // Palm fells 2-3 logs at the base (snapped to nearby pile), plus 1-2 seeds.
+          palmHPRef.current.delete(palm.wx);
           const nowMsPalm = performance.now();
+          if (bestPalmIsExtra) {
+            extraPalmsRef.current = extraPalmsRef.current.filter((pp) => pp !== palm);
+          } else {
+            brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(palm.wx);
+            brokenPalmsAtRef.current.set(palm.wx, nowMsPalm);
+          }
           const logCount = 2 + Math.floor(Math.random() * 2);
           const nowPalm = Date.now();
           const newLogs: GroundLog[] = [];
           for (let i = 0; i < logCount; i++) {
             newLogs.push({
-              id: `palm-${bestPalm.wx}-${nowMsPalm}-${i}`,
-              x: bestPalm.wx + 4 + i * 11,
+              id: `palm-${palm.wx}-${nowMsPalm}-${i}`,
+              x: palm.wx + 4 + i * 11,
               droppedAt: nowPalm + i,
             });
           }
@@ -7148,6 +7233,7 @@ type WorldRender = {
   takenStones: Set<number>;       // pebbles currently gone
   pickedProps: Set<string>;       // foraged bushes/mushrooms/plants (key = `${type}:${x}`)
   brokenPalms: Set<number>;       // felled palm bases (worldX)
+  extraPalms: PalmPos[];          // palms planted by the player at arbitrary x
   minedRocks: Set<number>;        // big forest rocks currently mined out (worldX)
   extraRocks: { x: number }[];    // rocks spawned by regeneration at new spots
   groundLogs: { id: string; x: number }[];
@@ -7731,6 +7817,13 @@ function drawScene(
     } else {
       drawSapling(ctx, sx, GROUND_Y, Math.min(1, age / SAPLING_GROW_S));
     }
+  }
+
+  // ----- Extra palms planted by the player anywhere on the island -----
+  for (const p of world.extraPalms) {
+    const sx = p.wx - camX;
+    if (sx < -40 || sx > VW + 40) continue;
+    drawPalm(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), p.variant);
   }
 
   drawButterflies(ctx, camX, time, BEACH_LEFT_END + 40, BEACH_START - 40);
