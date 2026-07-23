@@ -2640,7 +2640,6 @@ function GamePage() {
               const nextHP = prevHP - damage;
               if (nextHP > 0) {
                 currentHP.set(ore.id, nextHP);
-                flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
               } else {
                 currentHP.delete(ore.id);
                 const nextMined = new Map(currentMined);
@@ -2652,7 +2651,6 @@ function GamePage() {
                   minedOresRef.current = nextMined;
                 }
                 dropGroundItems(ore.x, modeRef.current as "cave" | "cave2", ["stone", ore.kind]);
-                flashPickup(t(`msg.mined.${ore.kind}`));
               }
               saveWorld();
             }
@@ -4376,7 +4374,6 @@ function GamePage() {
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               caveOreHPRef.current.set(ore.id, nextHP);
-              flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
               saveWorld();
               return;
             }
@@ -4390,7 +4387,6 @@ function GamePage() {
             // teleporting into the inventory — the player has to walk over
             // and click to pick it up.
             dropGroundItems(ore.x, "cave", ["stone", ore.kind]);
-            flashPickup(t(`msg.mined.${ore.kind}`));
             saveWorld();
             return;
           }
@@ -4551,7 +4547,7 @@ function GamePage() {
             const nextHP = prevHP - 1;
             if (nextHP > 0) {
               cave2OreHPRef.current.set(ore.id, nextHP);
-              flashPickup(t("msg.ore", { n: nextHP, max: oreMax }));
+              
               saveWorld();
               return;
             }
@@ -4561,7 +4557,7 @@ function GamePage() {
             nextMined.set(ore.id, Date.now() + delay2);
             cave2MinedOresRef.current = nextMined;
             dropGroundItems(ore.x, "cave2", ["stone", ore.kind]);
-            flashPickup(t(`msg.mined.${ore.kind}`));
+            
             saveWorld();
             return;
           }
