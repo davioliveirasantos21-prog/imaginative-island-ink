@@ -1078,7 +1078,11 @@ function GamePage() {
   // so multiple furnaces can smelt different things in parallel.
   type SmeltJob = { barKind: "copperMetal" | "bronzeMetal" | "coal"; barName: string; barQty: number; startedAt: number; endsAt: number };
   const SMELT_DURATION_MS = 30000;
-  const [smeltNow, setSmeltNow] = useState(0);
+  // Initialize with Date.now() so the very first render of the furnace menu
+  // computes remainingMs against a real timestamp — otherwise a stale `0` here
+  // would produce a nonsense "1.7 billion seconds remaining" flash before the
+  // first tick lands.
+  const [smeltNow, setSmeltNow] = useState(() => Date.now());
   // Tick while any furnace has an active job so the UI/audio updates.
   useEffect(() => {
     const id = window.setInterval(() => {
