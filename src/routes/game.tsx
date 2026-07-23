@@ -174,6 +174,7 @@ export const Route = createFileRoute("/game")({
 type SlotIconKind =
   | "stone" | "wood" | "seed"
   | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
+  | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer"
   | "berrySeed" | "palmSeed" | "mushroom" | "herb"
   | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
 
