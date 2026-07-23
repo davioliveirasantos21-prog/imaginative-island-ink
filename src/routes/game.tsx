@@ -1740,6 +1740,7 @@ function GamePage() {
           cave2OreHP: Array.from(cave2OreHPRef.current.entries()),
           cave2MinedOres: Array.from(cave2MinedOresRef.current.entries()),
           placedTorchesCave2: placedTorchesCave2Ref.current,
+          salitreDiscovered: salitreDiscoveredRef.current,
         }),
       );
     } catch {
