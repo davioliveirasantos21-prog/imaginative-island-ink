@@ -40,7 +40,7 @@ import uiBuildAsset from "@/assets/ui-build.png.asset.json";
 import uiMapaAsset from "@/assets/ui-mapa.png.asset.json";
 import ironOreAsset from "@/assets/iron-ore-cave.png.asset.json";
 import uiCameraAsset from "@/assets/ui-camera.png.asset.json";
-import stoneBgAsset from "@/assets/stone-bg.png.asset.json";
+import skillsBgAsset from "@/assets/skills-bg.png.asset.json";
 import settingsBgAsset from "@/assets/settings-bg.png.asset.json";
 import uiConfigAsset from "@/assets/ui-config.png.asset.json";
 import uiCustomAsset from "@/assets/ui-custom.png.asset.json";
