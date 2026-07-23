@@ -6201,11 +6201,26 @@ function GamePage() {
                           <rect x="8"  y="8" width="1" height="1" fill="#c94a3a" />
                           <rect x="8"  y="10" width="1" height="1" fill="#c94a3a" />
                         </>
+                      { key: "mining", color: "#8aa0c0", pixel: (
+                        // pickaxe (diagonal head + wooden handle)
+                        <>
+                          <rect x="2"  y="3" width="3" height="1" fill="#6b6b78" />
+                          <rect x="4"  y="4" width="3" height="1" fill="#8a8a94" />
+                          <rect x="6"  y="5" width="3" height="1" fill="#6b6b78" />
+                          <rect x="8"  y="6" width="3" height="1" fill="#8a8a94" />
+                          <rect x="10" y="7" width="3" height="1" fill="#6b6b78" />
+                          <rect x="12" y="8" width="3" height="1" fill="#3a3a44" />
+                          <rect x="7"  y="7" width="2" height="1" fill="#c9b48a" />
+                          <rect x="8"  y="8" width="2" height="8" fill="#8a5a2a" />
+                          <rect x="8"  y="8" width="1" height="8" fill="#a06a34" />
+                          <rect x="7"  y="16" width="4" height="1" fill="#5a3a1a" />
+                        </>
                       )},
                     ] as const).map((sk) => {
-                      const level = 1;
-                      const xp = 0;
-                      const xpMax = 100;
+                      const state = skills[sk.key as SkillKey];
+                      const level = state.level;
+                      const xp = state.xp;
+                      const xpMax = 10;
                       const pct = Math.round((xp / xpMax) * 100);
                       return (
                         <div
