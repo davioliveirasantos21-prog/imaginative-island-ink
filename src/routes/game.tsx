@@ -4387,7 +4387,6 @@ function GamePage() {
             // teleporting into the inventory — the player has to walk over
             // and click to pick it up.
             dropGroundItems(ore.x, "cave", ["stone", ore.kind]);
-            flashPickup(t(`msg.mined.${ore.kind}`));
             saveWorld();
             return;
           }
