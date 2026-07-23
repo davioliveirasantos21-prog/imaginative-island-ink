@@ -204,7 +204,7 @@ export function loadItemOverrides(): ItemOverrides {
     const out: ItemOverrides = { ...DEFAULT_ITEM_OVERRIDES };
     for (const [k, v] of Object.entries(parsed ?? {})) {
       if (!ITEM_KINDS.includes(k as ItemKind)) continue;
-      const ov = sanitizeOverride(v);
+      const ov = sanitizeOverride(v, k as ItemKind);
       if (ov.icon || ov.held) out[k as ItemKind] = ov;
     }
     _cache = out;
