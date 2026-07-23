@@ -1015,7 +1015,7 @@ export const dictionaries: Record<Lang, Dict> = {
     "msg.mined.coal": "+1 Carbón",
     "msg.mined.copper": "+1 Mineral de cobre",
     "msg.mined.bronze": "+1 Mineral de bronce",
-    "msg.mined.iron": "+1 Mineral de hierro",
+    "msg.mined.iron": "+1 Mineral de salitre",
     "msg.ore": "Roca {n}/{max}",
     "msg.rock": "Roca {n}/{max}",
     "msg.rockBroken": "+{n} piedras en el suelo",
