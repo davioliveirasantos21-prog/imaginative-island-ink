@@ -233,7 +233,8 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
   const [pantsOverrides, setPantsOverrides] = useState<PantsStyleOverrides>({});
   const [beardOverrides, setBeardOverrides] = useState<BeardStyleOverrides>({});
   const [itemOverrides, setItemOverrides] = useState<ItemOverrides>({});
-  const [editingItem, setEditingItem] = useState<{ kind: ItemKind; variant: ItemVariant } | null>(null);
+  const [customItems, setCustomItems] = useState<CustomItem[]>([]);
+  const [editingItem, setEditingItem] = useState<{ kind: ItemKind; variant: ItemVariant; customId?: string } | null>(null);
   // Pre-loaded default pixels for the current icon editor session — resolved
   // from PNG assets or programmatic CSS renderings so the editor opens with
   // the miniature that's currently visible in the hotbar, not a blank canvas.
