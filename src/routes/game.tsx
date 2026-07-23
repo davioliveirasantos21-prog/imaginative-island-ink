@@ -996,7 +996,7 @@ function GamePage() {
   const minedRocksRef = useRef<Map<number, number>>(new Map()); // key = worldX
   const extraRocksRef = useRef<{ x: number }[]>([]);
   type GroundLog = { id: string; x: number; droppedAt?: number };
-  type GroundSeed = { id: string; x: number };
+  type GroundSeed = { id: string; x: number; kind?: "seed" | "palmSeed" };
   type GroundPebble = { id: string; x: number; variant: number };
   type PlantedTree = { id: string; x: number; plantedAt: number; variant: number };
    type GroundItem = { id: string; x: number; kind: ItemKind; mode: "world" | "cave" | "cave2"; droppedAt: number };
@@ -1648,7 +1648,7 @@ function GamePage() {
         brokenPalmsAtRef.current = new Map();
         for (const wx of brokenPalmsRef.current) brokenPalmsAtRef.current.set(wx, nowLoad);
       }
-      extraPalmsRef.current = (data.extraPalms ?? []).map((p) => ({ wx: p.wx, variant: (p.variant ?? 0) as 0 | 1 | 2 | 3 }));
+      extraPalmsRef.current = (data.extraPalms ?? []).map((p) => ({ wx: p.wx, variant: (p.variant ?? 0) as 0 | 1 | 2 | 3, plantedAt: p.plantedAt }));
       rockHPRef.current = new Map((data as { rockHP?: [number, number][] }).rockHP ?? []);
       minedRocksRef.current = new Map((data as { minedRocks?: [number, number][] }).minedRocks ?? []);
       extraRocksRef.current = ((data as { extraRocks?: { x: number }[] }).extraRocks ?? []);
@@ -2875,6 +2875,7 @@ function GamePage() {
               const scanPalmList = (list: PalmPos[], isExtra: boolean) => {
                 for (const p of list) {
                   if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
+                  if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < SAPLING_GROW_S) continue;
                   const trunkCenter = p.wx + 2;
                   if (isFacingRight && trunkCenter < playerCenter) continue;
                   if (!isFacingRight && trunkCenter > playerCenter) continue;
@@ -2922,7 +2923,15 @@ function GamePage() {
                     groundLogsRef.current = [...groundLogsRef.current, ...newLogs];
                     enforceCombinedGroundLimit();
                     const seedCount = 1 + Math.floor(Math.random() * 2);
-                    setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds + seedCount }));
+                    const newPalmSeeds: GroundSeed[] = [];
+                    for (let i = 0; i < seedCount; i++) {
+                      newPalmSeeds.push({
+                        id: `palmseed-${palm.wx}-${nowMs}-${i}`,
+                        x: palm.wx + 18 + i * 6,
+                        kind: "palmSeed",
+                      });
+                    }
+                    seedsRef.current = [...seedsRef.current, ...newPalmSeeds];
                     flashPickup(t("msg.palmFelled", { logs: logCount, seeds: seedCount }));
                   }
                   saveWorld();
@@ -5230,12 +5239,17 @@ function GamePage() {
         }
       }
       if (bestSeed) {
-        if (!canAcquireKind("seed")) {
+        const seedKind: "seed" | "palmSeed" = bestSeed.kind === "palmSeed" ? "palmSeed" : "seed";
+        if (!canAcquireKind(seedKind)) {
           flashPickup(t("msg.inventoryFull"));
           return;
         }
         seedsRef.current = seedsRef.current.filter((s) => s.id !== bestSeed!.id);
-        setInventory((inv) => ({ ...inv, seeds: inv.seeds + 1 }));
+        if (seedKind === "palmSeed") {
+          setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds + 1 }));
+        } else {
+          setInventory((inv) => ({ ...inv, seeds: inv.seeds + 1 }));
+        }
         flashPickup(t("msg.pickSeed"));
         saveWorld();
         return;
@@ -5505,7 +5519,7 @@ function GamePage() {
           if (!nearCave && !tooCloseNatural && !tooCloseExtra && !tooClosePlanted) {
             extraPalmsRef.current = [
               ...extraPalmsRef.current,
-              { wx: px, variant: (Math.floor(Math.random() * 4)) as 0 | 1 | 2 | 3 },
+              { wx: px, variant: (Math.floor(Math.random() * 4)) as 0 | 1 | 2 | 3, plantedAt: Date.now() },
             ];
             setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds - 1 }));
             flashPickup(t("msg.seedPlanted"));
@@ -5650,6 +5664,7 @@ function GamePage() {
         const scanClickPalm = (list: PalmPos[], isExtra: boolean) => {
           for (const p of list) {
             if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
+            if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < SAPLING_GROW_S) continue;
             const sxPalm = p.wx - camXRef.current;
             if (sxPalm < -20 || sxPalm > VW + 20) continue;
             const cx = p.wx + 2;
@@ -6203,17 +6218,18 @@ function GamePage() {
                         </>
                       )},
                       { key: "mining", color: "#8aa0c0", pixel: (
-                        // pickaxe (diagonal head + wooden handle)
+                        // pickaxe: horizontal metal head at top with two tips, vertical wooden handle
                         <>
-                          <rect x="2"  y="3" width="3" height="1" fill="#6b6b78" />
-                          <rect x="4"  y="4" width="3" height="1" fill="#8a8a94" />
-                          <rect x="6"  y="5" width="3" height="1" fill="#6b6b78" />
-                          <rect x="8"  y="6" width="3" height="1" fill="#8a8a94" />
-                          <rect x="10" y="7" width="3" height="1" fill="#6b6b78" />
-                          <rect x="12" y="8" width="3" height="1" fill="#3a3a44" />
-                          <rect x="7"  y="7" width="2" height="1" fill="#c9b48a" />
-                          <rect x="8"  y="8" width="2" height="8" fill="#8a5a2a" />
-                          <rect x="8"  y="8" width="1" height="8" fill="#a06a34" />
+                          {/* head */}
+                          <rect x="2"  y="3" width="14" height="2" fill="#8a8a94" />
+                          <rect x="2"  y="3" width="14" height="1" fill="#c0c0cc" />
+                          <rect x="1"  y="4" width="2"  height="2" fill="#6b6b78" />
+                          <rect x="15" y="4" width="2"  height="2" fill="#6b6b78" />
+                          <rect x="2"  y="5" width="14" height="1" fill="#3a3a44" />
+                          {/* handle */}
+                          <rect x="8"  y="5" width="2" height="1" fill="#c9b48a" />
+                          <rect x="8"  y="6" width="2" height="10" fill="#8a5a2a" />
+                          <rect x="8"  y="6" width="1" height="10" fill="#a06a34" />
                           <rect x="7"  y="16" width="4" height="1" fill="#5a3a1a" />
                         </>
                       )},
@@ -8206,6 +8222,13 @@ function drawScene(
   for (const p of world.extraPalms) {
     const sx = p.wx - camX;
     if (sx < -40 || sx > VW + 40) continue;
+    if (p.plantedAt) {
+      const age = (world.now - p.plantedAt) / 1000;
+      if (age < SAPLING_GROW_S) {
+        drawSapling(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), Math.min(1, age / SAPLING_GROW_S));
+        continue;
+      }
+    }
     drawPalm(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), p.variant);
   }
 
@@ -8374,7 +8397,7 @@ function drawCoastSide(
 // Deterministic palm positions for one beach side. Shared between the
 // renderer and the click handler so "break this palm" targets the exact
 // visual tree.
-export type PalmPos = { wx: number; variant: 0 | 1 | 2 | 3 };
+export type PalmPos = { wx: number; variant: 0 | 1 | 2 | 3; plantedAt?: number };
 export function getPalms(side: "left" | "right"): PalmPos[] {
   const palmOffsets = [30, 78, 125, 175, 225, 275, 325, 375, 425, 475, 525, 575];
   const out: PalmPos[] = palmOffsets.map((o, i) => ({
