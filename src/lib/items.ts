@@ -306,6 +306,7 @@ export function clearAllCustomizations() {
     "pants-overrides-v1",
     "custom-garments-v1",
     "custom-hairs-v1",
+    "custom-items-v1",
   ];
   for (const k of keys) {
     try {

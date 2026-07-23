@@ -32,6 +32,7 @@ export const SYNCED_KEYS = [
   "pants-overrides-v1",
   "custom-garments-v1",
   "custom-hairs-v1",
+  "custom-items-v1",
   "scenery-overrides-v1",
 ] as const;
 
