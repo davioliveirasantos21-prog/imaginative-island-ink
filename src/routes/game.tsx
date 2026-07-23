@@ -259,6 +259,22 @@ function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md
 
   if (kind === "spear") {
     return <img src={spearIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={tiltStyle} />;
+  if (kind === "ironPick") {
+    return <img src={copperPickIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={tiltStyle} />;
+  }
+  if (kind === "ironAxe") {
+    return <img src={axeIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={imgStyle} />;
+  }
+  if (kind === "ironSpear") {
+    return <img src={spearIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={tiltStyle} />;
+  }
+  if (kind === "ironHammer") {
+    return (
+      <span aria-hidden className={`${dim} inline-block relative`}>
+        <span className="absolute left-1/2 -translate-x-1/2 top-0 h-1/2 w-full bg-[#c8c8d0] border border-[#3a3a44]" />
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-0 h-1/2 w-[25%] bg-[#7a4a24] border border-[#3a2010]" />
+      </span>
+    );
   }
   if (kind === "berrySeed") {
     return (
