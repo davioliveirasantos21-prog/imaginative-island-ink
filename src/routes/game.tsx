@@ -1648,7 +1648,7 @@ function GamePage() {
         brokenPalmsAtRef.current = new Map();
         for (const wx of brokenPalmsRef.current) brokenPalmsAtRef.current.set(wx, nowLoad);
       }
-      extraPalmsRef.current = (data.extraPalms ?? []).map((p) => ({ wx: p.wx, variant: (p.variant ?? 0) as 0 | 1 | 2 | 3 }));
+      extraPalmsRef.current = (data.extraPalms ?? []).map((p) => ({ wx: p.wx, variant: (p.variant ?? 0) as 0 | 1 | 2 | 3, plantedAt: p.plantedAt }));
       rockHPRef.current = new Map((data as { rockHP?: [number, number][] }).rockHP ?? []);
       minedRocksRef.current = new Map((data as { minedRocks?: [number, number][] }).minedRocks ?? []);
       extraRocksRef.current = ((data as { extraRocks?: { x: number }[] }).extraRocks ?? []);
