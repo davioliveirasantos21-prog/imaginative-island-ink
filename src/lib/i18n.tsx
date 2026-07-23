@@ -694,6 +694,7 @@ export const dictionaries: Record<Lang, Dict> = {
     "anvil.intro": "Keep a Copper Hammer in your inventory and forge raw copper and raw bronze into bars.",
     "anvil.forgeCopper": "Forge copper bar",
     "anvil.forgeBronze": "Forge bronze bar",
+    "anvil.forgeIron": "Forge iron bar",
     "anvil.needHammer": "You need a Copper Hammer in your inventory.",
     "anvil.startForge": "Metal on the anvil — hammer it to forge!",
     "anvil.forgeReady": "Bar ready! Click the anvil to collect it.",
