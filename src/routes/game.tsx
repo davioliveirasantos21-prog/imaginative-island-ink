@@ -1466,6 +1466,7 @@ function GamePage() {
         cave2OreHP?: [string, number][];
         cave2MinedOres?: [string, number][];
         placedTorchesCave2?: PlacedTorch[];
+        salitreDiscovered?: boolean;
       };
       const loadedInventory: Inv = {
         stones: data.stones ?? 0,
