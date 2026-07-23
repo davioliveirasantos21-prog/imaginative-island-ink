@@ -1175,6 +1175,8 @@ function GamePage() {
       case "bronzeMetal": return inv.bronzeMetal;
       case "copperBar": return inv.copperBar;
       case "bronzeBar": return inv.bronzeBar;
+      case "ironBar": return inv.ironBar;
+      case "ironMetal": return inv.ironMetal;
       case "torch": return inv.torches;
     }
   };
