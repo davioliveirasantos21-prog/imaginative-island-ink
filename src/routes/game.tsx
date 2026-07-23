@@ -45,6 +45,7 @@ import uiConfigAsset from "@/assets/ui-config.png.asset.json";
 import uiCustomAsset from "@/assets/ui-custom.png.asset.json";
 import uiMenuAsset from "@/assets/ui-menu.png.asset.json";
 import uiMissoesAsset from "@/assets/ui-missoes.png.asset.json";
+import uiSkillsAsset from "@/assets/ui-skills.png.asset.json";
 import uiSetinhaAbrirAsset from "@/assets/ui-setinha-abrir.png.asset.json";
 import uiSetinhaFecharAsset from "@/assets/ui-setinha-fechar.png.asset.json";
 import {
@@ -687,6 +688,7 @@ function GamePage() {
   }, [ambientVolume]);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [skillsOpen, setSkillsOpen] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
   const [dead, setDead] = useState(false);
@@ -5876,6 +5878,7 @@ function GamePage() {
                 const IconZoom = pngIcon(uiCameraAsset.url, t("gameMenu.camera.title"));
                 const IconHelp = pngIcon(uiMissoesAsset.url, t("gameMenu.tutorial.title"));
                 const IconExit = pngIcon(uiMenuAsset.url, t("game.leave"));
+                const IconSkills = pngIcon(uiSkillsAsset.url, t("gameMenu.skills.title"));
                 void stroke;
 
                 type CornerBtn = {
@@ -5936,6 +5939,13 @@ function GamePage() {
                   },
 
 
+                  {
+                    key: "skills",
+                    label: t("gameMenu.skills.title"),
+                    icon: IconSkills,
+                    pos: "right-3 bottom-[42%] sm:right-6",
+                    onClick: () => setSkillsOpen(true),
+                  },
                   {
                     key: "tutorial",
                     label: t("gameMenu.tutorial.title"),
@@ -6053,6 +6063,96 @@ function GamePage() {
                   <div className="mt-6 flex justify-center">
                     <button
                       onClick={() => setSettingsOpen(false)}
+                      className="border-2 border-[#1a1a1a] px-6 py-2 text-[10px] tracking-[0.3em] text-[#ffd166] uppercase hover:brightness-110 active:translate-y-[2px] transition-all"
+                      style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #1a0f06", textShadow: "0 1px 0 #000" }}
+                    >
+                      {t("settings.close")}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+          {skillsOpen ? (
+            <div
+              className="absolute inset-0 z-40 flex items-center justify-center bg-black/80 p-4 animate-fade-in"
+              onClick={() => setSkillsOpen(false)}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-w-md overflow-hidden border-4 border-[#1a1a1a] text-[#f4e9c1] animate-scale-in"
+                style={{
+                  backgroundImage: `url(${stoneBgAsset.url})`,
+                  backgroundSize: "256px 256px",
+                  backgroundRepeat: "repeat",
+                  imageRendering: "pixelated",
+                  boxShadow: "0 10px 0 #000, inset 0 0 40px rgba(0,0,0,0.65), inset 0 0 0 2px #4a3a2a",
+                }}
+              >
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.78) 100%)" }}
+                />
+                <div className="pointer-events-none absolute -top-2 left-4 text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
+                <div className="pointer-events-none absolute -top-2 right-4 text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
+
+                <div className="relative p-6">
+                  <div className="mb-1 text-center text-xs tracking-[0.4em] text-[#ffd166] uppercase font-pixel" style={{ textShadow: "0 2px 0 #000, 0 0 12px rgba(255,140,66,0.6)" }}>
+                    ✦ {t("gameMenu.skills.title")} ✦
+                  </div>
+                  <div className="mb-5 mx-auto h-[2px] w-32 bg-gradient-to-r from-transparent via-[#ffd166] to-transparent" />
+
+                  <div className="flex flex-col gap-3">
+                    {([
+                      { key: "forge",     emoji: "🔨", color: "#ff8c42", tint: "rgba(255,140,66,0.18)" },
+                      { key: "combat",    emoji: "⚔", color: "#e63946", tint: "rgba(230,57,70,0.18)" },
+                      { key: "precision", emoji: "🏹", color: "#8fd694", tint: "rgba(143,214,148,0.18)" },
+                    ] as const).map((sk) => {
+                      const level = 1;
+                      const xp = 0;
+                      const xpMax = 100;
+                      return (
+                        <div
+                          key={sk.key}
+                          className="border-2 border-[#1a1a1a] p-3"
+                          style={{ background: `linear-gradient(180deg, rgba(0,0,0,0.55), ${sk.tint})`, boxShadow: "inset 0 0 0 1px #4a3a2a" }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="flex h-10 w-10 items-center justify-center text-xl border-2 border-[#1a1a1a]"
+                              style={{ background: "rgba(0,0,0,0.55)", boxShadow: `inset 0 0 10px ${sk.color}55`, textShadow: `0 0 8px ${sk.color}` }}
+                            >
+                              {sk.emoji}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-baseline justify-between">
+                                <span className="text-[11px] tracking-[0.25em] uppercase text-[#f4e9c1]" style={{ textShadow: "0 1px 0 #000" }}>
+                                  {t(`gameMenu.skills.${sk.key}.name`)}
+                                </span>
+                                <span className="text-[10px] tabular-nums" style={{ color: sk.color, textShadow: "0 1px 0 #000" }}>
+                                  Lv {level}
+                                </span>
+                              </div>
+                              <div className="text-[9px] leading-snug text-[#f4e9c1]/70 mt-0.5">
+                                {t(`gameMenu.skills.${sk.key}.desc`)}
+                              </div>
+                              <div className="mt-2 h-2 w-full border border-[#1a1a1a]" style={{ background: "rgba(0,0,0,0.6)" }}>
+                                <div className="h-full" style={{ width: `${(xp / xpMax) * 100}%`, background: `linear-gradient(90deg, ${sk.color}, #ffd166)` }} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-4 text-center text-[9px] tracking-widest uppercase text-[#f4e9c1]/50">
+                    {t("gameMenu.skills.hint")}
+                  </div>
+
+                  <div className="mt-5 flex justify-center">
+                    <button
+                      onClick={() => setSkillsOpen(false)}
                       className="border-2 border-[#1a1a1a] px-6 py-2 text-[10px] tracking-[0.3em] text-[#ffd166] uppercase hover:brightness-110 active:translate-y-[2px] transition-all"
                       style={{ background: "linear-gradient(180deg, #7a4a24, #4a2810)", boxShadow: "0 4px 0 #1a0f06", textShadow: "0 1px 0 #000" }}
                     >
