@@ -1094,7 +1094,7 @@ function GamePage() {
   const canCloseMenu = () => Date.now() - menuOpenedAtRef.current >= 500;
   // Smelting job type. Each furnace stores its OWN job on `Built.smeltJob`,
   // so multiple furnaces can smelt different things in parallel.
-  type SmeltJob = { barKind: "copperMetal" | "bronzeMetal" | "coal"; barName: string; barQty: number; startedAt: number; endsAt: number };
+  type SmeltJob = { barKind: "copperMetal" | "bronzeMetal" | "coal" | "ironMetal"; barName: string; barQty: number; startedAt: number; endsAt: number };
   const SMELT_DURATION_MS = 30000;
   // Initialize with Date.now() so the very first render of the furnace menu
   // computes remainingMs against a real timestamp — otherwise a stale `0` here
