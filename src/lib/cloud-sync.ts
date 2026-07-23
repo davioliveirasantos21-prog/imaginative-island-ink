@@ -144,6 +144,17 @@ export function initCloudSync() {
   }
   (window as unknown as { __cloudSyncPatched?: boolean }).__cloudSyncPatched = true;
 
+  // Helper: after cloud writes to localStorage directly (bypassing our
+  // patched setItem), notify listeners so module-level caches in items.ts,
+  // scenery.ts, etc. can drop their stale snapshot and re-read.
+  const notifyCloudWrite = (key: string) => {
+    try {
+      window.dispatchEvent(new CustomEvent("cloud-sync:write", { detail: { key } }));
+    } catch {
+      /* ignore */
+    }
+  };
+
   // 2. Fetch existing cloud state and hydrate localStorage.
   (async () => {
     try {
@@ -166,9 +177,13 @@ export function initCloudSync() {
         // hydration; only explicit admin saves after the app is ready push up.
         const serialized = JSON.stringify(row.data);
         origSet(row.key, serialized);
+        notifyCloudWrite(row.key);
       }
       for (const key of SYNCED_KEYS) {
-        if (!cloudKeys.has(key)) origRemove(key);
+        if (!cloudKeys.has(key)) {
+          origRemove(key);
+          notifyCloudWrite(key);
+        }
       }
       void localBeforeFetch;
     } catch (e) {
@@ -195,6 +210,7 @@ export function initCloudSync() {
         const isDelete = payload.eventType === "DELETE";
         if (isDelete) origRemove(row.key);
         else origSet(row.key, JSON.stringify(row.data));
+        notifyCloudWrite(row.key);
         // Delay slightly to batch bursts of edits, then reload.
         scheduleReload();
       },

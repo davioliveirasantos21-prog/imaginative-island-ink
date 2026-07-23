@@ -215,6 +215,24 @@ export function loadItemOverrides(): ItemOverrides {
   }
 }
 
+/**
+ * Drop the in-memory cache and notify subscribers. Called when cloud-sync
+ * writes fresh data straight into localStorage (bypassing the patched
+ * setItem), so the next read picks up the new pixels instead of returning
+ * a stale snapshot from before hydration.
+ */
+export function invalidateItemOverridesCache() {
+  _cache = null;
+  bump();
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("cloud-sync:write", (ev) => {
+    const key = (ev as CustomEvent<{ key?: string }>).detail?.key;
+    if (key === KEY) invalidateItemOverridesCache();
+  });
+}
+
 export function getItemOverride(kind: ItemKind): ItemOverride | undefined {
   return loadItemOverrides()[kind];
 }
