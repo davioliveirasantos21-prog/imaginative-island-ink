@@ -2902,6 +2902,27 @@ function GamePage() {
         }
         if (dirty) saveWorld();
       }
+      // ----- Regrow felled palms after PALM_REGROW_MS -----
+      if (brokenPalmsRef.current.size > 0) {
+        let palmDirty = false;
+        const nextSet = new Set(brokenPalmsRef.current);
+        for (const wx of brokenPalmsRef.current) {
+          if (!brokenPalmsAtRef.current.has(wx)) {
+            brokenPalmsAtRef.current.set(wx, nowMs);
+            continue;
+          }
+          const t = brokenPalmsAtRef.current.get(wx)!;
+          if (nowMs - t >= PALM_REGROW_MS) {
+            nextSet.delete(wx);
+            brokenPalmsAtRef.current.delete(wx);
+            palmDirty = true;
+          }
+        }
+        if (palmDirty) {
+          brokenPalmsRef.current = nextSet;
+          saveWorld();
+        }
+      }
       const minedRocksSet = new Set<number>(minedRocksRef.current.keys());
 
       if (inCave) {
