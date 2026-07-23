@@ -6037,9 +6037,6 @@ function GamePage() {
                   className="pointer-events-none absolute inset-0"
                   style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.75) 100%)" }}
                 />
-                {/* torch flicker glows */}
-                <div className="pointer-events-none absolute -top-2 left-4 text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
-                <div className="pointer-events-none absolute -top-2 right-4 text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
 
                 <div className="relative p-6">
                   <div className="mb-1 text-center text-xs tracking-[0.4em] text-[#ffd166] uppercase" style={{ textShadow: "0 2px 0 #000, 0 0 12px rgba(255,140,66,0.6)" }}>
@@ -6095,8 +6092,6 @@ function GamePage() {
                   className="pointer-events-none absolute inset-0"
                   style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.78) 100%)" }}
                 />
-                <div className="pointer-events-none absolute -top-2 left-4 text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
-                <div className="pointer-events-none absolute -top-2 right-4 text-3xl" style={{ filter: "drop-shadow(0 0 12px #ff8c42)" }}>🔥</div>
 
                 <div className="relative p-6">
                   <div className="mb-1 text-center text-xs tracking-[0.4em] text-[#ffd166] uppercase font-pixel" style={{ textShadow: "0 2px 0 #000, 0 0 12px rgba(255,140,66,0.6)" }}>
