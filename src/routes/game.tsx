@@ -1506,6 +1506,10 @@ function GamePage() {
         pick: data.pick ?? 0,
         copperPick: data.copperPick ?? 0,
         copperHammer: (data as { copperHammer?: number }).copperHammer ?? 0,
+        ironPick: (data as { ironPick?: number }).ironPick ?? 0,
+        ironAxe: (data as { ironAxe?: number }).ironAxe ?? 0,
+        ironSpear: (data as { ironSpear?: number }).ironSpear ?? 0,
+        ironHammer: (data as { ironHammer?: number }).ironHammer ?? 0,
 
         spear: data.spear ?? 0,
         berrySeeds: data.berrySeeds ?? 0,
