@@ -1603,6 +1603,18 @@ function GamePage() {
       placedTorchesCave2Ref.current = data.placedTorchesCave2 ?? [];
       salitreDiscoveredRef.current = data.salitreDiscovered ?? false;
       setSalitreDiscovered(salitreDiscoveredRef.current);
+      {
+        const base = makeSkills();
+        const raw = data.skills ?? {};
+        for (const k of Object.keys(base) as SkillKey[]) {
+          const s = raw[k];
+          if (s && typeof s.level === "number" && typeof s.xp === "number") {
+            base[k] = { level: Math.max(1, Math.floor(s.level)), xp: Math.max(0, Math.min(9, Math.floor(s.xp))) };
+          }
+        }
+        skillsRef.current = base;
+        setSkills(base);
+      }
       caveWallBrokenRef.current = !!data.caveWallBroken;
       // One-time migration: restore the cave wall for players who broke it
       // before the copper-pickaxe requirement was enforced correctly.
