@@ -855,6 +855,7 @@ function GamePage() {
   type SlotKind =
     | "stone" | "wood" | "seed"
     | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
+    | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer"
     | "berrySeed" | "palmSeed" | "mushroom" | "herb"
     | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
   // Hotbar has exactly 10 slots. We surface only the items the player
@@ -863,6 +864,7 @@ function GamePage() {
   const HOTBAR_CAPACITY = 10;
   const HOTBAR_PRIORITY: SlotKind[] = [
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
+    "ironPick", "ironAxe", "ironSpear", "ironHammer",
     "berrySeed", "palmSeed", "mushroom", "herb",
     "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "ironMetal", "copperBar", "bronzeBar", "ironBar", "torch",
   ];
