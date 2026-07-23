@@ -6430,7 +6430,7 @@ function GamePage() {
                           barKind: r.barKind,
                           barName: r.barName,
                           hits: 0,
-                          hitsRequired: FORGE_HITS_REQUIRED,
+                          hitsRequired: r.hitsRequired,
                         };
                         bumpWorld();
                         saveWorld();
