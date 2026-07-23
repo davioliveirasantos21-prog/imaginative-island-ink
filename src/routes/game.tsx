@@ -1969,6 +1969,7 @@ function GamePage() {
           setStuckActive(false);
           setStuckProgress(0);
           flashPickup(t("cave2.freed"));
+          addSkillXP("combat", 2);
         }
         return;
       }
