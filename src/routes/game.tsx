@@ -4046,6 +4046,10 @@ function GamePage() {
             selKind === "pick"  ? inventoryRef.current.pick :
             selKind === "copperPick" ? inventoryRef.current.copperPick :
             selKind === "copperHammer" ? inventoryRef.current.copperHammer :
+            selKind === "ironPick" ? inventoryRef.current.ironPick :
+            selKind === "ironAxe" ? inventoryRef.current.ironAxe :
+            selKind === "ironSpear" ? inventoryRef.current.ironSpear :
+            selKind === "ironHammer" ? inventoryRef.current.ironHammer :
 
             selKind === "spear" ? inventoryRef.current.spear :
             selKind === "berrySeed" ? inventoryRef.current.berrySeeds :
@@ -4062,7 +4066,7 @@ function GamePage() {
             selKind === "ironBar" ? inventoryRef.current.ironBar :
             selKind === "ironMetal" ? inventoryRef.current.ironMetal :
             selKind === "torch"     ? inventoryRef.current.torches : 0;
-          const isBuiltInTool = selKind === "spear" || selKind === "axe" || selKind === "hoe" || selKind === "pick" || selKind === "copperPick" || selKind === "copperHammer";
+          const isBuiltInTool = selKind === "spear" || selKind === "axe" || selKind === "hoe" || selKind === "pick" || selKind === "copperPick" || selKind === "copperHammer" || selKind === "ironPick" || selKind === "ironAxe" || selKind === "ironSpear" || selKind === "ironHammer";
           const hasDefaultHeldArt = isBuiltInTool || selKind === "stone";
           const _heldPixels = selKind ? getItemVariantPixels(selKind as ItemKind, "held") : undefined;
           const canRenderHeld = selKind != null && selCount > 0 && nLogs === 0 && (hasDefaultHeldArt || !!_heldPixels) && !stuckWebRef.current;
@@ -4076,7 +4080,15 @@ function GamePage() {
             const handY = spriteY + 19;
             const skin = appearanceRef.current.skin;
             if (isBuiltInTool) {
-              const toolKind = selKind as "spear" | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer";
+              // Iron tools reuse the base tool's held art when there is no
+              // admin-drawn override of their own.
+              const rawKind = selKind as "spear" | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer";
+              const toolKind: "spear" | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" =
+                rawKind === "ironPick" ? "copperPick" :
+                rawKind === "ironAxe" ? "axe" :
+                rawKind === "ironSpear" ? "spear" :
+                rawKind === "ironHammer" ? "copperHammer" :
+                rawKind;
               let axOffset = HELD_ANCHOR.x;
               let ayOffset = HELD_ANCHOR.y;
 
