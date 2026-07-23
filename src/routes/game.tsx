@@ -1061,6 +1061,10 @@ function GamePage() {
   // blueprint for a short while.
   const blueprintHintRef = useRef<{ id: string; until: number } | null>(null);
   const builtRef = useRef<Built[]>([]);
+  // Unlocks the "burn salitre into coal" furnace recipe once the player has
+  // mined a salitre (green iron) ore at least once. Persisted with the world.
+  const [salitreDiscovered, setSalitreDiscovered] = useState(false);
+  const salitreDiscoveredRef = useRef(false);
   const [repairModalOpen, setRepairModalOpen] = useState<string | null>(null);
   const [buildMenuOpen, setBuildMenuOpen] = useState(false);
   const [gameMenuOpen, setGameMenuOpen] = useState(false);
@@ -1462,6 +1466,7 @@ function GamePage() {
         cave2OreHP?: [string, number][];
         cave2MinedOres?: [string, number][];
         placedTorchesCave2?: PlacedTorch[];
+        salitreDiscovered?: boolean;
       };
       const loadedInventory: Inv = {
         stones: data.stones ?? 0,
@@ -1527,6 +1532,8 @@ function GamePage() {
       }
       placedTorchesRef.current = data.placedTorches ?? [];
       placedTorchesCave2Ref.current = data.placedTorchesCave2 ?? [];
+      salitreDiscoveredRef.current = data.salitreDiscovered ?? false;
+      setSalitreDiscovered(salitreDiscoveredRef.current);
       caveWallBrokenRef.current = !!data.caveWallBroken;
       // One-time migration: restore the cave wall for players who broke it
       // before the copper-pickaxe requirement was enforced correctly.
@@ -1733,6 +1740,7 @@ function GamePage() {
           cave2OreHP: Array.from(cave2OreHPRef.current.entries()),
           cave2MinedOres: Array.from(cave2MinedOresRef.current.entries()),
           placedTorchesCave2: placedTorchesCave2Ref.current,
+          salitreDiscovered: salitreDiscoveredRef.current,
         }),
       );
     } catch {
@@ -3588,6 +3596,39 @@ function GamePage() {
           ctx.fillRect(bx, by, 14, 1);
           ctx.fillStyle = "#58a8ff";
           ctx.fillRect(bx, by, Math.round(14 * rp), 1);
+
+          // Missing repair materials floating above — mirrors the blueprint
+          // hint style so damaged builds telegraph what they still need.
+          const done = b.repairDelivered ?? 0;
+          const total = b.repairCost ?? 0;
+          if (total > done) {
+            const mat = repairMaterialFor(b.kind);
+            const kind: ItemKind = mat === "wood" ? "wood" : "stone";
+            const label = `${done}/${total}`;
+            const iconSize = 12;
+            const cellGap = 2;
+            const charW = 3;
+            const charH = 5;
+            const charGap = 1;
+            const labelW = label.length * charW + (label.length - 1) * charGap;
+            const totalW = iconSize + cellGap + labelW;
+            const startX = Math.round(sx + 10 - totalW / 2);
+            const boxY = by - 20;
+            ctx.fillStyle = "rgba(0,0,0,0.65)";
+            ctx.fillRect(startX - 3, boxY - 2, totalW + 6, iconSize + 4);
+            ctx.imageSmoothingEnabled = false;
+            const img = getItemIconImage(kind);
+            if (img) {
+              ctx.drawImage(img, startX, boxY, iconSize, iconSize);
+            } else {
+              ctx.fillStyle = "#555";
+              ctx.fillRect(startX, boxY, iconSize, iconSize);
+            }
+            const tx = startX + iconSize + cellGap;
+            const ty = boxY + Math.floor((iconSize - charH) / 2);
+            const color = done > 0 ? "#ffe28a" : "#ff8a8a";
+            drawPixelText(ctx, label, tx, ty, color);
+          }
         }
       }
       for (const bp of blueprintsRef.current) {
@@ -4557,6 +4598,10 @@ function GamePage() {
             nextMined.set(ore.id, Date.now() + delay2);
             cave2MinedOresRef.current = nextMined;
             dropGroundItems(ore.x, "cave2", ["stone", ore.kind]);
+            if (ore.kind === "iron" && !salitreDiscoveredRef.current) {
+              salitreDiscoveredRef.current = true;
+              setSalitreDiscovered(true);
+            }
             
             saveWorld();
             return;
@@ -6436,10 +6481,10 @@ function GamePage() {
                 barName: t("item.copperMetal"),
                 barQty: 4,
                 inputs: [
-                  { field: "coal", kind: "coal", qty: 1 },
+                  { field: "coal", kind: "coal", qty: 8 },
                   { field: "copper", kind: "copper", qty: 4 },
                 ],
-                canRun: inventory.coal >= 1 && inventory.copper >= 4,
+                canRun: inventory.coal >= 8 && inventory.copper >= 4,
               },
               {
                 key: "bronze",
@@ -6448,10 +6493,10 @@ function GamePage() {
                 barName: t("item.bronzeMetal"),
                 barQty: 4,
                 inputs: [
-                  { field: "coal", kind: "coal", qty: 1 },
+                  { field: "coal", kind: "coal", qty: 8 },
                   { field: "bronze", kind: "bronze", qty: 4 },
                 ],
-                canRun: inventory.coal >= 1 && inventory.bronze >= 4,
+                canRun: inventory.coal >= 8 && inventory.bronze >= 4,
               },
               {
                 key: "coal",
@@ -6462,6 +6507,20 @@ function GamePage() {
                 inputs: [{ field: "wood", kind: "wood", qty: 1 }],
                 canRun: inventory.wood >= 1,
               },
+              ...(salitreDiscovered
+                ? [{
+                    key: "salitre",
+                    label: t("furnace.burnSalitre"),
+                    barKind: "coal" as const,
+                    barName: t("item.coal"),
+                    barQty: 16,
+                    inputs: [
+                      { field: "iron" as keyof Inv, kind: "iron" as SlotKind, qty: 1 },
+                      { field: "wood" as keyof Inv, kind: "wood" as SlotKind, qty: 1 },
+                    ],
+                    canRun: inventory.iron >= 1 && inventory.wood >= 1,
+                  }]
+                : []),
             ];
             const furnace = builtRef.current.find((x) => x.id === furnaceMenuOpen && x.kind === "furnace");
             const active = furnace?.smeltJob ?? null;
