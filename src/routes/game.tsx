@@ -6909,6 +6909,7 @@ function GamePage() {
                               const job = f?.smeltJob;
                               if (!f || !job || Date.now() < job.endsAt) return;
                               f.smeltJob = undefined;
+                              addSkillXP("forge", 1);
                               setInventory((inv) => {
                                 const next = { ...inv, [job.barKind]: (inv[job.barKind] as number) + job.barQty } as Inv;
                                 inventoryRef.current = next;
