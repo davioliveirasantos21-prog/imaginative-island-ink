@@ -1061,6 +1061,10 @@ function GamePage() {
   // blueprint for a short while.
   const blueprintHintRef = useRef<{ id: string; until: number } | null>(null);
   const builtRef = useRef<Built[]>([]);
+  // Unlocks the "burn salitre into coal" furnace recipe once the player has
+  // mined a salitre (green iron) ore at least once. Persisted with the world.
+  const [salitreDiscovered, setSalitreDiscovered] = useState(false);
+  const salitreDiscoveredRef = useRef(false);
   const [repairModalOpen, setRepairModalOpen] = useState<string | null>(null);
   const [buildMenuOpen, setBuildMenuOpen] = useState(false);
   const [gameMenuOpen, setGameMenuOpen] = useState(false);
