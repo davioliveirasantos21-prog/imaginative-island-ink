@@ -2798,26 +2798,26 @@ function GamePage() {
                   const nowMs = performance.now();
                   playOneShot(woodHitSfxAsset.url, (ambientVolume / 100) * 0.7);
                   const damage = Math.ceil(PALM_MAX_HP / 3);
-                  const prevHP = palmHPRef.current.get(bestPalm.wx) ?? PALM_MAX_HP;
+                  const prevHP = palmHPRef.current.get(palm.wx) ?? PALM_MAX_HP;
                   const nextHP = prevHP - damage;
                   if (nextHP > 0) {
-                    palmHPRef.current.set(bestPalm.wx, nextHP);
+                    palmHPRef.current.set(palm.wx, nextHP);
                     flashPickup(t("msg.palm", { n: nextHP, max: PALM_MAX_HP }));
                   } else {
-                    palmHPRef.current.delete(bestPalm.wx);
+                    palmHPRef.current.delete(palm.wx);
                     if (bestPalmIsExtra) {
-                      extraPalmsRef.current = extraPalmsRef.current.filter((pp) => pp !== bestPalm);
+                      extraPalmsRef.current = extraPalmsRef.current.filter((pp) => pp !== palm);
                     } else {
-                      brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(bestPalm.wx);
-                      brokenPalmsAtRef.current.set(bestPalm.wx, nowMs);
+                      brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(palm.wx);
+                      brokenPalmsAtRef.current.set(palm.wx, nowMs);
                     }
                     const logCount = 2 + Math.floor(Math.random() * 2);
                     const nowPalm = Date.now();
                     const newLogs: GroundLog[] = [];
                     for (let i = 0; i < logCount; i++) {
                       newLogs.push({
-                        id: `palm-${bestPalm.wx}-${nowMs}-${i}`,
-                        x: bestPalm.wx + 4 + i * 11,
+                        id: `palm-${palm.wx}-${nowMs}-${i}`,
+                        x: palm.wx + 4 + i * 11,
                         droppedAt: nowPalm + i,
                       });
                     }
