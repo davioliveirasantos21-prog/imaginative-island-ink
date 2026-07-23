@@ -186,11 +186,20 @@ function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md
   // panel, render it here instead of the default asset/CSS shape. The same
   // override is reused everywhere the item shows up (hotbar, crafting menu).
   useSyncExternalStore(subscribeItemOverrides, getItemOverridesVersion, () => 0);
+  // Iron-tier tools reuse the base tool art when no admin override is set.
+  const fallbackKind: SlotIconKind =
+    kind === "ironPick" ? "copperPick" :
+    kind === "ironAxe" ? "axe" :
+    kind === "ironSpear" ? "spear" :
+    kind === "ironHammer" ? "copperHammer" :
+    kind;
   // Fall back to the baked-in default pixel map (hand-drawn art promoted
   // into code) when the player hasn't set their own override.
   const iconPixels =
     getItemVariantPixels(kind as ItemKind, "icon") ??
-    BAKED_ICON_PIXELS[kind as ItemKind];
+    BAKED_ICON_PIXELS[kind as ItemKind] ??
+    getItemVariantPixels(fallbackKind as ItemKind, "icon") ??
+    BAKED_ICON_PIXELS[fallbackKind as ItemKind];
   if (iconPixels) {
     const url = renderItemPixelsToDataURL(iconPixels);
     if (url) {
