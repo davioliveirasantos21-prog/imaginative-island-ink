@@ -160,22 +160,22 @@ function sanitizePixelsForVariant(m: unknown, variant: ItemVariant, kind?: ItemK
   return sanitizePixels(m, g.w, g.h);
 }
 
-function sanitizeOverride(v: unknown): ItemOverride {
+function sanitizeOverride(v: unknown, kind?: ItemKind): ItemOverride {
   if (!v || typeof v !== "object") return {};
   const raw = v as { icon?: unknown; held?: unknown; pixels?: unknown };
   const out: ItemOverride = {};
   // Legacy shape: a single { pixels } field applied to both icon + held.
   if (raw.pixels && !raw.icon && !raw.held) {
-    const legacyIcon = sanitizePixelsForVariant(raw.pixels, "icon");
+    const legacyIcon = sanitizePixelsForVariant(raw.pixels, "icon", kind);
     if (Object.keys(legacyIcon).length > 0) out.icon = legacyIcon;
     return out;
   }
   if (raw.icon) {
-    const p = sanitizePixelsForVariant(raw.icon, "icon");
+    const p = sanitizePixelsForVariant(raw.icon, "icon", kind);
     if (Object.keys(p).length > 0) out.icon = p;
   }
   if (raw.held) {
-    const p = sanitizePixelsForVariant(raw.held, "held");
+    const p = sanitizePixelsForVariant(raw.held, "held", kind);
     if (Object.keys(p).length > 0) out.held = p;
   }
   return out;
@@ -188,7 +188,7 @@ const DEFAULT_ITEM_OVERRIDES: ItemOverrides = (() => {
   const src = itemDefaultsRaw as Record<string, { icon?: unknown; held?: unknown }>;
   for (const [k, v] of Object.entries(src)) {
     if (!ITEM_KINDS.includes(k as ItemKind)) continue;
-    const ov = sanitizeOverride(v);
+    const ov = sanitizeOverride(v, k as ItemKind);
     if (ov.icon || ov.held) out[k as ItemKind] = ov;
   }
   return out;
