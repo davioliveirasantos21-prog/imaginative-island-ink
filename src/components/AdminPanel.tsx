@@ -326,6 +326,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
     setPantsOverrides(loadPantsOverrides());
     setBeardOverrides(loadBeardOverrides());
     setItemOverrides(loadItemOverrides());
+    setCustomItems(loadCustomItems());
     setSceneryOverrides(loadSceneryOverrides());
   }, []);
 
