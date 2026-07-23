@@ -1724,6 +1724,10 @@ function GamePage() {
           pick: inventoryRef.current.pick,
           copperPick: inventoryRef.current.copperPick,
           copperHammer: inventoryRef.current.copperHammer,
+          ironPick: inventoryRef.current.ironPick,
+          ironAxe: inventoryRef.current.ironAxe,
+          ironSpear: inventoryRef.current.ironSpear,
+          ironHammer: inventoryRef.current.ironHammer,
 
           spear: inventoryRef.current.spear,
           berrySeeds: inventoryRef.current.berrySeeds,
