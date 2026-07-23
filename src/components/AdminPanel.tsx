@@ -840,38 +840,28 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                         })}
                       </div>
                       <div className="flex items-center gap-1">
-                        <select
-                          defaultValue=""
-                          onChange={(e) => {
-                            const target = e.target.value as ItemKind | "";
-                            e.target.value = "";
-                            if (!target || target === k) return;
-                            // Clone THIS item's sprites into the chosen target.
-                            (async () => {
-                              const srcOv = getItemOverride(k);
-                              const icon =
-                                srcOv?.icon ?? (await captureIconDefaultPixels(k));
-                              const held =
-                                srcOv?.held ??
-                                (isHeldToolKind(k) ? captureHeldDefaultPixels(k) : undefined);
-                              if (icon && Object.keys(icon).length > 0) {
-                                saveItemVariant(target, "icon", icon);
-                              }
-                              if (held && Object.keys(held).length > 0 && isHeldToolKind(target)) {
-                                saveItemVariant(target, "held", held);
-                              }
-                              refreshItemOverrides();
-                            })();
+                        <button
+                          onClick={async () => {
+                            // Clone THIS item into a brand-new custom item so
+                            // the admin can rename it and tweak its pixels.
+                            const srcOv = getItemOverride(k);
+                            const icon =
+                              srcOv?.icon ?? (await captureIconDefaultPixels(k));
+                            const held =
+                              srcOv?.held ??
+                              (isHeldToolKind(k) ? captureHeldDefaultPixels(k) : undefined);
+                            addCustomItem({
+                              baseKind: k,
+                              name: `${t(itemNameKey(k))} (cópia)`,
+                              icon: icon && Object.keys(icon).length > 0 ? icon : undefined,
+                              held: held && Object.keys(held).length > 0 ? held : undefined,
+                            });
+                            refreshCustomItems();
                           }}
-                          className="flex-1 border-2 border-[#f4e9c1]/30 bg-[#0a141f] px-1 py-1 text-[9px] uppercase tracking-wider text-[#f4e9c1]"
+                          className="flex-1 border-2 border-[#ffd166]/60 px-2 py-1 text-[9px] uppercase tracking-wider text-[#ffd166] hover:bg-[#ffd166]/10"
                         >
-                          <option value="">{t("admin.items.cloneTo")}</option>
-                          {ITEM_KINDS.filter((sk) => sk !== k).map((sk) => (
-                            <option key={sk} value={sk}>
-                              {t(itemNameKey(sk))}
-                            </option>
-                          ))}
-                        </select>
+                          {t("admin.items.clone")}
+                        </button>
                         {ov && (ov.icon || ov.held) && (
                           <button
                             onClick={() => {
