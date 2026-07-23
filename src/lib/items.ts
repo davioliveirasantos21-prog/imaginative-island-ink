@@ -21,6 +21,10 @@ export type ItemKind =
   | "copperPick"
   | "copperHammer"
   | "spear"
+  | "ironPick"
+  | "ironAxe"
+  | "ironSpear"
+  | "ironHammer"
   | "berrySeed"
   | "palmSeed"
   | "mushroom"
@@ -47,6 +51,10 @@ export const ITEM_KINDS: ItemKind[] = [
   "copperPick",
   "copperHammer",
   "spear",
+  "ironPick",
+  "ironAxe",
+  "ironSpear",
+  "ironHammer",
   "berrySeed",
   "palmSeed",
   "mushroom",

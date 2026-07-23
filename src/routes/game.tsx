@@ -174,6 +174,7 @@ export const Route = createFileRoute("/game")({
 type SlotIconKind =
   | "stone" | "wood" | "seed"
   | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
+  | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer"
   | "berrySeed" | "palmSeed" | "mushroom" | "herb"
   | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
 
@@ -185,11 +186,20 @@ function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md
   // panel, render it here instead of the default asset/CSS shape. The same
   // override is reused everywhere the item shows up (hotbar, crafting menu).
   useSyncExternalStore(subscribeItemOverrides, getItemOverridesVersion, () => 0);
+  // Iron-tier tools reuse the base tool art when no admin override is set.
+  const fallbackKind: SlotIconKind =
+    kind === "ironPick" ? "copperPick" :
+    kind === "ironAxe" ? "axe" :
+    kind === "ironSpear" ? "spear" :
+    kind === "ironHammer" ? "copperHammer" :
+    kind;
   // Fall back to the baked-in default pixel map (hand-drawn art promoted
   // into code) when the player hasn't set their own override.
   const iconPixels =
     getItemVariantPixels(kind as ItemKind, "icon") ??
-    BAKED_ICON_PIXELS[kind as ItemKind];
+    BAKED_ICON_PIXELS[kind as ItemKind] ??
+    getItemVariantPixels(fallbackKind as ItemKind, "icon") ??
+    BAKED_ICON_PIXELS[fallbackKind as ItemKind];
   if (iconPixels) {
     const url = renderItemPixelsToDataURL(iconPixels);
     if (url) {
@@ -249,6 +259,23 @@ function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md
 
   if (kind === "spear") {
     return <img src={spearIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={tiltStyle} />;
+  }
+  if (kind === "ironPick") {
+    return <img src={copperPickIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={tiltStyle} />;
+  }
+  if (kind === "ironAxe") {
+    return <img src={axeIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={imgStyle} />;
+  }
+  if (kind === "ironSpear") {
+    return <img src={spearIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={tiltStyle} />;
+  }
+  if (kind === "ironHammer") {
+    return (
+      <span aria-hidden className={`${dim} inline-block relative`}>
+        <span className="absolute left-1/2 -translate-x-1/2 top-0 h-1/2 w-full bg-[#c8c8d0] border border-[#3a3a44]" />
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-0 h-1/2 w-[25%] bg-[#7a4a24] border border-[#3a2010]" />
+      </span>
+    );
   }
   if (kind === "berrySeed") {
     return (
@@ -771,7 +798,7 @@ function GamePage() {
   // retract animation.
   const spearAttackRef = useRef<{ startedAt: number; angle: number; holdEndsAt: number | null } | null>(null);
   // Tool swing animation — set on click while holding pick or axe.
-  const toolSwingRef = useRef<{ startedAt: number; kind: "pick" | "copperPick" | "axe"; hasHit: boolean } | null>(null);
+  const toolSwingRef = useRef<{ startedAt: number; kind: "pick" | "copperPick" | "ironPick" | "axe" | "ironAxe"; hasHit: boolean } | null>(null);
   const lastToolSwingTimeRef = useRef<number>(0);
   // Latest pointer world position — updated on move so held spear tracks the cursor.
   const pointerWorldRef = useRef<{ x: number; y: number } | null>(null);
@@ -800,10 +827,12 @@ function GamePage() {
   const [inventory, setInventoryRaw] = useState<{
     stones: number; wood: number; seeds: number;
     axe: number; hoe: number; pick: number; copperPick: number; copperHammer: number; spear: number;
+    ironPick: number; ironAxe: number; ironSpear: number; ironHammer: number;
     berrySeeds: number; palmSeeds: number; mushrooms: number; herbs: number;
     coal: number; copper: number; bronze: number; iron: number; copperMetal: number; bronzeMetal: number; ironMetal: number; copperBar: number; bronzeBar: number; ironBar: number; torches: number;
   }>({
     stones: 0, wood: 0, seeds: 0, axe: 0, hoe: 0, pick: 0, copperPick: 0, copperHammer: 0, spear: 0,
+    ironPick: 0, ironAxe: 0, ironSpear: 0, ironHammer: 0,
     berrySeeds: 0, palmSeeds: 0, mushrooms: 0, herbs: 0,
     coal: 0, copper: 0, bronze: 0, iron: 0, copperMetal: 0, bronzeMetal: 0, ironMetal: 0, copperBar: 0, bronzeBar: 0, ironBar: 0, torches: 0,
   });
@@ -826,6 +855,7 @@ function GamePage() {
   type SlotKind =
     | "stone" | "wood" | "seed"
     | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
+    | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer"
     | "berrySeed" | "palmSeed" | "mushroom" | "herb"
     | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
   // Hotbar has exactly 10 slots. We surface only the items the player
@@ -834,6 +864,7 @@ function GamePage() {
   const HOTBAR_CAPACITY = 10;
   const HOTBAR_PRIORITY: SlotKind[] = [
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
+    "ironPick", "ironAxe", "ironSpear", "ironHammer",
     "berrySeed", "palmSeed", "mushroom", "herb",
     "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "ironMetal", "copperBar", "bronzeBar", "ironBar", "torch",
   ];
@@ -847,6 +878,10 @@ function GamePage() {
       case "pick": return inventory.pick;
       case "copperPick": return inventory.copperPick;
       case "copperHammer": return inventory.copperHammer;
+      case "ironPick": return inventory.ironPick;
+      case "ironAxe": return inventory.ironAxe;
+      case "ironSpear": return inventory.ironSpear;
+      case "ironHammer": return inventory.ironHammer;
       case "spear": return inventory.spear;
       case "berrySeed": return inventory.berrySeeds;
       case "palmSeed": return inventory.palmSeeds;
@@ -1185,6 +1220,10 @@ function GamePage() {
       case "pick": return inv.pick;
       case "copperPick": return inv.copperPick;
       case "copperHammer": return inv.copperHammer;
+      case "ironPick": return inv.ironPick;
+      case "ironAxe": return inv.ironAxe;
+      case "ironSpear": return inv.ironSpear;
+      case "ironHammer": return inv.ironHammer;
 
       case "spear": return inv.spear;
       case "berrySeed": return inv.berrySeeds;
@@ -1477,6 +1516,10 @@ function GamePage() {
         pick: data.pick ?? 0,
         copperPick: data.copperPick ?? 0,
         copperHammer: (data as { copperHammer?: number }).copperHammer ?? 0,
+        ironPick: (data as { ironPick?: number }).ironPick ?? 0,
+        ironAxe: (data as { ironAxe?: number }).ironAxe ?? 0,
+        ironSpear: (data as { ironSpear?: number }).ironSpear ?? 0,
+        ironHammer: (data as { ironHammer?: number }).ironHammer ?? 0,
 
         spear: data.spear ?? 0,
         berrySeeds: data.berrySeeds ?? 0,
@@ -1691,6 +1734,10 @@ function GamePage() {
           pick: inventoryRef.current.pick,
           copperPick: inventoryRef.current.copperPick,
           copperHammer: inventoryRef.current.copperHammer,
+          ironPick: inventoryRef.current.ironPick,
+          ironAxe: inventoryRef.current.ironAxe,
+          ironSpear: inventoryRef.current.ironSpear,
+          ironHammer: inventoryRef.current.ironHammer,
 
           spear: inventoryRef.current.spear,
           berrySeeds: inventoryRef.current.berrySeeds,
@@ -2016,7 +2063,7 @@ function GamePage() {
                 c.pendingSfx = null;
               }
               // Spear hitbox vs centipede — damage while the spear is thrusting.
-              if (spearAttackRef.current && getSelectedHotbarKind() === "spear" && inventoryRef.current.spear > 0) {
+              if (spearAttackRef.current && (getSelectedHotbarKind() === "spear" || getSelectedHotbarKind() === "ironSpear") && (inventoryRef.current.spear > 0 || inventoryRef.current.ironSpear > 0)) {
                 const sa = spearAttackRef.current;
                 const facing = s.facing;
                 const handWX = s.x + (facing === 1 ? 14 : 1);
@@ -2057,7 +2104,7 @@ function GamePage() {
                     playOneShot(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
                     // Hit SFX (also plays on kill) — trim the silent head.
                     playOneShotReverb(lacraiaDeathAsset.url, Math.min(1, (ambientVolume / 100) * 0.9), 0.15);
-                    c.hp -= 1;
+                    c.hp -= getSelectedHotbarKind() === "ironSpear" ? 2 : 1;
                     if (c.hp <= 0) {
                       c.dead = true;
                       flashPickup(t("cave2.centipedeSlain"));
@@ -2615,7 +2662,7 @@ function GamePage() {
           const playerCenter = player.x + SPRITE_W / 2;
           const isFacingRight = player.facing === 1;
 
-          if (ts.kind === "pick" || ts.kind === "copperPick") {
+          if (ts.kind === "pick" || ts.kind === "copperPick" || ts.kind === "ironPick") {
             let bestOre: CaveOre | null = null;
             let bestOreD = 60;
             const currentOres = modeRef.current === "cave2" ? cave2OresRef.current : caveOresRef.current;
@@ -2644,7 +2691,7 @@ function GamePage() {
                 dry: 1.4,
                 wet: 0.45,
               });
-              const damage = ts.kind === "copperPick" ? 2 : 1;
+              const damage = ts.kind === "ironPick" ? 3 : ts.kind === "copperPick" ? 2 : 1;
               const nextHP = prevHP - damage;
               if (nextHP > 0) {
                 currentHP.set(ore.id, nextHP);
@@ -2662,7 +2709,7 @@ function GamePage() {
               }
               saveWorld();
             }
-          } else if (ts.kind === "axe" && modeRef.current !== "cave" && modeRef.current !== "cave2") {
+          } else if ((ts.kind === "axe" || ts.kind === "ironAxe") && modeRef.current !== "cave" && modeRef.current !== "cave2") {
             const props = getProps();
             let bestTree: Prop | null = null;
             let bestTreeD = 60;
@@ -2705,7 +2752,8 @@ function GamePage() {
               : null;
 
             if (chopTarget) {
-              const usingAxe = inventoryRef.current.axe > 0;
+              const usingIronAxe = inventoryRef.current.ironAxe > 0 && ts.kind === "ironAxe";
+              const usingAxe = usingIronAxe || inventoryRef.current.axe > 0;
               if (usingAxe || stoneChargesRef.current > 0 || inventoryRef.current.stones > 0) {
                 ts.hasHit = true;
                 const targetX = chopTarget.x;
@@ -2726,7 +2774,7 @@ function GamePage() {
                 const maxHits = TREE_MAX_HP;
                 const hpKey = chopTarget.isPlanted ? `p:${chopTarget.treeObj!.id}` : `n:${chopTarget.x}`;
                 const prevHP = treeHPRef.current.get(hpKey) ?? maxHits;
-                const damage = usingAxe ? 3 : 1;
+                const damage = usingIronAxe ? 3 : usingAxe ? 2 : 1;
                 const nextHP = prevHP - damage;
 
                 if (nextHP > 0) {
@@ -3998,6 +4046,10 @@ function GamePage() {
             selKind === "pick"  ? inventoryRef.current.pick :
             selKind === "copperPick" ? inventoryRef.current.copperPick :
             selKind === "copperHammer" ? inventoryRef.current.copperHammer :
+            selKind === "ironPick" ? inventoryRef.current.ironPick :
+            selKind === "ironAxe" ? inventoryRef.current.ironAxe :
+            selKind === "ironSpear" ? inventoryRef.current.ironSpear :
+            selKind === "ironHammer" ? inventoryRef.current.ironHammer :
 
             selKind === "spear" ? inventoryRef.current.spear :
             selKind === "berrySeed" ? inventoryRef.current.berrySeeds :
@@ -4014,9 +4066,18 @@ function GamePage() {
             selKind === "ironBar" ? inventoryRef.current.ironBar :
             selKind === "ironMetal" ? inventoryRef.current.ironMetal :
             selKind === "torch"     ? inventoryRef.current.torches : 0;
-          const isBuiltInTool = selKind === "spear" || selKind === "axe" || selKind === "hoe" || selKind === "pick" || selKind === "copperPick" || selKind === "copperHammer";
+          const isBuiltInTool = selKind === "spear" || selKind === "axe" || selKind === "hoe" || selKind === "pick" || selKind === "copperPick" || selKind === "copperHammer" || selKind === "ironPick" || selKind === "ironAxe" || selKind === "ironSpear" || selKind === "ironHammer";
           const hasDefaultHeldArt = isBuiltInTool || selKind === "stone";
-          const _heldPixels = selKind ? getItemVariantPixels(selKind as ItemKind, "held") : undefined;
+          const _heldFallbackKind: ItemKind | undefined =
+            selKind === "ironPick" ? "copperPick" :
+            selKind === "ironAxe" ? "axe" :
+            selKind === "ironSpear" ? "spear" :
+            selKind === "ironHammer" ? "copperHammer" :
+            undefined;
+          const _heldPixels = selKind
+            ? (getItemVariantPixels(selKind as ItemKind, "held") ??
+               (_heldFallbackKind ? getItemVariantPixels(_heldFallbackKind, "held") : undefined))
+            : undefined;
           const canRenderHeld = selKind != null && selCount > 0 && nLogs === 0 && (hasDefaultHeldArt || !!_heldPixels) && !stuckWebRef.current;
           if (canRenderHeld) {
             const facing = s.facing;
@@ -4028,7 +4089,15 @@ function GamePage() {
             const handY = spriteY + 19;
             const skin = appearanceRef.current.skin;
             if (isBuiltInTool) {
-              const toolKind = selKind as "spear" | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer";
+              // Iron tools reuse the base tool's held art when there is no
+              // admin-drawn override of their own.
+              const rawKind = selKind as "spear" | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer";
+              const toolKind: "spear" | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" =
+                rawKind === "ironPick" ? "copperPick" :
+                rawKind === "ironAxe" ? "axe" :
+                rawKind === "ironSpear" ? "spear" :
+                rawKind === "ironHammer" ? "copperHammer" :
+                rawKind;
               let axOffset = HELD_ANCHOR.x;
               let ayOffset = HELD_ANCHOR.y;
 
@@ -4253,7 +4322,9 @@ function GamePage() {
       // The pointer stays down → spear stays extended, tracking the cursor (see move handler).
       {
         const heldKind = getSelectedHotbarKind();
-        const hasSpear = heldKind === "spear" && inventoryRef.current.spear > 0;
+        const hasSpear =
+          (heldKind === "spear" && inventoryRef.current.spear > 0) ||
+          (heldKind === "ironSpear" && inventoryRef.current.ironSpear > 0);
         if (hasSpear) {
           const facing = stateRef.current.facing;
           const handWX = stateRef.current.x + (facing === 1 ? 14 : 1);
@@ -4270,12 +4341,14 @@ function GamePage() {
         const isPickOrAxe =
           (heldKind === "pick" && inventoryRef.current.pick > 0) ||
           (heldKind === "copperPick" && inventoryRef.current.copperPick > 0) ||
-          (heldKind === "axe" && inventoryRef.current.axe > 0);
+          (heldKind === "ironPick" && inventoryRef.current.ironPick > 0) ||
+          (heldKind === "axe" && inventoryRef.current.axe > 0) ||
+          (heldKind === "ironAxe" && inventoryRef.current.ironAxe > 0);
         if (isPickOrAxe) {
           const now = performance.now();
           if (now - lastToolSwingTimeRef.current >= 500) {
             lastToolSwingTimeRef.current = now;
-            toolSwingRef.current = { startedAt: now, kind: heldKind as "pick" | "copperPick" | "axe", hasHit: false };
+            toolSwingRef.current = { startedAt: now, kind: heldKind as "pick" | "copperPick" | "ironPick" | "axe" | "ironAxe", hasHit: false };
           }
         }
       }
@@ -4286,7 +4359,9 @@ function GamePage() {
       // without a spear still shows a hint.
       if (modeRef.current === "cave2") {
         const heldKind = getSelectedHotbarKind();
-        const hasSpear = heldKind === "spear" && inventoryRef.current.spear > 0;
+        const hasSpear =
+          (heldKind === "spear" && inventoryRef.current.spear > 0) ||
+          (heldKind === "ironSpear" && inventoryRef.current.ironSpear > 0);
         if (!hasSpear) {
           for (const c of cave2CentipedesRef.current) {
             if (c.dead || !c.active) continue;
@@ -4387,7 +4462,7 @@ function GamePage() {
         if (tryPickupGroundItem(worldX, worldY, "cave", withinReach)) return;
 
         // Mining: click an ore. Requires the pickaxe slot to be selected.
-        if (getSelectedHotbarKind() !== "pick" && getSelectedHotbarKind() !== "copperPick") {
+        if (getSelectedHotbarKind() !== "pick" && getSelectedHotbarKind() !== "copperPick" && getSelectedHotbarKind() !== "ironPick") {
           const heldKind = getSelectedHotbarKind();
           let bestOre: CaveOre | null = null;
           let bestOreD = 18;
@@ -4561,7 +4636,7 @@ function GamePage() {
         // Mining ores inside cave 2 (only inside cleared safe segments,
         // but we also allow mining any ore that has spawned — new ores
         // only spawn in cleared segments anyway).
-        if (getSelectedHotbarKind() !== "pick" && getSelectedHotbarKind() !== "copperPick") {
+        if (getSelectedHotbarKind() !== "pick" && getSelectedHotbarKind() !== "copperPick" && getSelectedHotbarKind() !== "ironPick") {
           const heldKind = getSelectedHotbarKind();
           let bestOre: CaveOre | null = null;
           let bestOreD = 18;
