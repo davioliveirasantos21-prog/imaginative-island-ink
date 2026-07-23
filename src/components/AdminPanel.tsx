@@ -804,30 +804,29 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                         <select
                           defaultValue=""
                           onChange={(e) => {
-                            const src = e.target.value as ItemKind | "";
+                            const target = e.target.value as ItemKind | "";
                             e.target.value = "";
-                            if (!src || src === k) return;
-                            const srcOv = getItemOverride(src);
-                            // Fall back to captured defaults so the user can
-                            // clone from items that haven't been edited yet.
+                            if (!target || target === k) return;
+                            // Clone THIS item's sprites into the chosen target.
                             (async () => {
+                              const srcOv = getItemOverride(k);
                               const icon =
-                                srcOv?.icon ?? (await captureIconDefaultPixels(src));
+                                srcOv?.icon ?? (await captureIconDefaultPixels(k));
                               const held =
                                 srcOv?.held ??
-                                (isHeldToolKind(src) ? captureHeldDefaultPixels(src) : undefined);
+                                (isHeldToolKind(k) ? captureHeldDefaultPixels(k) : undefined);
                               if (icon && Object.keys(icon).length > 0) {
-                                saveItemVariant(k, "icon", icon);
+                                saveItemVariant(target, "icon", icon);
                               }
-                              if (held && Object.keys(held).length > 0) {
-                                saveItemVariant(k, "held", held);
+                              if (held && Object.keys(held).length > 0 && isHeldToolKind(target)) {
+                                saveItemVariant(target, "held", held);
                               }
                               refreshItemOverrides();
                             })();
                           }}
                           className="flex-1 border-2 border-[#f4e9c1]/30 bg-[#0a141f] px-1 py-1 text-[9px] uppercase tracking-wider text-[#f4e9c1]"
                         >
-                          <option value="">{t("admin.items.cloneFrom")}</option>
+                          <option value="">{t("admin.items.cloneTo")}</option>
                           {ITEM_KINDS.filter((sk) => sk !== k).map((sk) => (
                             <option key={sk} value={sk}>
                               {t(itemNameKey(sk))}
