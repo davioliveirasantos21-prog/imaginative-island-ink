@@ -5651,6 +5651,7 @@ function GamePage() {
         const scanClickPalm = (list: PalmPos[], isExtra: boolean) => {
           for (const p of list) {
             if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
+            if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < SAPLING_GROW_S) continue;
             const sxPalm = p.wx - camXRef.current;
             if (sxPalm < -20 || sxPalm > VW + 20) continue;
             const cx = p.wx + 2;
