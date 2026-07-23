@@ -6509,16 +6509,16 @@ function GamePage() {
               },
               ...(salitreDiscovered
                 ? [{
-                    key: "salitre",
-                    label: t("furnace.burnSalitre"),
-                    barKind: "coal" as const,
-                    barName: t("item.coal"),
-                    barQty: 16,
+                    key: "iron",
+                    label: t("furnace.smeltIron"),
+                    barKind: "ironMetal" as const,
+                    barName: t("item.ironMetal"),
+                    barQty: 1,
                     inputs: [
-                      { field: "iron" as keyof Inv, kind: "iron" as SlotKind, qty: 1 },
-                      { field: "wood" as keyof Inv, kind: "wood" as SlotKind, qty: 1 },
+                      { field: "coal" as keyof Inv, kind: "coal" as SlotKind, qty: 4 },
+                      { field: "iron" as keyof Inv, kind: "iron" as SlotKind, qty: 4 },
                     ],
-                    canRun: inventory.iron >= 1 && inventory.wood >= 1,
+                    canRun: inventory.coal >= 4 && inventory.iron >= 4,
                   }]
                 : []),
             ];
