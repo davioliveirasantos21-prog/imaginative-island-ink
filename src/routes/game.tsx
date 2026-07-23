@@ -2148,6 +2148,7 @@ function GamePage() {
                     if (c.hp <= 0) {
                       c.dead = true;
                       flashPickup(t("cave2.centipedeSlain"));
+                      addSkillXP("combat", 2);
                       // Death cry — reuse the wall-attack shrieks.
                       const deathCry = Math.random() < 0.5 ? lacraiaParedeAtacando1Asset.url : lacraiaParedeAtacando2Asset.url;
                       playOneShotReverb(deathCry, Math.min(1, (ambientVolume / 100) * 1.0));
