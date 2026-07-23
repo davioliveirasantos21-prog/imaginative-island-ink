@@ -41,6 +41,7 @@ import uiMapaAsset from "@/assets/ui-mapa.png.asset.json";
 import ironOreAsset from "@/assets/iron-ore-cave.png.asset.json";
 import uiCameraAsset from "@/assets/ui-camera.png.asset.json";
 import stoneBgAsset from "@/assets/stone-bg.png.asset.json";
+import settingsBgAsset from "@/assets/settings-bg.png.asset.json";
 import uiConfigAsset from "@/assets/ui-config.png.asset.json";
 import uiCustomAsset from "@/assets/ui-custom.png.asset.json";
 import uiMenuAsset from "@/assets/ui-menu.png.asset.json";
@@ -6023,11 +6024,12 @@ function GamePage() {
                 onClick={(e) => e.stopPropagation()}
                 className="relative w-full max-w-sm overflow-hidden border-4 border-[#1a1a1a] text-[#f4e9c1] animate-scale-in"
                 style={{
-                  backgroundImage: `url(${stoneBgAsset.url})`,
-                  backgroundSize: "256px 256px",
-                  backgroundRepeat: "repeat",
+                  backgroundImage: `url(${settingsBgAsset.url})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
                   imageRendering: "pixelated",
-                  boxShadow: "0 10px 0 #000, inset 0 0 40px rgba(0,0,0,0.65), inset 0 0 0 2px #4a3a2a",
+                  boxShadow: "0 10px 0 #000, inset 0 0 0 2px #4a3a2a",
                 }}
               >
                 {/* dark vignette overlay for legibility */}
