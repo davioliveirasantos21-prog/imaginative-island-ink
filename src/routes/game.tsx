@@ -1531,6 +1531,7 @@ function GamePage() {
         cave2MinedOres?: [string, number][];
         placedTorchesCave2?: PlacedTorch[];
         salitreDiscovered?: boolean;
+        skills?: Partial<Record<SkillKey, SkillState>>;
       };
       const loadedInventory: Inv = {
         stones: data.stones ?? 0,
