@@ -1138,6 +1138,8 @@ export const dictionaries: Record<Lang, Dict> = {
     "admin.items.create": "Crear",
     "admin.items.delete": "Eliminar personalización",
     "admin.items.deleteAll": "Eliminar ambas",
+    "admin.items.cloneFrom": "Clonar de…",
+    "admin.items.download": "Descargar cambios",
     "admin.items.variant.icon": "Ícono",
     "admin.items.variant.held": "En la mano",
     "admin.items.editing": "EDITANDO ÍTEM: {name}",
