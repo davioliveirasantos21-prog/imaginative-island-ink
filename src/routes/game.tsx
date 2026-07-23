@@ -2772,10 +2772,11 @@ function GamePage() {
             // not whichever palm the mouse is over.
             if (!ts.hasHit) {
               let bestPalm: PalmPos | null = null;
+              let bestPalmIsExtra = false;
               let bestPalmD = 60;
-              for (const side of ["left", "right"] as const) {
-                for (const p of getPalms(side)) {
-                  if (brokenPalmsRef.current.has(p.wx)) continue;
+              const scanPalmList = (list: PalmPos[], isExtra: boolean) => {
+                for (const p of list) {
+                  if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
                   const trunkCenter = p.wx + 2;
                   if (isFacingRight && trunkCenter < playerCenter) continue;
                   if (!isFacingRight && trunkCenter > playerCenter) continue;
@@ -2783,9 +2784,12 @@ function GamePage() {
                   if (d <= 50 && d < bestPalmD) {
                     bestPalmD = d;
                     bestPalm = p;
+                    bestPalmIsExtra = isExtra;
                   }
                 }
-              }
+              };
+              for (const side of ["left", "right"] as const) scanPalmList(getPalms(side), false);
+              scanPalmList(extraPalmsRef.current, true);
               if (bestPalm) {
                 const usingAxe = inventoryRef.current.axe > 0;
                 if (usingAxe) {
@@ -2800,7 +2804,12 @@ function GamePage() {
                     flashPickup(t("msg.palm", { n: nextHP, max: PALM_MAX_HP }));
                   } else {
                     palmHPRef.current.delete(bestPalm.wx);
-                    brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(bestPalm.wx);
+                    if (bestPalmIsExtra) {
+                      extraPalmsRef.current = extraPalmsRef.current.filter((pp) => pp !== bestPalm);
+                    } else {
+                      brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(bestPalm.wx);
+                      brokenPalmsAtRef.current.set(bestPalm.wx, nowMs);
+                    }
                     const logCount = 2 + Math.floor(Math.random() * 2);
                     const nowPalm = Date.now();
                     const newLogs: GroundLog[] = [];
