@@ -2104,7 +2104,7 @@ function GamePage() {
                     playOneShot(pickSfxAsset.url, (ambientVolume / 100) * 1.0);
                     // Hit SFX (also plays on kill) — trim the silent head.
                     playOneShotReverb(lacraiaDeathAsset.url, Math.min(1, (ambientVolume / 100) * 0.9), 0.15);
-                    c.hp -= 1;
+                    c.hp -= getSelectedHotbarKind() === "ironSpear" ? 2 : 1;
                     if (c.hp <= 0) {
                       c.dead = true;
                       flashPickup(t("cave2.centipedeSlain"));
