@@ -7165,6 +7165,7 @@ type WorldRender = {
   takenStones: Set<number>;       // pebbles currently gone
   pickedProps: Set<string>;       // foraged bushes/mushrooms/plants (key = `${type}:${x}`)
   brokenPalms: Set<number>;       // felled palm bases (worldX)
+  extraPalms: PalmPos[];          // palms planted by the player at arbitrary x
   minedRocks: Set<number>;        // big forest rocks currently mined out (worldX)
   extraRocks: { x: number }[];    // rocks spawned by regeneration at new spots
   groundLogs: { id: string; x: number }[];
