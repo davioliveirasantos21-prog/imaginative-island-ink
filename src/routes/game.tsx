@@ -259,6 +259,7 @@ function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md
 
   if (kind === "spear") {
     return <img src={spearIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={tiltStyle} />;
+  }
   if (kind === "ironPick") {
     return <img src={copperPickIconAsset.url} alt="" aria-hidden className={`${dim} object-contain`} style={tiltStyle} />;
   }
