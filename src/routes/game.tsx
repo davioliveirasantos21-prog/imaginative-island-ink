@@ -3830,12 +3830,15 @@ function GamePage() {
           for (let i = 0; i < nIronBars; i++) stack.push("ironBar");
           const skin = appearanceRef.current.skin;
           const skinShadow = shadeHex(skin, -0.3);
+          // Each bar sprite is 4px tall in the current defaults; step by 4
+          // so stacked bars don't overlap and cover the row below.
+          const BAR_STEP = 4;
           for (let i = 0; i < stack.length; i++) {
-            const by = torsoBaseY - i * 3;
+            const by = torsoBaseY - i * BAR_STEP;
             const kind = stack[i];
             if (i === 0) {
               ctx.fillStyle = "rgba(0,0,0,0.25)";
-              ctx.fillRect(barX, by + 3, 12, 1);
+              ctx.fillRect(barX, by + BAR_STEP, 12, 1);
             }
             const heldPx = getItemVariantPixels(kind, "held");
             if (heldPx) {
@@ -3868,7 +3871,7 @@ function GamePage() {
               ctx.fillRect(barX + 11, by, 1, 3);
             }
           }
-          const topBy = torsoBaseY - (stack.length - 1) * 3;
+          const topBy = torsoBaseY - (stack.length - 1) * BAR_STEP;
           ctx.fillStyle = skinShadow;
           ctx.fillRect(barX - 2, topBy - 1, 3, 5);
           ctx.fillStyle = skin;

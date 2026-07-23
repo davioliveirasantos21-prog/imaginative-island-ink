@@ -681,8 +681,51 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
 
           {tab === "items" && (
             <div className="flex flex-col gap-4">
-              <div className="text-[10px] tracking-widest text-[#ffd166]">
-                {t("admin.items.title")}
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[10px] tracking-widest text-[#ffd166]">
+                  {t("admin.items.title")}
+                </div>
+                <button
+                  onClick={() => {
+                    const keys = [
+                      "item-overrides-v1",
+                      "scenery-overrides-v1",
+                      "hair-overrides-v1",
+                      "beard-overrides-v1",
+                      "shirt-overrides-v1",
+                      "pants-overrides-v1",
+                      "custom-hairs-v1",
+                      "custom-garments-v1",
+                    ];
+                    const dump: Record<string, unknown> = {
+                      exportedAt: new Date().toISOString(),
+                      version: 1,
+                    };
+                    for (const k of keys) {
+                      try {
+                        const raw = localStorage.getItem(k);
+                        dump[k] = raw ? JSON.parse(raw) : null;
+                      } catch {
+                        dump[k] = null;
+                      }
+                    }
+                    const blob = new Blob([JSON.stringify(dump, null, 2)], {
+                      type: "application/json",
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+                    a.download = `admin-customizations-${ts}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="border-2 border-[#ffd166]/60 px-3 py-1 text-[9px] uppercase tracking-widest text-[#ffd166] hover:bg-[#ffd166]/10"
+                >
+                  ⬇ {t("admin.items.download")}
+                </button>
               </div>
               <p className="text-[10px] text-[#f4e9c1]/60">
                 {t("admin.items.hint")}
@@ -757,17 +800,52 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
                           );
                         })}
                       </div>
-                      {ov && (ov.icon || ov.held) && (
-                        <button
-                          onClick={() => {
-                            deleteItemOverride(k);
-                            refreshItemOverrides();
+                      <div className="flex items-center gap-1">
+                        <select
+                          defaultValue=""
+                          onChange={(e) => {
+                            const src = e.target.value as ItemKind | "";
+                            e.target.value = "";
+                            if (!src || src === k) return;
+                            const srcOv = getItemOverride(src);
+                            // Fall back to captured defaults so the user can
+                            // clone from items that haven't been edited yet.
+                            (async () => {
+                              const icon =
+                                srcOv?.icon ?? (await captureIconDefaultPixels(src));
+                              const held =
+                                srcOv?.held ??
+                                (isHeldToolKind(src) ? captureHeldDefaultPixels(src) : undefined);
+                              if (icon && Object.keys(icon).length > 0) {
+                                saveItemVariant(k, "icon", icon);
+                              }
+                              if (held && Object.keys(held).length > 0) {
+                                saveItemVariant(k, "held", held);
+                              }
+                              refreshItemOverrides();
+                            })();
                           }}
-                          className="self-end border-2 border-[#e94560]/60 px-2 py-1 text-[9px] uppercase text-[#e94560]"
+                          className="flex-1 border-2 border-[#f4e9c1]/30 bg-[#0a141f] px-1 py-1 text-[9px] uppercase tracking-wider text-[#f4e9c1]"
                         >
-                          {t("admin.items.deleteAll")}
-                        </button>
-                      )}
+                          <option value="">{t("admin.items.cloneFrom")}</option>
+                          {ITEM_KINDS.filter((sk) => sk !== k).map((sk) => (
+                            <option key={sk} value={sk}>
+                              {t(itemNameKey(sk))}
+                            </option>
+                          ))}
+                        </select>
+                        {ov && (ov.icon || ov.held) && (
+                          <button
+                            onClick={() => {
+                              deleteItemOverride(k);
+                              refreshItemOverrides();
+                            }}
+                            className="border-2 border-[#e94560]/60 px-2 py-1 text-[9px] uppercase text-[#e94560]"
+                          >
+                            {t("admin.items.deleteAll")}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
