@@ -3812,9 +3812,11 @@ function GamePage() {
           ctx.fillStyle = skin;
           ctx.fillRect(logX + 13, topLy, 3, 3);
         }
-        // Carried bars on the torso — copper first, then bronze on top.
+        // Carried bars on the torso — copper first, then bronze, iron on top.
         // Rendered only when the player isn't already hauling logs (logs win
-        // the hand slot). Uses metallic palettes so the bars read as forged.
+        // the hand slot). If the admin painted a custom "held" variant for a
+        // bar, we use that pixel art instead of the hardcoded metallic stripe
+        // so edits in the Admin Panel actually show up on the character.
         const nCopperBars = inventoryRef.current.copperBar;
         const nBronzeBars = inventoryRef.current.bronzeBar;
         const nIronBars = inventoryRef.current.ironBar;
@@ -3822,11 +3824,12 @@ function GamePage() {
         if (nBars > 0 && carriedLogsRef.current === 0 && (!s.dead || s.deathT < DEATH_ANIM)) {
           const torsoBaseY = spriteY + 15;
           const barX = spriteX + 2;
-          // Stack copper first (bottom), bronze middle, iron on top.
-          const stack: Array<"copper" | "bronze" | "iron"> = [];
-          for (let i = 0; i < nCopperBars; i++) stack.push("copper");
-          for (let i = 0; i < nBronzeBars; i++) stack.push("bronze");
-          for (let i = 0; i < nIronBars; i++) stack.push("iron");
+          const stack: Array<"copperBar" | "bronzeBar" | "ironBar"> = [];
+          for (let i = 0; i < nCopperBars; i++) stack.push("copperBar");
+          for (let i = 0; i < nBronzeBars; i++) stack.push("bronzeBar");
+          for (let i = 0; i < nIronBars; i++) stack.push("ironBar");
+          const skin = appearanceRef.current.skin;
+          const skinShadow = shadeHex(skin, -0.3);
           for (let i = 0; i < stack.length; i++) {
             const by = torsoBaseY - i * 3;
             const kind = stack[i];
@@ -3834,23 +3837,38 @@ function GamePage() {
               ctx.fillStyle = "rgba(0,0,0,0.25)";
               ctx.fillRect(barX, by + 3, 12, 1);
             }
-            const base = kind === "copper" ? "#b3541e" : kind === "bronze" ? "#a37244" : "#a8b0bc";
-            const hi = kind === "copper" ? "#e08a3a" : kind === "bronze" ? "#d6a15c" : "#d8dee6";
-            const lo = kind === "copper" ? "#7a3812" : kind === "bronze" ? "#6d4826" : "#5a6270";
-            const edge = kind === "iron" ? "#2a2f38" : "#2a1508";
-            ctx.fillStyle = base;
-            ctx.fillRect(barX, by, 12, 3);
-            ctx.fillStyle = hi;
-            ctx.fillRect(barX + 1, by, 10, 1);
-            ctx.fillStyle = lo;
-            ctx.fillRect(barX, by + 2, 12, 1);
-            ctx.fillStyle = edge;
-            ctx.fillRect(barX, by, 1, 3);
-            ctx.fillRect(barX + 11, by, 1, 3);
+            const heldPx = getItemVariantPixels(kind, "held");
+            if (heldPx) {
+              // Center the admin-drawn bar horizontally on the 12px stack slot.
+              let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+              for (const k of Object.keys(heldPx)) {
+                const [px, py] = k.split(",").map(Number);
+                if (px < minX) minX = px;
+                if (px > maxX) maxX = px;
+                if (py < minY) minY = py;
+                if (py > maxY) maxY = py;
+              }
+              const w = maxX - minX + 1;
+              const originX = barX + Math.round((12 - w) / 2) - minX;
+              const originY = by - minY;
+              for (const [k, color] of Object.entries(heldPx)) {
+                const [px, py] = k.split(",").map(Number);
+                ctx.fillStyle = resolveItemPixelColor(color, skin, shade);
+                ctx.fillRect(originX + px, originY + py, 1, 1);
+              }
+            } else {
+              const base = kind === "copperBar" ? "#b3541e" : kind === "bronzeBar" ? "#a37244" : "#a8b0bc";
+              const hi   = kind === "copperBar" ? "#e08a3a" : kind === "bronzeBar" ? "#d6a15c" : "#d8dee6";
+              const lo   = kind === "copperBar" ? "#7a3812" : kind === "bronzeBar" ? "#6d4826" : "#5a6270";
+              const edge = kind === "ironBar" ? "#2a2f38" : "#2a1508";
+              ctx.fillStyle = base; ctx.fillRect(barX, by, 12, 3);
+              ctx.fillStyle = hi;   ctx.fillRect(barX + 1, by, 10, 1);
+              ctx.fillStyle = lo;   ctx.fillRect(barX, by + 2, 12, 1);
+              ctx.fillStyle = edge; ctx.fillRect(barX, by, 1, 3);
+              ctx.fillRect(barX + 11, by, 1, 3);
+            }
           }
           const topBy = torsoBaseY - (stack.length - 1) * 3;
-          const skin = appearanceRef.current.skin;
-          const skinShadow = shadeHex(skin, -0.3);
           ctx.fillStyle = skinShadow;
           ctx.fillRect(barX - 2, topBy - 1, 3, 5);
           ctx.fillStyle = skin;
