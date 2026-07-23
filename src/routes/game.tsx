@@ -3813,28 +3813,34 @@ function GamePage() {
         // the hand slot). Uses metallic palettes so the bars read as forged.
         const nCopperBars = inventoryRef.current.copperBar;
         const nBronzeBars = inventoryRef.current.bronzeBar;
-        const nBars = nCopperBars + nBronzeBars;
+        const nIronBars = inventoryRef.current.ironBar;
+        const nBars = nCopperBars + nBronzeBars + nIronBars;
         if (nBars > 0 && carriedLogsRef.current === 0 && (!s.dead || s.deathT < DEATH_ANIM)) {
           const torsoBaseY = spriteY + 15;
           const barX = spriteX + 2;
-          // Stack copper first (bottom), bronze on top so bronze is visible.
-          const stack: Array<"copper" | "bronze"> = [];
+          // Stack copper first (bottom), bronze middle, iron on top.
+          const stack: Array<"copper" | "bronze" | "iron"> = [];
           for (let i = 0; i < nCopperBars; i++) stack.push("copper");
           for (let i = 0; i < nBronzeBars; i++) stack.push("bronze");
+          for (let i = 0; i < nIronBars; i++) stack.push("iron");
           for (let i = 0; i < stack.length; i++) {
             const by = torsoBaseY - i * 3;
-            const isCopper = stack[i] === "copper";
+            const kind = stack[i];
             if (i === 0) {
               ctx.fillStyle = "rgba(0,0,0,0.25)";
               ctx.fillRect(barX, by + 3, 12, 1);
             }
-            ctx.fillStyle = isCopper ? "#b3541e" : "#a37244";
+            const base = kind === "copper" ? "#b3541e" : kind === "bronze" ? "#a37244" : "#a8b0bc";
+            const hi = kind === "copper" ? "#e08a3a" : kind === "bronze" ? "#d6a15c" : "#d8dee6";
+            const lo = kind === "copper" ? "#7a3812" : kind === "bronze" ? "#6d4826" : "#5a6270";
+            const edge = kind === "iron" ? "#2a2f38" : "#2a1508";
+            ctx.fillStyle = base;
             ctx.fillRect(barX, by, 12, 3);
-            ctx.fillStyle = isCopper ? "#e08a3a" : "#d6a15c";
+            ctx.fillStyle = hi;
             ctx.fillRect(barX + 1, by, 10, 1);
-            ctx.fillStyle = isCopper ? "#7a3812" : "#6d4826";
+            ctx.fillStyle = lo;
             ctx.fillRect(barX, by + 2, 12, 1);
-            ctx.fillStyle = "#2a1508";
+            ctx.fillStyle = edge;
             ctx.fillRect(barX, by, 1, 3);
             ctx.fillRect(barX + 11, by, 1, 3);
           }
