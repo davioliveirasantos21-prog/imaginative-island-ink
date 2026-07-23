@@ -6448,10 +6448,10 @@ function GamePage() {
                 barName: t("item.copperMetal"),
                 barQty: 4,
                 inputs: [
-                  { field: "coal", kind: "coal", qty: 1 },
+                  { field: "coal", kind: "coal", qty: 8 },
                   { field: "copper", kind: "copper", qty: 4 },
                 ],
-                canRun: inventory.coal >= 1 && inventory.copper >= 4,
+                canRun: inventory.coal >= 8 && inventory.copper >= 4,
               },
               {
                 key: "bronze",
@@ -6460,10 +6460,10 @@ function GamePage() {
                 barName: t("item.bronzeMetal"),
                 barQty: 4,
                 inputs: [
-                  { field: "coal", kind: "coal", qty: 1 },
+                  { field: "coal", kind: "coal", qty: 8 },
                   { field: "bronze", kind: "bronze", qty: 4 },
                 ],
-                canRun: inventory.coal >= 1 && inventory.bronze >= 4,
+                canRun: inventory.coal >= 8 && inventory.bronze >= 4,
               },
               {
                 key: "coal",
@@ -6474,6 +6474,20 @@ function GamePage() {
                 inputs: [{ field: "wood", kind: "wood", qty: 1 }],
                 canRun: inventory.wood >= 1,
               },
+              ...(salitreDiscovered
+                ? [{
+                    key: "salitre",
+                    label: t("furnace.burnSalitre"),
+                    barKind: "coal" as const,
+                    barName: t("item.coal"),
+                    barQty: 16,
+                    inputs: [
+                      { field: "iron" as keyof Inv, kind: "iron" as SlotKind, qty: 1 },
+                      { field: "wood" as keyof Inv, kind: "wood" as SlotKind, qty: 1 },
+                    ],
+                    canRun: inventory.iron >= 1 && inventory.wood >= 1,
+                  }]
+                : []),
             ];
             const furnace = builtRef.current.find((x) => x.id === furnaceMenuOpen && x.kind === "furnace");
             const active = furnace?.smeltJob ?? null;
