@@ -4322,7 +4322,9 @@ function GamePage() {
       // The pointer stays down → spear stays extended, tracking the cursor (see move handler).
       {
         const heldKind = getSelectedHotbarKind();
-        const hasSpear = heldKind === "spear" && inventoryRef.current.spear > 0;
+        const hasSpear =
+          (heldKind === "spear" && inventoryRef.current.spear > 0) ||
+          (heldKind === "ironSpear" && inventoryRef.current.ironSpear > 0);
         if (hasSpear) {
           const facing = stateRef.current.facing;
           const handWX = stateRef.current.x + (facing === 1 ? 14 : 1);
@@ -4339,12 +4341,14 @@ function GamePage() {
         const isPickOrAxe =
           (heldKind === "pick" && inventoryRef.current.pick > 0) ||
           (heldKind === "copperPick" && inventoryRef.current.copperPick > 0) ||
-          (heldKind === "axe" && inventoryRef.current.axe > 0);
+          (heldKind === "ironPick" && inventoryRef.current.ironPick > 0) ||
+          (heldKind === "axe" && inventoryRef.current.axe > 0) ||
+          (heldKind === "ironAxe" && inventoryRef.current.ironAxe > 0);
         if (isPickOrAxe) {
           const now = performance.now();
           if (now - lastToolSwingTimeRef.current >= 500) {
             lastToolSwingTimeRef.current = now;
-            toolSwingRef.current = { startedAt: now, kind: heldKind as "pick" | "copperPick" | "axe", hasHit: false };
+            toolSwingRef.current = { startedAt: now, kind: heldKind as "pick" | "copperPick" | "ironPick" | "axe" | "ironAxe", hasHit: false };
           }
         }
       }
