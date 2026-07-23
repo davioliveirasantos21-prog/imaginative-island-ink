@@ -5030,6 +5030,7 @@ function GamePage() {
           if (b.kind === "anvil" && b.forgeJob) {
             const job = b.forgeJob;
             job.hits += 1;
+            addSkillXP("forge", 1);
             playOneShot(hammerSfxAsset.url, (ambientVolume / 100) * 0.7);
             if (job.hits >= job.hitsRequired) {
               flashPickup(t("anvil.forgeReady"));
