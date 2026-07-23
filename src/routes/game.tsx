@@ -5239,12 +5239,17 @@ function GamePage() {
         }
       }
       if (bestSeed) {
-        if (!canAcquireKind("seed")) {
+        const seedKind: "seed" | "palmSeed" = bestSeed.kind === "palmSeed" ? "palmSeed" : "seed";
+        if (!canAcquireKind(seedKind)) {
           flashPickup(t("msg.inventoryFull"));
           return;
         }
         seedsRef.current = seedsRef.current.filter((s) => s.id !== bestSeed!.id);
-        setInventory((inv) => ({ ...inv, seeds: inv.seeds + 1 }));
+        if (seedKind === "palmSeed") {
+          setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds + 1 }));
+        } else {
+          setInventory((inv) => ({ ...inv, seeds: inv.seeds + 1 }));
+        }
         flashPickup(t("msg.pickSeed"));
         saveWorld();
         return;
