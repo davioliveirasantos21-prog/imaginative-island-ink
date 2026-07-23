@@ -3308,6 +3308,7 @@ function GamePage() {
           takenStones: takenStoneIds,
           pickedProps: pickedPropsRef.current,
           brokenPalms: brokenPalmsRef.current,
+          extraPalms: extraPalmsRef.current,
           minedRocks: minedRocksSet,
           extraRocks: extraRocksRef.current,
           groundLogs: groundLogsRef.current,
