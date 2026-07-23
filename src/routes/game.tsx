@@ -5481,12 +5481,11 @@ function GamePage() {
       //    player, NOT which one the mouse is over.
       if (getSelectedHotbarKind() !== "axe") {
         let bestPalm: PalmPos | null = null;
+        let bestPalmIsExtra = false;
         let bestPalmD = 18;
-        for (const side of ["left", "right"] as const) {
-          for (const p of getPalms(side)) {
-            if (brokenPalmsRef.current.has(p.wx)) continue;
-            // Only allow clicking palms actually drawn on screen — prevents
-            // hitting an off-camera "invisible" palm that isn't rendered.
+        const scanClickPalm = (list: PalmPos[], isExtra: boolean) => {
+          for (const p of list) {
+            if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
             const sxPalm = p.wx - camXRef.current;
             if (sxPalm < -20 || sxPalm > VW + 20) continue;
             const cx = p.wx + 2;
@@ -5496,10 +5495,14 @@ function GamePage() {
             if (d < bestPalmD && worldY > gY - 80 && worldY < gY + 12) {
               bestPalmD = d;
               bestPalm = p;
+              bestPalmIsExtra = isExtra;
             }
           }
-        }
+        };
+        for (const side of ["left", "right"] as const) scanClickPalm(getPalms(side), false);
+        scanClickPalm(extraPalmsRef.current, true);
         if (bestPalm) {
+          const palm: PalmPos = bestPalm;
           const heldForChop =
             getSelectedHotbarKind();
           const usingAxe = heldForChop === "axe" && inventoryRef.current.axe > 0;
@@ -5522,26 +5525,30 @@ function GamePage() {
               stoneChargesRef.current = TREE_MAX_HP - 1;
             }
           }
-          const prevHP = palmHPRef.current.get(bestPalm.wx) ?? PALM_MAX_HP;
+          const prevHP = palmHPRef.current.get(palm.wx) ?? PALM_MAX_HP;
           const nextHP = prevHP - damage;
           playOneShot(woodHitSfxAsset.url, (ambientVolume / 100) * 0.7);
           if (nextHP > 0) {
-            palmHPRef.current.set(bestPalm.wx, nextHP);
+            palmHPRef.current.set(palm.wx, nextHP);
             flashPickup(t("msg.palm", { n: nextHP, max: PALM_MAX_HP }));
             saveWorld();
             return;
           }
-          palmHPRef.current.delete(bestPalm.wx);
-          brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(bestPalm.wx);
-          // Palm fells 2-3 logs at the base (snapped to nearby pile), plus 1-2 seeds.
+          palmHPRef.current.delete(palm.wx);
           const nowMsPalm = performance.now();
+          if (bestPalmIsExtra) {
+            extraPalmsRef.current = extraPalmsRef.current.filter((pp) => pp !== palm);
+          } else {
+            brokenPalmsRef.current = new Set(brokenPalmsRef.current).add(palm.wx);
+            brokenPalmsAtRef.current.set(palm.wx, nowMsPalm);
+          }
           const logCount = 2 + Math.floor(Math.random() * 2);
           const nowPalm = Date.now();
           const newLogs: GroundLog[] = [];
           for (let i = 0; i < logCount; i++) {
             newLogs.push({
-              id: `palm-${bestPalm.wx}-${nowMsPalm}-${i}`,
-              x: bestPalm.wx + 4 + i * 11,
+              id: `palm-${palm.wx}-${nowMsPalm}-${i}`,
+              x: palm.wx + 4 + i * 11,
               droppedAt: nowPalm + i,
             });
           }
