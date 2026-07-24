@@ -4449,7 +4449,25 @@ function GamePage() {
         NIGHT_T = night;
         SUNSET_T = sunset;
 
-        // (Removed warm horizon glow band — created an unwanted bright line.)
+        // ---- Sun: arcs from right (sunrise) to left (sunset) ----
+        // Visible window covers dawn → day → dusk (cycleT ∈ [0.88,1) ∪ [0,0.62)).
+        {
+          const cycleT = ((now / 1000) % DAY_NIGHT_CYCLE_S) / DAY_NIGHT_CYCLE_S;
+          const effT = (cycleT - 0.88 + 1) % 1;   // 0 at sunrise
+          const windowLen = 0.74;                 // dawn+day+dusk length
+          if (effT < windowLen) {
+            const arcT = effT / windowLen;         // 0..1
+            const sx = Math.round(VW * (0.92 - arcT * 0.84));
+            const sy = Math.round(70 - Math.sin(arcT * Math.PI) * 42);
+            const sunA = Math.max(0, 1 - night);   // hidden at deep night
+            if (sunA > 0.02) {
+              ctx.save();
+              ctx.globalAlpha = sunA;
+              drawSun(ctx, sx, sy, now / 1000);
+              ctx.restore();
+            }
+          }
+        }
 
         // Stars — fade in as night deepens.
         if (night > 0.25) {
