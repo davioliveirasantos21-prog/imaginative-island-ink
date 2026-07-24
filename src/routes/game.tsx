@@ -7142,7 +7142,7 @@ function GamePage() {
                 inputs: [{ field: "wood", kind: "wood", qty: 1 }],
                 canRun: inventory.wood >= 1,
               },
-              ...(salitreDiscovered
+              ...(ironDiscovered
                 ? [{
                     key: "iron",
                     label: t("furnace.smeltIron"),
@@ -7152,8 +7152,9 @@ function GamePage() {
                     inputs: [
                       { field: "coal" as keyof Inv, kind: "coal" as SlotKind, qty: 4 },
                       { field: "iron" as keyof Inv, kind: "iron" as SlotKind, qty: 4 },
+                      { field: "ironOre" as keyof Inv, kind: "ironOre" as SlotKind, qty: 1 },
                     ],
-                    canRun: inventory.coal >= 4 && inventory.iron >= 4,
+                    canRun: inventory.coal >= 4 && inventory.iron >= 4 && inventory.ironOre >= 1,
                   }]
                 : []),
             ];
