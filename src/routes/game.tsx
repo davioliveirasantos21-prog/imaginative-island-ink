@@ -1016,7 +1016,7 @@ function GamePage() {
     | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
     | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer"
     | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-    | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
+    | "coal" | "copper" | "bronze" | "iron" | "ironOre" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
   // Hotbar has exactly 10 slots. We surface only the items the player
   // actually owns, in a fixed priority order, and pad the rest with empty
   // slots so the UI always shows 10 boxes.
