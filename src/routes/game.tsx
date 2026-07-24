@@ -388,6 +388,48 @@ const SHARK_SPEED = 200;
 const DEEP_DIST = 900; // distance past the island where the ocean is fully "deep"
 const DEATH_ANIM = 1.1; // seconds of chomping before the game-over overlay appears
 
+// ---------- Day/night cycle ----------
+// Full cycle length. Roughly: 55% day, 10% dusk, 25% night, 10% dawn.
+const DAY_NIGHT_CYCLE_S = 300; // 5-minute full cycle
+// Returns 0 = full day, 1 = deep night, with smooth dusk/dawn ramps.
+function getNightIntensity(nowMs: number): number {
+  const t = ((nowMs / 1000) % DAY_NIGHT_CYCLE_S) / DAY_NIGHT_CYCLE_S; // 0..1
+  // Phases (fractions of cycle):
+  //   0.00 - 0.55  day    (0)
+  //   0.55 - 0.65  dusk   (0 -> 1)
+  //   0.65 - 0.90  night  (1)
+  //   0.90 - 1.00  dawn   (1 -> 0)
+  if (t < 0.55) return 0;
+  if (t < 0.65) {
+    const k = (t - 0.55) / 0.1;
+    return k * k * (3 - 2 * k);
+  }
+  if (t < 0.9) return 1;
+  const k = (t - 0.9) / 0.1;
+  const s = k * k * (3 - 2 * k);
+  return 1 - s;
+}
+
+// Deterministic star field for the night sky (screen-space).
+const NIGHT_STARS: { x: number; y: number; b: number }[] = (() => {
+  const out: { x: number; y: number; b: number }[] = [];
+  let seed = 1337;
+  const rnd = () => {
+    seed = (seed * 1664525 + 1013904223) | 0;
+    return ((seed >>> 0) % 10000) / 10000;
+  };
+  for (let i = 0; i < 90; i++) {
+    out.push({
+      x: Math.floor(rnd() * VW),
+      y: Math.floor(rnd() * (HORIZON_Y - 20)),
+      b: 0.4 + rnd() * 0.6,
+    });
+  }
+  return out;
+})();
+
+
+
 // Physics (virtual px / sec)
 const MOVE_SPEED = 130;
 const SWIM_SPEED = 78;
@@ -4335,7 +4377,62 @@ function GamePage() {
       );
 
       ctx.restore();
+
+      // ---------- Day/night overlay ----------
+      // Caves stay dark on their own; only tint the overworld.
+      if (modeRef.current !== "cave" && modeRef.current !== "cave2") {
+        const night = getNightIntensity(now);
+        if (night > 0.001) {
+          // Stars & moon come in during the night portion of dusk.
+          if (night > 0.35) {
+            const starA = Math.min(1, (night - 0.35) / 0.35);
+            ctx.save();
+            for (const st of NIGHT_STARS) {
+              // Gentle twinkle
+              const tw = 0.65 + 0.35 * Math.sin(now / 480 + st.x * 0.13 + st.y * 0.21);
+              ctx.fillStyle = `rgba(240,240,255,${(st.b * tw * starA).toFixed(3)})`;
+              ctx.fillRect(st.x, st.y, 1, 1);
+            }
+            // Moon
+            const moonA = starA;
+            const mx = Math.floor(VW * 0.78);
+            const my = Math.floor(HORIZON_Y * 0.35);
+            ctx.fillStyle = `rgba(20,26,44,${(0.55 * moonA).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(mx + 1, my + 1, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = `rgba(238,234,210,${(0.95 * moonA).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(mx, my, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Crescent shadow bite
+            ctx.fillStyle = `rgba(30,36,58,${(0.85 * moonA).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(mx - 4, my - 2, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+          // Deep-blue night tint over the whole scene (multiply-ish look).
+          ctx.save();
+          ctx.globalCompositeOperation = "multiply";
+          const r = Math.round(255 - (255 - 60) * night);
+          const g = Math.round(255 - (255 - 80) * night);
+          const b = Math.round(255 - (255 - 140) * night);
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(0, 0, VW, VH);
+          ctx.restore();
+          // Cool blue haze on top for atmosphere.
+          if (night > 0.15) {
+            ctx.save();
+            ctx.fillStyle = `rgba(30,40,90,${(0.18 * night).toFixed(3)})`;
+            ctx.fillRect(0, 0, VW, VH);
+            ctx.restore();
+          }
+        }
+      }
+
       raf = requestAnimationFrame(loop);
+
     };
 
 
