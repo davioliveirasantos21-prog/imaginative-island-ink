@@ -8281,14 +8281,8 @@ function drawScene(
     ctx.fillRect(0, HORIZON, VW, WATER_LEVEL_Y - HORIZON);
   }
 
-  // Warm sun with a soft halo — fades on the beach and at night.
-  const sunA = (1 - coastness) * (1 - NIGHT_T);
-  if (sunA > 0.01) {
-    ctx.save();
-    ctx.globalAlpha = sunA;
-    drawSun(ctx, 480, 44, time);
-    ctx.restore();
-  }
+  // Sun is drawn later in the day/night pass so it can arc across the sky
+  // and fade correctly with the cycle. See the block near NIGHT_T update.
 
   // ----- Clouds: two parallax layers, both soft white -----
   ctx.save();
