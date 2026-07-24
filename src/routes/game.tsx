@@ -394,7 +394,7 @@ const DEATH_ANIM = 1.1; // seconds of chomping before the game-over overlay appe
 //   0.50 - 0.62  dusk       (sky warms, then cools into night)
 //   0.62 - 0.88  night      (deep dark blue)
 //   0.88 - 1.00  dawn       (cool blue → warm sunrise → day)
-const DAY_NIGHT_CYCLE_S = 240; // 4-minute full cycle
+const DAY_NIGHT_CYCLE_S = 600; // 10-minute full cycle
 
 // Returns { night, sunset } where:
 //   night  = 0 (day)   .. 1 (deep night)
