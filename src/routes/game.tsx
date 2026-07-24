@@ -1861,10 +1861,12 @@ function GamePage() {
       // above, so `segmentAt` gives us the current segment kinds.
       cave2OresRef.current = cave2OresRef.current.filter((ore) => {
         const seg = segmentAt(cave2SegsRef.current, ore.x);
+        if (isOverWaterPool(seg, ore.x)) return false;
         const ORE_HALF_W = 10;
         for (let dx = -ORE_HALF_W; dx <= ORE_HALF_W; dx += 2) {
           const px = ore.x + dx;
-          if (!hasGroundAt(seg, px) || isOverWaterPool(seg, px)) return false;
+          const segAtPx = segmentAt(cave2SegsRef.current, px);
+          if (!hasGroundAt(segAtPx, px) || isOverWaterPool(segAtPx, px)) return false;
         }
         return true;
       });
@@ -2506,7 +2508,7 @@ function GamePage() {
             const nearSurface = feetY0 >= GROUND_Y - 4;
             s.treading = false;
             if (holdingUp && overWaterCenter && nearSurface && s.vy >= -20
-                && performance.now() - lastWaterJumpAtRef.current >= 500) {
+                && performance.now() - lastWaterJumpAtRef.current >= 2000) {
               // Mini-jump out of water: brief pop above the surface, then
               // gravity pulls the player back down into the pool. Rate-limited
               // to at most one hop every 500ms so the player can't spam it.
@@ -3491,9 +3493,12 @@ function GamePage() {
           drawWallTorch(ctx, Math.round(tx), GROUND_Y, now / 1000);
         }
 
-        // Ores in cleared segments
+        // Ores in cleared segments — skip any ore that ended up over the
+        // water pool (legacy saves from before the placement guard).
         for (const ore of cave2OresRef.current) {
           if (cave2MinedOresRef.current.has(ore.id)) continue;
+          const oreSeg = segmentAt(cave2SegsRef.current, ore.x);
+          if (isOverWaterPool(oreSeg, ore.x)) continue;
           const sx = ore.x - camX;
           if (sx < -20 || sx > VW + 20) continue;
           drawOre(ctx, Math.round(sx), GROUND_Y, ore.kind);
