@@ -9703,12 +9703,6 @@ function drawIslandGround(
     ctx.fillRect(a, GROUND_Y, b - a, 3);
     ctx.fillStyle = sandDeep;
     ctx.fillRect(a, GROUND_Y + 14, b - a, 1);
-    // Speckled sand grain
-    ctx.fillStyle = wetSand;
-    for (let x = a + ((camX * 0.3) | 0) % 5; x < b; x += 5) {
-      ctx.fillRect(x, GROUND_Y + 6, 1, 1);
-      ctx.fillRect(x + 2, GROUND_Y + 9, 1, 1);
-    }
   };
   const lbA = clampX(islandLeftScreen);
   const lbB = clampX(beachLeftEndScreen);
