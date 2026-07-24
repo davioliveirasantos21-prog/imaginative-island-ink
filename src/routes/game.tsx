@@ -389,26 +389,87 @@ const DEEP_DIST = 900; // distance past the island where the ocean is fully "dee
 const DEATH_ANIM = 1.1; // seconds of chomping before the game-over overlay appears
 
 // ---------- Day/night cycle ----------
-// Full cycle length. Roughly: 55% day, 10% dusk, 25% night, 10% dawn.
-const DAY_NIGHT_CYCLE_S = 300; // 5-minute full cycle
-// Returns 0 = full day, 1 = deep night, with smooth dusk/dawn ramps.
-function getNightIntensity(nowMs: number): number {
-  const t = ((nowMs / 1000) % DAY_NIGHT_CYCLE_S) / DAY_NIGHT_CYCLE_S; // 0..1
-  // Phases (fractions of cycle):
-  //   0.00 - 0.55  day    (0)
-  //   0.55 - 0.65  dusk   (0 -> 1)
-  //   0.65 - 0.90  night  (1)
-  //   0.90 - 1.00  dawn   (1 -> 0)
-  if (t < 0.55) return 0;
-  if (t < 0.65) {
-    const k = (t - 0.55) / 0.1;
-    return k * k * (3 - 2 * k);
+// Full cycle length. Phase breakdown:
+//   0.00 - 0.50  day        (fully bright)
+//   0.50 - 0.62  dusk       (sky warms, then cools into night)
+//   0.62 - 0.88  night      (deep dark blue)
+//   0.88 - 1.00  dawn       (cool blue → warm sunrise → day)
+const DAY_NIGHT_CYCLE_S = 240; // 4-minute full cycle
+
+// Returns { night, sunset } where:
+//   night  = 0 (day)   .. 1 (deep night)
+//   sunset = 0 (none)  .. 1 (peak warm orange/purple sky), for dusk & dawn
+function getTimeOfDay(nowMs: number): { night: number; sunset: number } {
+  const t = ((nowMs / 1000) % DAY_NIGHT_CYCLE_S) / DAY_NIGHT_CYCLE_S;
+  const smooth = (k: number) => k * k * (3 - 2 * k);
+  let night = 0;
+  let sunset = 0;
+  if (t < 0.5) {
+    night = 0;
+    sunset = 0;
+  } else if (t < 0.62) {
+    // Dusk — sky warms up, then darkens.
+    const k = (t - 0.5) / 0.12;
+    night = smooth(k);
+    // Sunset bell curve — peaks in the middle of dusk.
+    sunset = Math.sin(k * Math.PI); // 0 → 1 → 0
+  } else if (t < 0.88) {
+    night = 1;
+    sunset = 0;
+  } else {
+    // Dawn — reverse.
+    const k = (t - 0.88) / 0.12;
+    night = 1 - smooth(k);
+    sunset = Math.sin(k * Math.PI);
   }
-  if (t < 0.9) return 1;
-  const k = (t - 0.9) / 0.1;
-  const s = k * k * (3 - 2 * k);
-  return 1 - s;
+  return { night, sunset };
 }
+
+// Live time-of-day, updated once per frame from the render loop and read by
+// biomeColor() so the whole world palette shifts naturally (no flat filter).
+let NIGHT_T = 0;
+let SUNSET_T = 0;
+
+// Night target palette (shared across biomes — everything blends toward these
+// at NIGHT_T = 1). Values chosen so grass/hills stay readable but obviously
+// moonlit, and the sky becomes a deep indigo.
+const NIGHT_PALETTE: Record<string, string> = {
+  skyTop: "#070a1c",
+  skyMid: "#101838",
+  skyLow: "#1c2450",
+  skyHorizon: "#2a2a55",
+  mountainBack: "#1a2140",
+  mountainFront: "#12172e",
+  hillBack: "#1a2e28",
+  hillFront: "#122019",
+  treeBack: "#0a1612",
+  treeFront: "#050e0a",
+  grassTop: "#1e3830",
+  grass: "#152820",
+  grassDark: "#0f1e18",
+  soil: "#1c1810",
+  soilDeep: "#0e0b06",
+};
+
+// Sunset warmth palette — applied additively at dusk/dawn, strongest on sky
+// bands. Everything else gets a subtle amber lift.
+const SUNSET_PALETTE: Record<string, string> = {
+  skyTop: "#5a3468",
+  skyMid: "#c46840",
+  skyLow: "#f0a05a",
+  skyHorizon: "#ffd28a",
+  mountainBack: "#6a5878",
+  mountainFront: "#4a3d5a",
+  hillBack: "#5c7a48",
+  hillFront: "#3a5a34",
+  treeBack: "#2a2820",
+  treeFront: "#1a1810",
+  grassTop: "#8a9a48",
+  grass: "#6a8038",
+  grassDark: "#547030",
+  soil: "#6a3e1a",
+  soilDeep: "#3e2410",
+};
 
 // Deterministic star field for the night sky (screen-space).
 const NIGHT_STARS: { x: number; y: number; b: number }[] = (() => {
@@ -418,15 +479,17 @@ const NIGHT_STARS: { x: number; y: number; b: number }[] = (() => {
     seed = (seed * 1664525 + 1013904223) | 0;
     return ((seed >>> 0) % 10000) / 10000;
   };
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 110; i++) {
     out.push({
       x: Math.floor(rnd() * VW),
-      y: Math.floor(rnd() * (HORIZON_Y - 20)),
-      b: 0.4 + rnd() * 0.6,
+      y: Math.floor(rnd() * (HORIZON_Y - 30)),
+      b: 0.35 + rnd() * 0.65,
     });
   }
   return out;
 })();
+
+
 
 
 
