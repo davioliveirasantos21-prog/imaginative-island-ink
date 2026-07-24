@@ -3535,7 +3535,7 @@ function GamePage() {
         }
         for (const pl of plantedRef.current) {
           const age = (Date.now() - pl.plantedAt) / 1000;
-          if (age < SAPLING_GROW_S) continue;
+          if (age < (pl.growTime ?? SAPLING_GROW_S)) continue;
           if (Math.abs(pl.x + 13 - playerCX) > HP_BAR_VIEW_RANGE) continue;
           const hp = treeHPRef.current.get(`p:${pl.id}`);
           if (hp == null || hp >= TREE_MAX_HP) continue;
