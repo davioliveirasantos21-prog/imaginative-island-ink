@@ -38,7 +38,7 @@ import woodPanelBg from "@/assets/wood-panel-bg.jpg";
 
 import uiBuildAsset from "@/assets/ui-build.png.asset.json";
 import uiMapaAsset from "@/assets/ui-mapa.png.asset.json";
-import ironOreAsset from "@/assets/iron-ore-cave.png.asset.json";
+import ironOreAsset from "@/assets/salitre-ore.png.asset.json";
 import uiCameraAsset from "@/assets/ui-camera.png.asset.json";
 import skillsBgAsset from "@/assets/skills-bg.png.asset.json";
 import settingsBgAsset from "@/assets/settings-bg.png.asset.json";
