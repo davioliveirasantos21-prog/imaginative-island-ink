@@ -3406,7 +3406,8 @@ function GamePage() {
               cave2MinedOresRef.current.set(id, wallClockMs + 2000);
               continue;
             }
-            const nkind = Math.random() < 0.1 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
+            const roll2 = Math.random();
+            const nkind = roll2 < 0.04 ? "ironOre" : roll2 < 0.14 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
             const nid = `c2-r-${nx}-${wallClockMs}-${Math.floor(Math.random() * 1000)}`;
             cave2OresRef.current = [
               ...cave2OresRef.current.filter((o) => o.id !== id),
