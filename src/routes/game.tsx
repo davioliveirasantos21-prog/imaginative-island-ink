@@ -388,6 +388,48 @@ const SHARK_SPEED = 200;
 const DEEP_DIST = 900; // distance past the island where the ocean is fully "deep"
 const DEATH_ANIM = 1.1; // seconds of chomping before the game-over overlay appears
 
+// ---------- Day/night cycle ----------
+// Full cycle length. Roughly: 55% day, 10% dusk, 25% night, 10% dawn.
+const DAY_NIGHT_CYCLE_S = 300; // 5-minute full cycle
+// Returns 0 = full day, 1 = deep night, with smooth dusk/dawn ramps.
+function getNightIntensity(nowMs: number): number {
+  const t = ((nowMs / 1000) % DAY_NIGHT_CYCLE_S) / DAY_NIGHT_CYCLE_S; // 0..1
+  // Phases (fractions of cycle):
+  //   0.00 - 0.55  day    (0)
+  //   0.55 - 0.65  dusk   (0 -> 1)
+  //   0.65 - 0.90  night  (1)
+  //   0.90 - 1.00  dawn   (1 -> 0)
+  if (t < 0.55) return 0;
+  if (t < 0.65) {
+    const k = (t - 0.55) / 0.1;
+    return k * k * (3 - 2 * k);
+  }
+  if (t < 0.9) return 1;
+  const k = (t - 0.9) / 0.1;
+  const s = k * k * (3 - 2 * k);
+  return 1 - s;
+}
+
+// Deterministic star field for the night sky (screen-space).
+const NIGHT_STARS: { x: number; y: number; b: number }[] = (() => {
+  const out: { x: number; y: number; b: number }[] = [];
+  let seed = 1337;
+  const rnd = () => {
+    seed = (seed * 1664525 + 1013904223) | 0;
+    return ((seed >>> 0) % 10000) / 10000;
+  };
+  for (let i = 0; i < 90; i++) {
+    out.push({
+      x: Math.floor(rnd() * VW),
+      y: Math.floor(rnd() * (HORIZON_Y - 20)),
+      b: 0.4 + rnd() * 0.6,
+    });
+  }
+  return out;
+})();
+
+
+
 // Physics (virtual px / sec)
 const MOVE_SPEED = 130;
 const SWIM_SPEED = 78;
