@@ -5520,7 +5520,7 @@ function GamePage() {
           if (!nearCave && !tooCloseNatural && !tooCloseExtra && !tooClosePlanted) {
             extraPalmsRef.current = [
               ...extraPalmsRef.current,
-              { wx: px, variant: (Math.floor(Math.random() * 4)) as 0 | 1 | 2 | 3, plantedAt: Date.now() },
+              { wx: px, variant: (Math.floor(Math.random() * 4)) as 0 | 1 | 2 | 3, plantedAt: Date.now(), growTime: randomTreeGrowS() },
             ];
             setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds - 1 }));
             flashPickup(t("msg.seedPlanted"));
