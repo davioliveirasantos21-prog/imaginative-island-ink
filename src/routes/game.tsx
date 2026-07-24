@@ -8947,7 +8947,12 @@ function drawPickupStone(
 // ----- Regeneration / growth timing (ms & s) -----
 const STONE_RESPAWN_MS = 60_000;
 const STUMP_LIFESPAN_MS = 45_000;
-const SAPLING_GROW_S = 60; // seconds from seed to mature tree
+const SAPLING_GROW_S = 60; // legacy fallback (seconds from seed to mature tree)
+const MIN_TREE_GROW_S = 3 * 60; // 3 minutes
+const MAX_TREE_GROW_S = 5 * 60; // 5 minutes
+function randomTreeGrowS() {
+  return MIN_TREE_GROW_S + Math.random() * (MAX_TREE_GROW_S - MIN_TREE_GROW_S);
+}
 
 function drawSeed(ctx: CanvasRenderingContext2D, sx: number, groundY: number) {
   const x = Math.round(sx);
