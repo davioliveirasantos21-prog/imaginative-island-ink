@@ -1744,6 +1744,8 @@ function GamePage() {
       placedTorchesCave2Ref.current = data.placedTorchesCave2 ?? [];
       salitreDiscoveredRef.current = data.salitreDiscovered ?? false;
       setSalitreDiscovered(salitreDiscoveredRef.current);
+      ironDiscoveredRef.current = data.ironDiscovered ?? false;
+      setIronDiscovered(ironDiscoveredRef.current);
       {
         const base = makeSkills();
         const raw = data.skills ?? {};
