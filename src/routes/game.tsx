@@ -8281,10 +8281,11 @@ function drawScene(
     ctx.fillRect(0, HORIZON, VW, WATER_LEVEL_Y - HORIZON);
   }
 
-  // Warm sun with a soft halo (fades out on the beach — the bg image has its own)
-  if (coastness < 1) {
+  // Warm sun with a soft halo — fades on the beach and at night.
+  const sunA = (1 - coastness) * (1 - NIGHT_T);
+  if (sunA > 0.01) {
     ctx.save();
-    ctx.globalAlpha = 1 - coastness;
+    ctx.globalAlpha = sunA;
     drawSun(ctx, 480, 44, time);
     ctx.restore();
   }
