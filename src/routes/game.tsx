@@ -2783,7 +2783,7 @@ function GamePage() {
             let bestPlantedD = 60;
             for (const pl of plantedRef.current) {
               const age = (Date.now() - pl.plantedAt) / 1000;
-              if (age < SAPLING_GROW_S) continue;
+              if (age < (pl.growTime ?? SAPLING_GROW_S)) continue;
               const trunkCenter = pl.x + 13;
               if (isFacingRight && trunkCenter < playerCenter) continue;
               if (!isFacingRight && trunkCenter > playerCenter) continue;
