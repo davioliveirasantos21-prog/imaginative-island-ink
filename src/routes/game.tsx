@@ -1861,10 +1861,12 @@ function GamePage() {
       // above, so `segmentAt` gives us the current segment kinds.
       cave2OresRef.current = cave2OresRef.current.filter((ore) => {
         const seg = segmentAt(cave2SegsRef.current, ore.x);
+        if (isOverWaterPool(seg, ore.x)) return false;
         const ORE_HALF_W = 10;
         for (let dx = -ORE_HALF_W; dx <= ORE_HALF_W; dx += 2) {
           const px = ore.x + dx;
-          if (!hasGroundAt(seg, px) || isOverWaterPool(seg, px)) return false;
+          const segAtPx = segmentAt(cave2SegsRef.current, px);
+          if (!hasGroundAt(segAtPx, px) || isOverWaterPool(segAtPx, px)) return false;
         }
         return true;
       });
