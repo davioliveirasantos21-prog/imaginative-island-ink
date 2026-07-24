@@ -7772,8 +7772,42 @@ function mixHex(a: string, b: string, t: number): string {
 }
 
 function biomeColor(key: keyof typeof BIOME_A, worldX: number): string {
-  return mixHex(BIOME_A[key], BIOME_B[key], biomeMix(worldX));
+  // Base biome blend (day palette).
+  const dayRgb = mixHex(BIOME_A[key], BIOME_B[key], biomeMix(worldX));
+  // Extract rgb ints from "rgb(r,g,b)".
+  const m = dayRgb.match(/\d+/g);
+  if (!m) return dayRgb;
+  let r = Number(m[0]);
+  let g = Number(m[1]);
+  let b = Number(m[2]);
+  // Blend toward sunset palette (dusk/dawn warmth).
+  if (SUNSET_T > 0.001) {
+    const sHex = SUNSET_PALETTE[key as string];
+    if (sHex) {
+      const sp = parseInt(sHex.slice(1), 16);
+      const sr = (sp >> 16) & 0xff, sg = (sp >> 8) & 0xff, sb = sp & 0xff;
+      // Sky bands get the full warmth; ground stuff a subtler tint.
+      const isSky = (key as string).startsWith("sky");
+      const w = SUNSET_T * (isSky ? 0.85 : 0.35);
+      r = Math.round(r + (sr - r) * w);
+      g = Math.round(g + (sg - g) * w);
+      b = Math.round(b + (sb - b) * w);
+    }
+  }
+  // Blend toward night palette.
+  if (NIGHT_T > 0.001) {
+    const nHex = NIGHT_PALETTE[key as string];
+    if (nHex) {
+      const np = parseInt(nHex.slice(1), 16);
+      const nr = (np >> 16) & 0xff, ng = (np >> 8) & 0xff, nb = np & 0xff;
+      r = Math.round(r + (nr - r) * NIGHT_T);
+      g = Math.round(g + (ng - g) * NIGHT_T);
+      b = Math.round(b + (nb - b) * NIGHT_T);
+    }
+  }
+  return `rgb(${r},${g},${b})`;
 }
+
 
 // Paint a horizontal band using a left→right gradient whose stops come from
 // the biome palette evaluated at the left/right world-x of the viewport.
