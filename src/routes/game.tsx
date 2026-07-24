@@ -998,7 +998,7 @@ function GamePage() {
   type GroundLog = { id: string; x: number; droppedAt?: number };
   type GroundSeed = { id: string; x: number; kind?: "seed" | "palmSeed" };
   type GroundPebble = { id: string; x: number; variant: number };
-  type PlantedTree = { id: string; x: number; plantedAt: number; variant: number };
+  type PlantedTree = { id: string; x: number; plantedAt: number; variant: number; growTime: number };
    type GroundItem = { id: string; x: number; kind: ItemKind; mode: "world" | "cave" | "cave2"; droppedAt: number };
    // Dropped items despawn after 5 minutes. If more than MAX_GROUND_ITEMS
    // are on the ground, the one closest to despawning is removed to make
