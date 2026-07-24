@@ -8169,7 +8169,8 @@ function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kin
     coal:   { rock: "#2f333a", core: "#0a0608", hi: "#4a4e56", sparkle: "#a0a5ad" },
     copper: { rock: "#2f333a", core: "#b46b3a", hi: "#e4a065", sparkle: "#fff0d0" },
     bronze: { rock: "#2f333a", core: "#8a6a3a", hi: "#d4a86a", sparkle: "#fff2c0" },
-    iron:   { rock: "#2f333a", core: "#c46a2a", hi: "#ffa25a", sparkle: "#ffd8a8" },
+    iron:   { rock: "#2f333a", core: "#4a7a55", hi: "#e08a2a", sparkle: "#ffd8a8" },
+    ironOre:{ rock: "#1a1a1a", core: "#0a0a0a", hi: "#3a3a3a", sparkle: "#5a5a5a" },
   };
   const p = palette[kind];
   // Rocky base (12x10) sitting on the floor.
