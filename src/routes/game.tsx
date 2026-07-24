@@ -1978,6 +1978,7 @@ function GamePage() {
           cave2MinedOres: Array.from(cave2MinedOresRef.current.entries()),
           placedTorchesCave2: placedTorchesCave2Ref.current,
           salitreDiscovered: salitreDiscoveredRef.current,
+          ironDiscovered: ironDiscoveredRef.current,
           skills: skillsRef.current,
         }),
       );
