@@ -39,6 +39,7 @@ import woodPanelBg from "@/assets/wood-panel-bg.jpg";
 import uiBuildAsset from "@/assets/ui-build.png.asset.json";
 import uiMapaAsset from "@/assets/ui-mapa.png.asset.json";
 import ironOreAsset from "@/assets/salitre-ore.png.asset.json";
+import ironOreBlackAsset from "@/assets/iron-ore.png.asset.json";
 import uiCameraAsset from "@/assets/ui-camera.png.asset.json";
 import skillsBgAsset from "@/assets/skills-bg.png.asset.json";
 import settingsBgAsset from "@/assets/settings-bg.png.asset.json";
@@ -178,7 +179,7 @@ type SlotIconKind =
   | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
   | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer"
   | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-  | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
+  | "coal" | "copper" | "bronze" | "iron" | "ironOre" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
 
 function SlotIcon({ kind, size = "md" }: { kind: SlotIconKind; size?: "sm" | "md" | "lg" }) {
   const dim =
@@ -538,7 +539,7 @@ const CAVE_ENTRANCE_DRAW_H = 70;
 const CAVE_ENTRANCE_CLEAR = CAVE_ENTRANCE_DRAW_W / 2 + 5;
 // Ore mining: 10 HP each, regenerates 2 min after being fully mined.
 const ORE_MAX_HP = 10;
-const oreMaxHp = (kind: OreKind): number => (kind === "iron" ? 26 : ORE_MAX_HP);
+const oreMaxHp = (kind: OreKind): number => (kind === "ironOre" ? 26 : kind === "iron" ? 16 : ORE_MAX_HP);
 // Regen delay is randomized per mined ore between MIN and MAX (ms).
 const ORE_REGEN_MIN_MS = 90000;
 const ORE_REGEN_MAX_MS = 90000;
@@ -608,7 +609,7 @@ function computeCaveEntranceX(worldSeed: number, spawnX: number): number {
 }
 
 // ----- Cave ores (deterministic layout per world seed) -----
-export type OreKind = "coal" | "copper" | "bronze" | "iron";
+export type OreKind = "coal" | "copper" | "bronze" | "iron" | "ironOre";
 export type CaveOre = { id: string; x: number; kind: OreKind };
 function computeCaveOres(worldSeed: number): CaveOre[] {
   let s = ((worldSeed ^ 0x0b1e5) >>> 0) || 13;
@@ -987,12 +988,12 @@ function GamePage() {
     axe: number; hoe: number; pick: number; copperPick: number; copperHammer: number; spear: number;
     ironPick: number; ironAxe: number; ironSpear: number; ironHammer: number;
     berrySeeds: number; palmSeeds: number; mushrooms: number; herbs: number;
-    coal: number; copper: number; bronze: number; iron: number; copperMetal: number; bronzeMetal: number; ironMetal: number; copperBar: number; bronzeBar: number; ironBar: number; torches: number;
+    coal: number; copper: number; bronze: number; iron: number; ironOre: number; copperMetal: number; bronzeMetal: number; ironMetal: number; copperBar: number; bronzeBar: number; ironBar: number; torches: number;
   }>({
     stones: 0, wood: 0, seeds: 0, axe: 0, hoe: 0, pick: 0, copperPick: 0, copperHammer: 0, spear: 0,
     ironPick: 0, ironAxe: 0, ironSpear: 0, ironHammer: 0,
     berrySeeds: 0, palmSeeds: 0, mushrooms: 0, herbs: 0,
-    coal: 0, copper: 0, bronze: 0, iron: 0, copperMetal: 0, bronzeMetal: 0, ironMetal: 0, copperBar: 0, bronzeBar: 0, ironBar: 0, torches: 0,
+    coal: 0, copper: 0, bronze: 0, iron: 0, ironOre: 0, copperMetal: 0, bronzeMetal: 0, ironMetal: 0, copperBar: 0, bronzeBar: 0, ironBar: 0, torches: 0,
   });
 
   type Inv = typeof inventory;
@@ -1015,7 +1016,7 @@ function GamePage() {
     | "axe" | "hoe" | "pick" | "copperPick" | "copperHammer" | "spear"
     | "ironPick" | "ironAxe" | "ironSpear" | "ironHammer"
     | "berrySeed" | "palmSeed" | "mushroom" | "herb"
-    | "coal" | "copper" | "bronze" | "iron" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
+    | "coal" | "copper" | "bronze" | "iron" | "ironOre" | "copperMetal" | "bronzeMetal" | "ironMetal" | "copperBar" | "bronzeBar" | "ironBar" | "torch";
   // Hotbar has exactly 10 slots. We surface only the items the player
   // actually owns, in a fixed priority order, and pad the rest with empty
   // slots so the UI always shows 10 boxes.
@@ -1024,7 +1025,7 @@ function GamePage() {
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
     "ironPick", "ironAxe", "ironSpear", "ironHammer",
     "berrySeed", "palmSeed", "mushroom", "herb",
-    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "ironMetal", "copperBar", "bronzeBar", "ironBar", "torch",
+    "coal", "copper", "bronze", "iron", "ironOre", "copperMetal", "bronzeMetal", "ironMetal", "copperBar", "bronzeBar", "ironBar", "torch",
   ];
   const countFor = (k: SlotKind): number => {
     switch (k) {
@@ -1049,6 +1050,7 @@ function GamePage() {
       case "copper": return inventory.copper;
       case "bronze": return inventory.bronze;
       case "iron": return inventory.iron;
+      case "ironOre": return inventory.ironOre;
       case "copperMetal": return inventory.copperMetal;
       case "bronzeMetal": return inventory.bronzeMetal;
       case "copperBar": return inventory.copperBar;
@@ -1258,6 +1260,9 @@ function GamePage() {
   // mined a salitre (green iron) ore at least once. Persisted with the world.
   const [salitreDiscovered, setSalitreDiscovered] = useState(false);
   const salitreDiscoveredRef = useRef(false);
+  // Unlocks iron smelting/forging recipes after the player mines an iron ore.
+  const [ironDiscovered, setIronDiscovered] = useState(false);
+  const ironDiscoveredRef = useRef(false);
   const [repairModalOpen, setRepairModalOpen] = useState<string | null>(null);
   const [buildMenuOpen, setBuildMenuOpen] = useState(false);
   const [gameMenuOpen, setGameMenuOpen] = useState(false);
@@ -1392,6 +1397,7 @@ function GamePage() {
       case "copper": return inv.copper;
       case "bronze": return inv.bronze;
       case "iron": return inv.iron;
+      case "ironOre": return inv.ironOre;
       case "copperMetal": return inv.copperMetal;
       case "bronzeMetal": return inv.bronzeMetal;
       case "copperBar": return inv.copperBar;
@@ -1664,6 +1670,7 @@ function GamePage() {
         cave2MinedOres?: [string, number][];
         placedTorchesCave2?: PlacedTorch[];
         salitreDiscovered?: boolean;
+        ironDiscovered?: boolean;
         skills?: Partial<Record<SkillKey, SkillState>>;
       };
       const loadedInventory: Inv = {
@@ -1689,6 +1696,7 @@ function GamePage() {
         copper: data.copper ?? 0,
         bronze: data.bronze ?? 0,
         iron: data.iron ?? 0,
+        ironOre: (data as { ironOre?: number }).ironOre ?? 0,
         copperMetal: data.copperMetal ?? 0,
         bronzeMetal: data.bronzeMetal ?? 0,
         ironMetal: (data as { ironMetal?: number }).ironMetal ?? 0,
@@ -1736,6 +1744,8 @@ function GamePage() {
       placedTorchesCave2Ref.current = data.placedTorchesCave2 ?? [];
       salitreDiscoveredRef.current = data.salitreDiscovered ?? false;
       setSalitreDiscovered(salitreDiscoveredRef.current);
+      ironDiscoveredRef.current = data.ironDiscovered ?? false;
+      setIronDiscovered(ironDiscoveredRef.current);
       {
         const base = makeSkills();
         const raw = data.skills ?? {};
@@ -1927,6 +1937,7 @@ function GamePage() {
           copper: inventoryRef.current.copper,
           bronze: inventoryRef.current.bronze,
           iron: inventoryRef.current.iron,
+          ironOre: inventoryRef.current.ironOre,
           copperMetal: inventoryRef.current.copperMetal,
           bronzeMetal: inventoryRef.current.bronzeMetal,
           ironMetal: inventoryRef.current.ironMetal,
@@ -1967,6 +1978,7 @@ function GamePage() {
           cave2MinedOres: Array.from(cave2MinedOresRef.current.entries()),
           placedTorchesCave2: placedTorchesCave2Ref.current,
           salitreDiscovered: salitreDiscoveredRef.current,
+          ironDiscovered: ironDiscoveredRef.current,
           skills: skillsRef.current,
         }),
       );
@@ -2601,7 +2613,8 @@ function GamePage() {
                 }
               }
               if (blocked) continue;
-              const kind = Math.random() < 0.1 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
+              const roll = Math.random();
+              const kind = roll < 0.04 ? "ironOre" : roll < 0.14 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
               cave2OresRef.current = [
                 ...cave2OresRef.current,
                 { id: `c2-${segNow.index}-${placed}-${nx}`, x: nx, kind },
@@ -3400,7 +3413,8 @@ function GamePage() {
               cave2MinedOresRef.current.set(id, wallClockMs + 2000);
               continue;
             }
-            const nkind = Math.random() < 0.1 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
+            const roll2 = Math.random();
+            const nkind = roll2 < 0.04 ? "ironOre" : roll2 < 0.14 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
             const nid = `c2-r-${nx}-${wallClockMs}-${Math.floor(Math.random() * 1000)}`;
             cave2OresRef.current = [
               ...cave2OresRef.current.filter((o) => o.id !== id),
@@ -5004,6 +5018,10 @@ function GamePage() {
             if (ore.kind === "iron" && !salitreDiscoveredRef.current) {
               salitreDiscoveredRef.current = true;
               setSalitreDiscovered(true);
+            }
+            if (ore.kind === "ironOre" && !ironDiscoveredRef.current) {
+              ironDiscoveredRef.current = true;
+              setIronDiscovered(true);
             }
             
             saveWorld();
@@ -6650,6 +6668,7 @@ function GamePage() {
                   kind === "copper"    ? inventory.copper :
                   kind === "bronze"    ? inventory.bronze :
                   kind === "iron"      ? inventory.iron :
+                  kind === "ironOre"   ? inventory.ironOre :
                   kind === "copperMetal" ? inventory.copperMetal :
                   kind === "bronzeMetal" ? inventory.bronzeMetal :
                   kind === "copperBar" ? inventory.copperBar :
@@ -6979,7 +6998,7 @@ function GamePage() {
                   hitsRequired: FORGE_HITS_REQUIRED,
                   canRun: !activeJob && hasHammer && inventory.bronzeMetal >= 8,
                 },
-                ...(salitreDiscovered
+                ...(ironDiscovered
                   ? [{
                       key: "iron",
                       label: t("anvil.forgeIron"),
@@ -7123,7 +7142,7 @@ function GamePage() {
                 inputs: [{ field: "wood", kind: "wood", qty: 1 }],
                 canRun: inventory.wood >= 1,
               },
-              ...(salitreDiscovered
+              ...(ironDiscovered
                 ? [{
                     key: "iron",
                     label: t("furnace.smeltIron"),
@@ -7133,8 +7152,9 @@ function GamePage() {
                     inputs: [
                       { field: "coal" as keyof Inv, kind: "coal" as SlotKind, qty: 4 },
                       { field: "iron" as keyof Inv, kind: "iron" as SlotKind, qty: 4 },
+                      { field: "ironOre" as keyof Inv, kind: "ironOre" as SlotKind, qty: 1 },
                     ],
-                    canRun: inventory.coal >= 4 && inventory.iron >= 4,
+                    canRun: inventory.coal >= 4 && inventory.iron >= 4 && inventory.ironOre >= 1,
                   }]
                 : []),
             ];
@@ -8137,23 +8157,26 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
 // Iron ore sprite — the EXACT image the user provided, loaded from CDN and
 // drawn pixel-perfect (no reinterpretation).
 let ironOreImg: HTMLImageElement | null = null;
+let ironOreBlackImg: HTMLImageElement | null = null;
 if (typeof window !== "undefined") {
   ironOreImg = new Image();
   ironOreImg.src = ironOreAsset.url;
+  ironOreBlackImg = new Image();
+  ironOreBlackImg.src = ironOreBlackAsset.url;
 }
 
 // Pixel-art ore chunk embedded on the cave floor.
 function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kind: OreKind) {
-  if (kind === "iron") {
-    // Render the exact user-provided image, scaled to sprite size.
+  if (kind === "iron" || kind === "ironOre") {
+    const img = kind === "ironOre" ? ironOreBlackImg : ironOreImg;
     const dw = 15;
     const dh = 24;
     const ox = sx - Math.floor(dw / 2);
     const oy = groundY - dh + 1;
-    if (ironOreImg && ironOreImg.complete && ironOreImg.naturalWidth > 0) {
+    if (img && img.complete && img.naturalWidth > 0) {
       const prev = ctx.imageSmoothingEnabled;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(ironOreImg, ox, oy, dw, dh);
+      ctx.drawImage(img, ox, oy, dw, dh);
       ctx.imageSmoothingEnabled = prev;
     }
     return;
@@ -8164,7 +8187,8 @@ function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kin
     coal:   { rock: "#2f333a", core: "#0a0608", hi: "#4a4e56", sparkle: "#a0a5ad" },
     copper: { rock: "#2f333a", core: "#b46b3a", hi: "#e4a065", sparkle: "#fff0d0" },
     bronze: { rock: "#2f333a", core: "#8a6a3a", hi: "#d4a86a", sparkle: "#fff2c0" },
-    iron:   { rock: "#2f333a", core: "#c46a2a", hi: "#ffa25a", sparkle: "#ffd8a8" },
+    iron:   { rock: "#2f333a", core: "#4a7a55", hi: "#e08a2a", sparkle: "#ffd8a8" },
+    ironOre:{ rock: "#1a1a1a", core: "#0a0a0a", hi: "#3a3a3a", sparkle: "#5a5a5a" },
   };
   const p = palette[kind];
   // Rocky base (12x10) sitting on the floor.
