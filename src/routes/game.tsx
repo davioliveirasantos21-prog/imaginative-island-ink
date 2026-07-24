@@ -482,7 +482,7 @@ const NIGHT_STARS: { x: number; y: number; b: number }[] = (() => {
   for (let i = 0; i < 110; i++) {
     out.push({
       x: Math.floor(rnd() * VW),
-      y: Math.floor(rnd() * (HORIZON_Y - 30)),
+      y: Math.floor(rnd() * 75),
       b: 0.35 + rnd() * 0.65,
     });
   }
