@@ -489,6 +489,34 @@ const NIGHT_STARS: { x: number; y: number; b: number }[] = (() => {
   return out;
 })();
 
+// Fireflies drifting around the overworld at night. Positions are in
+// screen-space; each has a base point and a slow sine wobble for organic
+// movement, plus a pulse phase for the glow.
+const NIGHT_FIREFLIES: { x: number; y: number; ax: number; ay: number; sx: number; sy: number; ph: number; hue: number }[] = (() => {
+  const out: typeof NIGHT_FIREFLIES = [];
+  let seed = 90210;
+  const rnd = () => {
+    seed = (seed * 1664525 + 1013904223) | 0;
+    return ((seed >>> 0) % 10000) / 10000;
+  };
+  for (let i = 0; i < 18; i++) {
+    out.push({
+      x: rnd() * VW,
+      y: 90 + rnd() * 90, // hover above the ground band, below the sky
+      ax: 8 + rnd() * 16,
+      ay: 4 + rnd() * 10,
+      sx: 0.35 + rnd() * 0.45,
+      sy: 0.55 + rnd() * 0.75,
+      ph: rnd() * Math.PI * 2,
+      hue: rnd() < 0.15 ? 1 : 0, // occasional green-tinted one
+    });
+  }
+  return out;
+})();
+
+
+
+
 
 
 
@@ -4534,6 +4562,35 @@ function GamePage() {
           ctx.fillRect(0, 0, VW, VH);
           ctx.restore();
         }
+
+        // Fireflies — small warm glows that drift in the air at night.
+        if (night > 0.35) {
+          const flyA = Math.min(1, (night - 0.35) / 0.3);
+          const t = now / 1000;
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+          for (const f of NIGHT_FIREFLIES) {
+            const x = f.x + Math.sin(t * f.sx + f.ph) * f.ax;
+            const y = f.y + Math.cos(t * f.sy + f.ph * 1.3) * f.ay;
+            // Pulse: mostly on, briefly dim.
+            const pulse = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(t * 2.2 + f.ph * 2));
+            const a = flyA * pulse;
+            const px = Math.round(x);
+            const py = Math.round(y);
+            // Soft halo
+            const rgb = f.hue === 1 ? "180,255,140" : "255,230,140";
+            const halo = ctx.createRadialGradient(px, py, 0, px, py, 6);
+            halo.addColorStop(0, `rgba(${rgb},${(0.55 * a).toFixed(3)})`);
+            halo.addColorStop(1, `rgba(${rgb},0)`);
+            ctx.fillStyle = halo;
+            ctx.fillRect(px - 6, py - 6, 12, 12);
+            // Bright pixel core
+            ctx.fillStyle = `rgba(255,250,210,${a.toFixed(3)})`;
+            ctx.fillRect(px, py, 1, 1);
+          }
+          ctx.restore();
+        }
+
       } else {
         // Reset so any residual night-tint doesn't bleed into cave rendering
         // (the cave doesn't use biomeColor, but be safe).
