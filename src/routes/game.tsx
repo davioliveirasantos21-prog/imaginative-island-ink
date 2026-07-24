@@ -8220,10 +8220,11 @@ function drawScene(
     const sx = pl.x - camX;
     if (sx < -80 || sx > VW + 80) continue;
     const age = (world.now - pl.plantedAt) / 1000; // seconds
-    if (age >= SAPLING_GROW_S) {
+    const growTime = pl.growTime ?? SAPLING_GROW_S;
+    if (age >= growTime) {
       drawTree(ctx, sx, GROUND_Y, pl.variant);
     } else {
-      drawSapling(ctx, sx, GROUND_Y, Math.min(1, age / SAPLING_GROW_S));
+      drawSapling(ctx, sx, GROUND_Y, Math.min(1, age / growTime));
     }
   }
 
