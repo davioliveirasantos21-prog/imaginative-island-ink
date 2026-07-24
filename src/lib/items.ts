@@ -66,6 +66,7 @@ export const ITEM_KINDS: ItemKind[] = [
   "copperMetal",
   "bronzeMetal",
   "iron",
+  "ironOre",
   "ironMetal",
   "ironBar",
   "copperBar",
