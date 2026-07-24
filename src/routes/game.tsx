@@ -8142,23 +8142,26 @@ function drawCaveScene(ctx: CanvasRenderingContext2D, camX: number, time: number
 // Iron ore sprite — the EXACT image the user provided, loaded from CDN and
 // drawn pixel-perfect (no reinterpretation).
 let ironOreImg: HTMLImageElement | null = null;
+let ironOreBlackImg: HTMLImageElement | null = null;
 if (typeof window !== "undefined") {
   ironOreImg = new Image();
   ironOreImg.src = ironOreAsset.url;
+  ironOreBlackImg = new Image();
+  ironOreBlackImg.src = ironOreBlackAsset.url;
 }
 
 // Pixel-art ore chunk embedded on the cave floor.
 function drawOre(ctx: CanvasRenderingContext2D, sx: number, groundY: number, kind: OreKind) {
-  if (kind === "iron") {
-    // Render the exact user-provided image, scaled to sprite size.
+  if (kind === "iron" || kind === "ironOre") {
+    const img = kind === "ironOre" ? ironOreBlackImg : ironOreImg;
     const dw = 15;
     const dh = 24;
     const ox = sx - Math.floor(dw / 2);
     const oy = groundY - dh + 1;
-    if (ironOreImg && ironOreImg.complete && ironOreImg.naturalWidth > 0) {
+    if (img && img.complete && img.naturalWidth > 0) {
       const prev = ctx.imageSmoothingEnabled;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(ironOreImg, ox, oy, dw, dh);
+      ctx.drawImage(img, ox, oy, dw, dh);
       ctx.imageSmoothingEnabled = prev;
     }
     return;
