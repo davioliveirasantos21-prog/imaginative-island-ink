@@ -5490,6 +5490,7 @@ function GamePage() {
               // Wall-clock timestamp so growth survives page reloads.
               plantedAt: Date.now(),
               variant: Math.floor(Math.random() * 3),
+              growTime: randomTreeGrowS(),
             },
           ];
           setInventory((inv) => ({ ...inv, seeds: inv.seeds - 1 }));
