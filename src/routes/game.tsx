@@ -1931,6 +1931,7 @@ function GamePage() {
           copper: inventoryRef.current.copper,
           bronze: inventoryRef.current.bronze,
           iron: inventoryRef.current.iron,
+          ironOre: inventoryRef.current.ironOre,
           copperMetal: inventoryRef.current.copperMetal,
           bronzeMetal: inventoryRef.current.bronzeMetal,
           ironMetal: inventoryRef.current.ironMetal,
