@@ -8544,10 +8544,6 @@ function drawCoastSide(
     ctx.fillRect(x, topY, 1, 2);
     ctx.fillStyle = `rgba(201,168,106,${(t * 0.8).toFixed(3)})`;
     ctx.fillRect(x, topY + 14, 1, 1);
-    if ((wx * 7 + Math.floor(wx / 3)) % 11 === 0) {
-      ctx.fillStyle = `rgba(166,135,90,${(t * 0.9).toFixed(3)})`;
-      ctx.fillRect(x, topY + 6 + ((Math.abs(wx) * 5) % 6), 1, 1);
-    }
   }
 
   // ---- Ocean band (surface at WATER_LEVEL_Y, painted translucent so the
