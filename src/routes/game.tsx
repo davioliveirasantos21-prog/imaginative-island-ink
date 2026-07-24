@@ -6998,7 +6998,7 @@ function GamePage() {
                   hitsRequired: FORGE_HITS_REQUIRED,
                   canRun: !activeJob && hasHammer && inventory.bronzeMetal >= 8,
                 },
-                ...(salitreDiscovered
+                ...(ironDiscovered
                   ? [{
                       key: "iron",
                       label: t("anvil.forgeIron"),
