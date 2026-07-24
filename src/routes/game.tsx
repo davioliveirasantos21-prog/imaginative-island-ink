@@ -1260,6 +1260,9 @@ function GamePage() {
   // mined a salitre (green iron) ore at least once. Persisted with the world.
   const [salitreDiscovered, setSalitreDiscovered] = useState(false);
   const salitreDiscoveredRef = useRef(false);
+  // Unlocks iron smelting/forging recipes after the player mines an iron ore.
+  const [ironDiscovered, setIronDiscovered] = useState(false);
+  const ironDiscoveredRef = useRef(false);
   const [repairModalOpen, setRepairModalOpen] = useState<string | null>(null);
   const [buildMenuOpen, setBuildMenuOpen] = useState(false);
   const [gameMenuOpen, setGameMenuOpen] = useState(false);
