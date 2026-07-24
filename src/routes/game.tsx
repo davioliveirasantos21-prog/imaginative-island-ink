@@ -4449,21 +4449,7 @@ function GamePage() {
         NIGHT_T = night;
         SUNSET_T = sunset;
 
-        // Warm horizon glow band during dusk/dawn (behind foreground, over sky).
-        if (sunset > 0.02) {
-          const bandTop = HORIZON_Y - 40;
-          const grad = ctx.createLinearGradient(0, bandTop, 0, HORIZON_Y + 20);
-          const a1 = 0.42 * sunset;
-          const a2 = 0.7 * sunset;
-          grad.addColorStop(0, `rgba(255,160,90,0)`);
-          grad.addColorStop(0.5, `rgba(255,150,80,${a1.toFixed(3)})`);
-          grad.addColorStop(1, `rgba(255,200,120,${a2.toFixed(3)})`);
-          ctx.save();
-          ctx.globalCompositeOperation = "screen";
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, bandTop, VW, 60);
-          ctx.restore();
-        }
+        // (Removed warm horizon glow band — created an unwanted bright line.)
 
         // Stars — fade in as night deepens.
         if (night > 0.25) {
@@ -8295,10 +8281,11 @@ function drawScene(
     ctx.fillRect(0, HORIZON, VW, WATER_LEVEL_Y - HORIZON);
   }
 
-  // Warm sun with a soft halo (fades out on the beach — the bg image has its own)
-  if (coastness < 1) {
+  // Warm sun with a soft halo — fades on the beach and at night.
+  const sunA = (1 - coastness) * (1 - NIGHT_T);
+  if (sunA > 0.01) {
     ctx.save();
-    ctx.globalAlpha = 1 - coastness;
+    ctx.globalAlpha = sunA;
     drawSun(ctx, 480, 44, time);
     ctx.restore();
   }
