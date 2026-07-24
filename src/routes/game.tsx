@@ -4449,7 +4449,25 @@ function GamePage() {
         NIGHT_T = night;
         SUNSET_T = sunset;
 
-        // (Removed warm horizon glow band — created an unwanted bright line.)
+        // ---- Sun: arcs from right (sunrise) to left (sunset) ----
+        // Visible window covers dawn → day → dusk (cycleT ∈ [0.88,1) ∪ [0,0.62)).
+        {
+          const cycleT = ((now / 1000) % DAY_NIGHT_CYCLE_S) / DAY_NIGHT_CYCLE_S;
+          const effT = (cycleT - 0.88 + 1) % 1;   // 0 at sunrise
+          const windowLen = 0.74;                 // dawn+day+dusk length
+          if (effT < windowLen) {
+            const arcT = effT / windowLen;         // 0..1
+            const sx = Math.round(VW * (0.92 - arcT * 0.84));
+            const sy = Math.round(70 - Math.sin(arcT * Math.PI) * 42);
+            const sunA = Math.max(0, 1 - night);   // hidden at deep night
+            if (sunA > 0.02) {
+              ctx.save();
+              ctx.globalAlpha = sunA;
+              drawSun(ctx, sx, sy, now / 1000);
+              ctx.restore();
+            }
+          }
+        }
 
         // Stars — fade in as night deepens.
         if (night > 0.25) {
@@ -8281,14 +8299,8 @@ function drawScene(
     ctx.fillRect(0, HORIZON, VW, WATER_LEVEL_Y - HORIZON);
   }
 
-  // Warm sun with a soft halo — fades on the beach and at night.
-  const sunA = (1 - coastness) * (1 - NIGHT_T);
-  if (sunA > 0.01) {
-    ctx.save();
-    ctx.globalAlpha = sunA;
-    drawSun(ctx, 480, 44, time);
-    ctx.restore();
-  }
+  // Sun is drawn later in the day/night pass so it can arc across the sky
+  // and fade correctly with the cycle. See the block near NIGHT_T update.
 
   // ----- Clouds: two parallax layers, both soft white -----
   ctx.save();
@@ -9419,69 +9431,50 @@ function drawClouds(
   ctx: CanvasRenderingContext2D,
   offset: number,
   baseY: number = 30,
-  color: string = "#fff6e0",
+  color: string = "#ffffff",
   h: number = 6,
   variantSeed: number = 0,
 ) {
-  // Each entry: [x-offset, y-offset, width, shape, scale]
-  // Shapes: 0 = fluffy 3-stack, 1 = long wisp, 2 = double-clump, 3 = tall puff, 4 = tiny.
-  const banks: Array<Array<[number, number, number, number, number]>> = [
-    [
-      [30, 0, 26, 0, 1.0], [140, -8, 34, 2, 1.5], [260, 18, 22, 4, 0.6],
-      [380, -2, 30, 0, 1.2], [500, 14, 28, 1, 1.8], [620, 4, 24, 3, 0.9],
-      [760, -6, 36, 2, 1.3], [900, 10, 20, 4, 0.5],
-    ],
-    [
-      [60, 6, 40, 1, 2.0], [200, -4, 22, 3, 0.7], [320, 12, 32, 2, 1.4],
-      [440, 0, 26, 0, 1.1], [580, -10, 30, 0, 1.6], [700, 8, 18, 4, 0.5],
-      [820, 16, 34, 2, 1.2], [960, -2, 24, 3, 0.8],
-    ],
-    [
-      [90, -4, 20, 4, 0.5], [230, 10, 28, 0, 1.3], [360, -8, 42, 1, 2.1],
-      [500, 6, 24, 3, 0.8], [640, 14, 30, 2, 1.5], [780, -2, 26, 0, 1.0],
-      [920, 4, 36, 1, 1.7], [1050, 12, 22, 4, 0.6],
-    ],
+  // Each entry: [x-offset, y-offset, size] — size drives the whole puff cluster.
+  const banks: Array<Array<[number, number, number]>> = [
+    [ [30, 0, 5], [180, -6, 7], [340, 8, 4], [500, -2, 6], [680, 6, 5], [860, -4, 7] ],
+    [ [70, 4, 6], [230, -8, 5], [400, 2, 7], [560, 10, 4], [740, -2, 6], [920, 6, 5] ],
+    [ [110, -4, 4], [270, 6, 6], [430, -6, 7], [600, 4, 5], [780, -2, 6], [940, 8, 4] ],
   ];
   const clouds = banks[((variantSeed % banks.length) + banks.length) % banks.length];
-  ctx.fillStyle = color;
-  const wrap = VW + 200;
-  for (const entry of clouds) {
-    const [cx, cyOff, wBase, shape, scale = 1] = entry;
-    const w = Math.max(6, Math.round(wBase * scale));
-    const ch = Math.max(3, Math.round(h * scale));
-    const cy = baseY + cyOff;
-    const x = ((cx - offset) % wrap + wrap) % wrap - 100;
-    if (x > VW + 40 || x + w < -40) continue;
-    const halfH = Math.max(1, Math.floor(ch / 2));
-    if (shape === 0) {
-      // fluffy 3-stack
-      ctx.fillRect(x, cy, w, ch);
-      ctx.fillRect(x + 4, cy - halfH, w - 8, halfH);
-      ctx.fillRect(x + 6, cy + ch, w - 12, halfH);
-    } else if (shape === 1) {
-      // long wisp
-      ctx.fillRect(x, cy + halfH, w, Math.max(2, ch - 2));
-      ctx.fillRect(x + 6, cy, w - 12, halfH);
-    } else if (shape === 2) {
-      // double clump
-      const half = Math.floor(w / 2);
-      ctx.fillRect(x, cy, half - 2, ch);
-      ctx.fillRect(x + half + 2, cy - 1, half - 2, ch);
-      ctx.fillRect(x + 3, cy - halfH, half - 8, halfH);
-      ctx.fillRect(x + half + 4, cy + ch, half - 8, halfH);
-    } else if (shape === 3) {
-      // tall puff
-      ctx.fillRect(x + 2, cy - halfH, w - 4, halfH);
-      ctx.fillRect(x, cy, w, ch);
-      ctx.fillRect(x + 4, cy + ch, w - 8, halfH);
-      ctx.fillRect(x + 8, cy - ch, w - 16, halfH);
-    } else {
-      // tiny puff
-      ctx.fillRect(x, cy, w, halfH);
-      ctx.fillRect(x + 2, cy - 1, w - 4, 1);
+  const wrap = VW + 240;
+
+  // Pixel-perfect filled disc (odd diameter for symmetry).
+  const puff = (cx: number, cy: number, r: number) => {
+    for (let dy = -r; dy <= r; dy++) {
+      const dx = Math.floor(Math.sqrt(r * r - dy * dy + 0.25));
+      ctx.fillRect(cx - dx, cy + dy, dx * 2 + 1, 1);
     }
+  };
+
+  ctx.fillStyle = color;
+  for (const entry of clouds) {
+    const [cx, cyOff, sBase] = entry;
+    // Scale slightly with `h` so callers can still control cloud height.
+    const s = Math.max(3, Math.round(sBase * (h / 6)));
+    const cy = baseY + cyOff;
+    const x = ((cx - offset) % wrap + wrap) % wrap - 120;
+    if (x > VW + 60 || x + s * 6 < -60) continue;
+
+    // Cluster of overlapping puffs → natural cotton shape with flat base.
+    const bx = Math.round(x);
+    puff(bx, cy, s);
+    puff(bx + Math.round(s * 1.4), cy + Math.round(s * 0.15), s - 1);
+    puff(bx - Math.round(s * 1.3), cy + Math.round(s * 0.25), Math.max(2, s - 1));
+    puff(bx + Math.round(s * 0.6), cy - Math.round(s * 0.55), Math.max(2, s - 2));
+    puff(bx - Math.round(s * 0.4), cy - Math.round(s * 0.45), Math.max(2, s - 2));
+    puff(bx + Math.round(s * 2.4), cy + Math.round(s * 0.35), Math.max(2, s - 2));
+
+    // Flatten the underside so clouds sit on an imaginary horizon plane.
+    ctx.fillRect(bx - Math.round(s * 2), cy + s, Math.round(s * 5), 1);
   }
 }
+
 
 function drawTree(ctx: CanvasRenderingContext2D, x: number, groundY: number, variant: number) {
   const v = ((variant % 6) + 6) % 6;
@@ -9920,23 +9913,29 @@ function drawBeachDecor(
 
 // ---------- extra scenery ----------
 
-function drawSun(ctx: CanvasRenderingContext2D, x: number, y: number, time: number) {
-  // Wide soft halo
-  ctx.fillStyle = "rgba(255,244,210,0.28)";
-  ctx.fillRect(x - 10, y + 6, 48, 20);
-  ctx.fillRect(x - 6, y + 2, 40, 28);
-  ctx.fillStyle = "rgba(255,240,200,0.35)";
-  ctx.fillRect(x - 4, y + 4, 36, 24);
-  // Sun body (rounded via corner clipping)
-  ctx.fillStyle = "#ffe6a8";
-  ctx.fillRect(x + 2, y, 24, 24);
-  ctx.fillRect(x, y + 2, 28, 20);
-  ctx.fillStyle = "#fff2c8";
-  ctx.fillRect(x + 6, y + 4, 16, 12);
-  // Bright core with a tiny animated glint
-  ctx.fillStyle = "#fff9dc";
-  ctx.fillRect(x + 10 + (((time * 3) | 0) % 2), y + 8, 4, 4);
+function drawSun(ctx: CanvasRenderingContext2D, cx: number, cy: number, _time: number) {
+  // Pixel-art disc built from horizontal scanlines. Warm halo underneath.
+  const halo = ctx.createRadialGradient(cx, cy, 4, cx, cy, 30);
+  halo.addColorStop(0, "rgba(255,232,168,0.55)");
+  halo.addColorStop(0.55, "rgba(255,214,140,0.18)");
+  halo.addColorStop(1, "rgba(255,214,140,0)");
+  ctx.fillStyle = halo;
+  ctx.fillRect(cx - 32, cy - 32, 64, 64);
+
+  const disc = (r: number, color: string) => {
+    ctx.fillStyle = color;
+    for (let dy = -r; dy <= r; dy++) {
+      const dx = Math.floor(Math.sqrt(r * r - dy * dy + 0.25));
+      ctx.fillRect(cx - dx, cy + dy, dx * 2 + 1, 1);
+    }
+  };
+  disc(9, "#ffcf6a");   // outer body
+  disc(7, "#ffdd88");   // mid
+  disc(4, "#fff0b8");   // inner
+  ctx.fillStyle = "#fffbe6";
+  ctx.fillRect(cx - 1, cy - 1, 2, 2); // hot core
 }
+
 
 function drawSeagulls(ctx: CanvasRenderingContext2D, offset: number, time: number) {
   const gulls: [number, number][] = [
