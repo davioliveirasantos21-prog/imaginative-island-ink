@@ -5019,6 +5019,10 @@ function GamePage() {
               salitreDiscoveredRef.current = true;
               setSalitreDiscovered(true);
             }
+            if (ore.kind === "ironOre" && !ironDiscoveredRef.current) {
+              ironDiscoveredRef.current = true;
+              setIronDiscovered(true);
+            }
             
             saveWorld();
             return;
