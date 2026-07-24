@@ -8398,7 +8398,7 @@ function drawCoastSide(
 // Deterministic palm positions for one beach side. Shared between the
 // renderer and the click handler so "break this palm" targets the exact
 // visual tree.
-export type PalmPos = { wx: number; variant: 0 | 1 | 2 | 3; plantedAt?: number };
+export type PalmPos = { wx: number; variant: 0 | 1 | 2 | 3; plantedAt?: number; growTime?: number };
 export function getPalms(side: "left" | "right"): PalmPos[] {
   const palmOffsets = [30, 78, 125, 175, 225, 275, 325, 375, 425, 475, 525, 575];
   const out: PalmPos[] = palmOffsets.map((o, i) => ({
