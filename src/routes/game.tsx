@@ -2606,7 +2606,8 @@ function GamePage() {
                 }
               }
               if (blocked) continue;
-              const kind = Math.random() < 0.1 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
+              const roll = Math.random();
+              const kind = roll < 0.04 ? "ironOre" : roll < 0.14 ? "iron" : baseKinds[Math.floor(Math.random() * baseKinds.length)];
               cave2OresRef.current = [
                 ...cave2OresRef.current,
                 { id: `c2-${segNow.index}-${placed}-${nx}`, x: nx, kind },
