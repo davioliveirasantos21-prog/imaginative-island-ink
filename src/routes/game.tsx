@@ -8544,10 +8544,6 @@ function drawCoastSide(
     ctx.fillRect(x, topY, 1, 2);
     ctx.fillStyle = `rgba(201,168,106,${(t * 0.8).toFixed(3)})`;
     ctx.fillRect(x, topY + 14, 1, 1);
-    if ((wx * 7 + Math.floor(wx / 3)) % 11 === 0) {
-      ctx.fillStyle = `rgba(166,135,90,${(t * 0.9).toFixed(3)})`;
-      ctx.fillRect(x, topY + 6 + ((Math.abs(wx) * 5) % 6), 1, 1);
-    }
   }
 
   // ---- Ocean band (surface at WATER_LEVEL_Y, painted translucent so the
@@ -8952,16 +8948,6 @@ function drawGround(ctx: CanvasRenderingContext2D, camX: number) {
   bandGradient(ctx, "grass", camX, GROUND_Y, 6);
   bandGradient(ctx, "grassTop", camX, GROUND_Y, 2);
 
-  for (let x = 0; x < VW; x += 12) {
-    const wx = x + camX;
-    if (wx < forestLo || wx > forestHi) continue;
-    const mix = biomeMix(wx);
-    const tuft = mixHex(BIOME_A.grass, BIOME_B.grass, mix);
-    ctx.fillStyle = tuft;
-    const jitter = ((wx * 3) % 5) - 2;
-    ctx.fillRect(x + ((wx * 7) % 6), GROUND_Y + 3, 3, 1);
-    ctx.fillRect(x + ((wx * 11) % 8), GROUND_Y + 4 + jitter, 4, 1);
-  }
   ctx.restore();
 }
 
@@ -9717,12 +9703,6 @@ function drawIslandGround(
     ctx.fillRect(a, GROUND_Y, b - a, 3);
     ctx.fillStyle = sandDeep;
     ctx.fillRect(a, GROUND_Y + 14, b - a, 1);
-    // Speckled sand grain
-    ctx.fillStyle = wetSand;
-    for (let x = a + ((camX * 0.3) | 0) % 5; x < b; x += 5) {
-      ctx.fillRect(x, GROUND_Y + 6, 1, 1);
-      ctx.fillRect(x + 2, GROUND_Y + 9, 1, 1);
-    }
   };
   const lbA = clampX(islandLeftScreen);
   const lbB = clampX(beachLeftEndScreen);
@@ -9744,12 +9724,6 @@ function drawIslandGround(
     ctx.fillRect(gA, GROUND_Y, gB - gA, 6);
     ctx.fillStyle = grassTop;
     ctx.fillRect(gA, GROUND_Y, gB - gA, 2);
-    // Undulating darker grass patches
-    ctx.fillStyle = grassDark;
-    for (let x = gA + (((-camX * 0.9) % 12) + 12) % 12; x < gB; x += 12) {
-      ctx.fillRect(x, GROUND_Y + 3, 3, 1);
-      ctx.fillRect(x + 6, GROUND_Y + 4, 4, 1);
-    }
     // (Removed pebble specks — the parallax against the ground looked off.)
   }
 
