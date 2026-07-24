@@ -1394,6 +1394,7 @@ function GamePage() {
       case "copper": return inv.copper;
       case "bronze": return inv.bronze;
       case "iron": return inv.iron;
+      case "ironOre": return inv.ironOre;
       case "copperMetal": return inv.copperMetal;
       case "bronzeMetal": return inv.bronzeMetal;
       case "copperBar": return inv.copperBar;
