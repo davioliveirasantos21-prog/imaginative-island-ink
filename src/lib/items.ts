@@ -35,6 +35,7 @@ export type ItemKind =
   | "copperMetal"
   | "bronzeMetal"
   | "iron"
+  | "ironOre"
   | "ironMetal"
   | "ironBar"
   | "copperBar"
