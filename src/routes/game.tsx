@@ -2883,7 +2883,7 @@ function GamePage() {
               const scanPalmList = (list: PalmPos[], isExtra: boolean) => {
                 for (const p of list) {
                   if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
-                  if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < SAPLING_GROW_S) continue;
+                  if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < (p.growTime ?? SAPLING_GROW_S)) continue;
                   const trunkCenter = p.wx + 2;
                   if (isFacingRight && trunkCenter < playerCenter) continue;
                   if (!isFacingRight && trunkCenter > playerCenter) continue;
