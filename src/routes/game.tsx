@@ -2506,7 +2506,7 @@ function GamePage() {
             const nearSurface = feetY0 >= GROUND_Y - 4;
             s.treading = false;
             if (holdingUp && overWaterCenter && nearSurface && s.vy >= -20
-                && performance.now() - lastWaterJumpAtRef.current >= 500) {
+                && performance.now() - lastWaterJumpAtRef.current >= 2000) {
               // Mini-jump out of water: brief pop above the surface, then
               // gravity pulls the player back down into the pool. Rate-limited
               // to at most one hop every 500ms so the player can't spam it.
