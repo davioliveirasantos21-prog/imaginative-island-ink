@@ -9932,23 +9932,29 @@ function drawBeachDecor(
 
 // ---------- extra scenery ----------
 
-function drawSun(ctx: CanvasRenderingContext2D, x: number, y: number, time: number) {
-  // Wide soft halo
-  ctx.fillStyle = "rgba(255,244,210,0.28)";
-  ctx.fillRect(x - 10, y + 6, 48, 20);
-  ctx.fillRect(x - 6, y + 2, 40, 28);
-  ctx.fillStyle = "rgba(255,240,200,0.35)";
-  ctx.fillRect(x - 4, y + 4, 36, 24);
-  // Sun body (rounded via corner clipping)
-  ctx.fillStyle = "#ffe6a8";
-  ctx.fillRect(x + 2, y, 24, 24);
-  ctx.fillRect(x, y + 2, 28, 20);
-  ctx.fillStyle = "#fff2c8";
-  ctx.fillRect(x + 6, y + 4, 16, 12);
-  // Bright core with a tiny animated glint
-  ctx.fillStyle = "#fff9dc";
-  ctx.fillRect(x + 10 + (((time * 3) | 0) % 2), y + 8, 4, 4);
+function drawSun(ctx: CanvasRenderingContext2D, cx: number, cy: number, _time: number) {
+  // Pixel-art disc built from horizontal scanlines. Warm halo underneath.
+  const halo = ctx.createRadialGradient(cx, cy, 4, cx, cy, 30);
+  halo.addColorStop(0, "rgba(255,232,168,0.55)");
+  halo.addColorStop(0.55, "rgba(255,214,140,0.18)");
+  halo.addColorStop(1, "rgba(255,214,140,0)");
+  ctx.fillStyle = halo;
+  ctx.fillRect(cx - 32, cy - 32, 64, 64);
+
+  const disc = (r: number, color: string) => {
+    ctx.fillStyle = color;
+    for (let dy = -r; dy <= r; dy++) {
+      const dx = Math.floor(Math.sqrt(r * r - dy * dy + 0.25));
+      ctx.fillRect(cx - dx, cy + dy, dx * 2 + 1, 1);
+    }
+  };
+  disc(9, "#ffcf6a");   // outer body
+  disc(7, "#ffdd88");   // mid
+  disc(4, "#fff0b8");   // inner
+  ctx.fillStyle = "#fffbe6";
+  ctx.fillRect(cx - 1, cy - 1, 2, 2); // hot core
 }
+
 
 function drawSeagulls(ctx: CanvasRenderingContext2D, offset: number, time: number) {
   const gulls: [number, number][] = [
