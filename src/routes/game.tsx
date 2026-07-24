@@ -998,7 +998,7 @@ function GamePage() {
   type GroundLog = { id: string; x: number; droppedAt?: number };
   type GroundSeed = { id: string; x: number; kind?: "seed" | "palmSeed" };
   type GroundPebble = { id: string; x: number; variant: number };
-  type PlantedTree = { id: string; x: number; plantedAt: number; variant: number };
+  type PlantedTree = { id: string; x: number; plantedAt: number; variant: number; growTime: number };
    type GroundItem = { id: string; x: number; kind: ItemKind; mode: "world" | "cave" | "cave2"; droppedAt: number };
    // Dropped items despawn after 5 minutes. If more than MAX_GROUND_ITEMS
    // are on the ground, the one closest to despawning is removed to make
@@ -1648,7 +1648,12 @@ function GamePage() {
         brokenPalmsAtRef.current = new Map();
         for (const wx of brokenPalmsRef.current) brokenPalmsAtRef.current.set(wx, nowLoad);
       }
-      extraPalmsRef.current = (data.extraPalms ?? []).map((p) => ({ wx: p.wx, variant: (p.variant ?? 0) as 0 | 1 | 2 | 3, plantedAt: p.plantedAt }));
+      extraPalmsRef.current = (data.extraPalms ?? []).map((p) => ({
+        wx: p.wx,
+        variant: (p.variant ?? 0) as 0 | 1 | 2 | 3,
+        plantedAt: p.plantedAt,
+        growTime: p.growTime ?? randomTreeGrowS(),
+      }));
       rockHPRef.current = new Map((data as { rockHP?: [number, number][] }).rockHP ?? []);
       minedRocksRef.current = new Map((data as { minedRocks?: [number, number][] }).minedRocks ?? []);
       extraRocksRef.current = ((data as { extraRocks?: { x: number }[] }).extraRocks ?? []);
@@ -1675,7 +1680,10 @@ function GamePage() {
       }
       groundItemsRef.current = rawGround.filter((g) => g.kind !== "wood");
       seedsRef.current = data.groundSeeds ?? [];
-      plantedRef.current = data.planted ?? [];
+      plantedRef.current = (data.planted ?? []).map((p) => ({
+        ...p,
+        growTime: p.growTime ?? randomTreeGrowS(),
+      }));
       // Migrate legacy blueprints that used `delivered` (log count only).
       blueprintsRef.current = (data.blueprints ?? []).map((raw) => {
         const legacy = raw as unknown as { delivered?: number; deliveredCoal?: number; deliveredCopper?: number; deliveredBronzeMetal?: number };
@@ -2775,7 +2783,7 @@ function GamePage() {
             let bestPlantedD = 60;
             for (const pl of plantedRef.current) {
               const age = (Date.now() - pl.plantedAt) / 1000;
-              if (age < SAPLING_GROW_S) continue;
+              if (age < (pl.growTime ?? SAPLING_GROW_S)) continue;
               const trunkCenter = pl.x + 13;
               if (isFacingRight && trunkCenter < playerCenter) continue;
               if (!isFacingRight && trunkCenter > playerCenter) continue;
@@ -2875,7 +2883,7 @@ function GamePage() {
               const scanPalmList = (list: PalmPos[], isExtra: boolean) => {
                 for (const p of list) {
                   if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
-                  if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < SAPLING_GROW_S) continue;
+                  if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < (p.growTime ?? SAPLING_GROW_S)) continue;
                   const trunkCenter = p.wx + 2;
                   if (isFacingRight && trunkCenter < playerCenter) continue;
                   if (!isFacingRight && trunkCenter > playerCenter) continue;
@@ -3527,7 +3535,7 @@ function GamePage() {
         }
         for (const pl of plantedRef.current) {
           const age = (Date.now() - pl.plantedAt) / 1000;
-          if (age < SAPLING_GROW_S) continue;
+          if (age < (pl.growTime ?? SAPLING_GROW_S)) continue;
           if (Math.abs(pl.x + 13 - playerCX) > HP_BAR_VIEW_RANGE) continue;
           const hp = treeHPRef.current.get(`p:${pl.id}`);
           if (hp == null || hp >= TREE_MAX_HP) continue;
@@ -5361,7 +5369,7 @@ function GamePage() {
         let bestPlantedD = 20;
         for (const pl of plantedRef.current) {
           const age = (Date.now() - pl.plantedAt) / 1000;
-          if (age < SAPLING_GROW_S) continue; // still a sapling
+          if (age < (pl.growTime ?? SAPLING_GROW_S)) continue; // still a sapling
           const trunkCenter = pl.x + 13;
           if (!withinReach(trunkCenter)) continue;
           const d = Math.abs(trunkCenter - worldX);
@@ -5490,6 +5498,7 @@ function GamePage() {
               // Wall-clock timestamp so growth survives page reloads.
               plantedAt: Date.now(),
               variant: Math.floor(Math.random() * 3),
+              growTime: randomTreeGrowS(),
             },
           ];
           setInventory((inv) => ({ ...inv, seeds: inv.seeds - 1 }));
@@ -5519,7 +5528,7 @@ function GamePage() {
           if (!nearCave && !tooCloseNatural && !tooCloseExtra && !tooClosePlanted) {
             extraPalmsRef.current = [
               ...extraPalmsRef.current,
-              { wx: px, variant: (Math.floor(Math.random() * 4)) as 0 | 1 | 2 | 3, plantedAt: Date.now() },
+              { wx: px, variant: (Math.floor(Math.random() * 4)) as 0 | 1 | 2 | 3, plantedAt: Date.now(), growTime: randomTreeGrowS() },
             ];
             setInventory((inv) => ({ ...inv, palmSeeds: inv.palmSeeds - 1 }));
             flashPickup(t("msg.seedPlanted"));
@@ -5664,7 +5673,7 @@ function GamePage() {
         const scanClickPalm = (list: PalmPos[], isExtra: boolean) => {
           for (const p of list) {
             if (!isExtra && brokenPalmsRef.current.has(p.wx)) continue;
-            if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < SAPLING_GROW_S) continue;
+            if (isExtra && p.plantedAt && (Date.now() - p.plantedAt) / 1000 < (p.growTime ?? SAPLING_GROW_S)) continue;
             const sxPalm = p.wx - camXRef.current;
             if (sxPalm < -20 || sxPalm > VW + 20) continue;
             const cx = p.wx + 2;
@@ -7639,7 +7648,7 @@ type WorldRender = {
   groundPebbles: { id: string; x: number; variant: number }[];
   groundItems: { id: string; x: number; kind: ItemKind; mode: "world" | "cave" | "cave2"; droppedAt: number }[];
   seeds: { id: string; x: number }[];
-  planted: { id: string; x: number; plantedAt: number; variant: number }[];
+  planted: { id: string; x: number; plantedAt: number; variant: number; growTime?: number }[];
   now: number;                    // performance.now() ms
 };
 
@@ -8211,10 +8220,11 @@ function drawScene(
     const sx = pl.x - camX;
     if (sx < -80 || sx > VW + 80) continue;
     const age = (world.now - pl.plantedAt) / 1000; // seconds
-    if (age >= SAPLING_GROW_S) {
+    const growTime = pl.growTime ?? SAPLING_GROW_S;
+    if (age >= growTime) {
       drawTree(ctx, sx, GROUND_Y, pl.variant);
     } else {
-      drawSapling(ctx, sx, GROUND_Y, Math.min(1, age / SAPLING_GROW_S));
+      drawSapling(ctx, sx, GROUND_Y, Math.min(1, age / growTime));
     }
   }
 
@@ -8224,8 +8234,9 @@ function drawScene(
     if (sx < -40 || sx > VW + 40) continue;
     if (p.plantedAt) {
       const age = (world.now - p.plantedAt) / 1000;
-      if (age < SAPLING_GROW_S) {
-        drawPalmSapling(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), Math.min(1, age / SAPLING_GROW_S), p.variant);
+      const growTime = p.growTime ?? SAPLING_GROW_S;
+      if (age < growTime) {
+        drawPalmSapling(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), Math.min(1, age / growTime), p.variant);
         continue;
       }
     }
@@ -8397,7 +8408,7 @@ function drawCoastSide(
 // Deterministic palm positions for one beach side. Shared between the
 // renderer and the click handler so "break this palm" targets the exact
 // visual tree.
-export type PalmPos = { wx: number; variant: 0 | 1 | 2 | 3; plantedAt?: number };
+export type PalmPos = { wx: number; variant: 0 | 1 | 2 | 3; plantedAt?: number; growTime?: number };
 export function getPalms(side: "left" | "right"): PalmPos[] {
   const palmOffsets = [30, 78, 125, 175, 225, 275, 325, 375, 425, 475, 525, 575];
   const out: PalmPos[] = palmOffsets.map((o, i) => ({
@@ -8947,7 +8958,12 @@ function drawPickupStone(
 // ----- Regeneration / growth timing (ms & s) -----
 const STONE_RESPAWN_MS = 60_000;
 const STUMP_LIFESPAN_MS = 45_000;
-const SAPLING_GROW_S = 60; // seconds from seed to mature tree
+const SAPLING_GROW_S = 60; // legacy fallback (seconds from seed to mature tree)
+const MIN_TREE_GROW_S = 3 * 60; // 3 minutes
+const MAX_TREE_GROW_S = 5 * 60; // 5 minutes
+function randomTreeGrowS() {
+  return MIN_TREE_GROW_S + Math.random() * (MAX_TREE_GROW_S - MIN_TREE_GROW_S);
+}
 
 function drawSeed(ctx: CanvasRenderingContext2D, sx: number, groundY: number) {
   const x = Math.round(sx);
