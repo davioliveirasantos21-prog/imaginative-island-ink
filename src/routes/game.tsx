@@ -7648,7 +7648,7 @@ type WorldRender = {
   groundPebbles: { id: string; x: number; variant: number }[];
   groundItems: { id: string; x: number; kind: ItemKind; mode: "world" | "cave" | "cave2"; droppedAt: number }[];
   seeds: { id: string; x: number }[];
-  planted: { id: string; x: number; plantedAt: number; variant: number }[];
+  planted: { id: string; x: number; plantedAt: number; variant: number; growTime?: number }[];
   now: number;                    // performance.now() ms
 };
 
