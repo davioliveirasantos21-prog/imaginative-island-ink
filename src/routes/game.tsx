@@ -489,6 +489,34 @@ const NIGHT_STARS: { x: number; y: number; b: number }[] = (() => {
   return out;
 })();
 
+// Fireflies drifting around the overworld at night. Positions are in
+// screen-space; each has a base point and a slow sine wobble for organic
+// movement, plus a pulse phase for the glow.
+const NIGHT_FIREFLIES: { x: number; y: number; ax: number; ay: number; sx: number; sy: number; ph: number; hue: number }[] = (() => {
+  const out: typeof NIGHT_FIREFLIES = [];
+  let seed = 90210;
+  const rnd = () => {
+    seed = (seed * 1664525 + 1013904223) | 0;
+    return ((seed >>> 0) % 10000) / 10000;
+  };
+  for (let i = 0; i < 18; i++) {
+    out.push({
+      x: rnd() * VW,
+      y: 90 + rnd() * 90, // hover above the ground band, below the sky
+      ax: 8 + rnd() * 16,
+      ay: 4 + rnd() * 10,
+      sx: 0.35 + rnd() * 0.45,
+      sy: 0.55 + rnd() * 0.75,
+      ph: rnd() * Math.PI * 2,
+      hue: rnd() < 0.15 ? 1 : 0, // occasional green-tinted one
+    });
+  }
+  return out;
+})();
+
+
+
+
 
 
 
