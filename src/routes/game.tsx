@@ -9724,12 +9724,6 @@ function drawIslandGround(
     ctx.fillRect(gA, GROUND_Y, gB - gA, 6);
     ctx.fillStyle = grassTop;
     ctx.fillRect(gA, GROUND_Y, gB - gA, 2);
-    // Undulating darker grass patches
-    ctx.fillStyle = grassDark;
-    for (let x = gA + (((-camX * 0.9) % 12) + 12) % 12; x < gB; x += 12) {
-      ctx.fillRect(x, GROUND_Y + 3, 3, 1);
-      ctx.fillRect(x + 6, GROUND_Y + 4, 4, 1);
-    }
     // (Removed pebble specks — the parallax against the ground looked off.)
   }
 
