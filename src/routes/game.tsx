@@ -1675,7 +1675,10 @@ function GamePage() {
       }
       groundItemsRef.current = rawGround.filter((g) => g.kind !== "wood");
       seedsRef.current = data.groundSeeds ?? [];
-      plantedRef.current = data.planted ?? [];
+      plantedRef.current = (data.planted ?? []).map((p) => ({
+        ...p,
+        growTime: p.growTime ?? randomTreeGrowS(),
+      }));
       // Migrate legacy blueprints that used `delivered` (log count only).
       blueprintsRef.current = (data.blueprints ?? []).map((raw) => {
         const legacy = raw as unknown as { delivered?: number; deliveredCoal?: number; deliveredCopper?: number; deliveredBronzeMetal?: number };
