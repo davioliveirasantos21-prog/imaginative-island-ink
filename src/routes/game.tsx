@@ -1025,7 +1025,7 @@ function GamePage() {
     "stone", "wood", "seed", "axe", "hoe", "pick", "copperPick", "copperHammer", "spear",
     "ironPick", "ironAxe", "ironSpear", "ironHammer",
     "berrySeed", "palmSeed", "mushroom", "herb",
-    "coal", "copper", "bronze", "iron", "copperMetal", "bronzeMetal", "ironMetal", "copperBar", "bronzeBar", "ironBar", "torch",
+    "coal", "copper", "bronze", "iron", "ironOre", "copperMetal", "bronzeMetal", "ironMetal", "copperBar", "bronzeBar", "ironBar", "torch",
   ];
   const countFor = (k: SlotKind): number => {
     switch (k) {
