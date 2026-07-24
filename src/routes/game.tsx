@@ -8225,7 +8225,7 @@ function drawScene(
     if (p.plantedAt) {
       const age = (world.now - p.plantedAt) / 1000;
       if (age < SAPLING_GROW_S) {
-        drawSapling(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), Math.min(1, age / SAPLING_GROW_S));
+        drawPalmSapling(ctx, sx, GROUND_Y + beachSurfaceOffset(p.wx), Math.min(1, age / SAPLING_GROW_S), p.variant);
         continue;
       }
     }
@@ -9948,6 +9948,62 @@ function drawPalm(
   ctx.fillRect(cx + 1, cy + 3, 1, 1);
   ctx.fillRect(cx - 3, cy + 4, 1, 1);
 }
+
+// Baby palm that scales from a tiny sprout to a small palm as it grows.
+// `t` is 0..1 progress toward maturity; the mature palm takes over at t=1.
+function drawPalmSapling(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  groundY: number,
+  t: number,
+  variant: 0 | 1 | 2 | 3,
+) {
+  const eased = Math.max(0.08, t);
+  const fullTrunk = variant === 2 ? 66 : variant === 3 ? 38 : 54 + variant * 8;
+  const trunkH = Math.max(3, Math.round(fullTrunk * eased * 0.55));
+  const trunkW = t < 0.35 ? 2 : 3;
+  const bend = variant === 2 ? 0 : variant === 3 ? 1 : (variant === 1 ? -2 : 2);
+  const bendAt = (s: number) => Math.floor(Math.sin(s / 8) * bend * eased);
+  // Trunk
+  ctx.fillStyle = "#6a4a2a";
+  for (let s = 0; s < trunkH; s++) {
+    ctx.fillRect(x + bendAt(s), groundY - s - 1, trunkW, 1);
+  }
+  ctx.fillStyle = "#8a6a3a";
+  for (let s = 0; s < trunkH; s += 3) {
+    ctx.fillRect(x + bendAt(s), groundY - s - 1, 1, 1);
+  }
+  // Frond crown — a few tiny fronds that lengthen as it grows
+  const cx = x + bendAt(trunkH) + Math.floor(trunkW / 2);
+  const cy = groundY - trunkH - 1;
+  const leafDark = "#245a2a";
+  const leafMid = "#2f8a38";
+  const leafLite = "#5cc25a";
+  const frondLen = Math.max(2, Math.round(6 * eased + 2));
+  const fronds: [number, number][] = [
+    [-2, -1], [2, -1], [-3, 0], [3, 0], [-2, 1], [2, 1],
+  ];
+  for (const [dx, dy] of fronds) {
+    for (let s = 0; s < frondLen; s++) {
+      const px = cx + Math.round((dx * s) / 2);
+      const py = cy + Math.round((dy * s) / 1.5) + Math.floor((s * s) / 20);
+      ctx.fillStyle = leafDark;
+      ctx.fillRect(px, py, 1, 1);
+      if (s > 0 && s % 2 === 0) {
+        ctx.fillStyle = leafMid;
+        ctx.fillRect(px + (dx >= 0 ? 1 : -1), py, 1, 1);
+      }
+    }
+  }
+  ctx.fillStyle = leafLite;
+  ctx.fillRect(cx, cy - 1, 1, 1);
+  if (t > 0.5) {
+    ctx.fillRect(cx - 1, cy, 1, 1);
+    ctx.fillRect(cx + 1, cy, 1, 1);
+  }
+}
+
+
 
 function drawMushroom(ctx: CanvasRenderingContext2D, x: number, groundY: number, variant: number) {
   const capColors = ["#c94b4b", "#a05a3a"];
