@@ -10001,6 +10001,9 @@ function drawPalmSapling(
     ctx.fillRect(cx - 1, cy, 1, 1);
     ctx.fillRect(cx + 1, cy, 1, 1);
   }
+}
+
+
 
 function drawMushroom(ctx: CanvasRenderingContext2D, x: number, groundY: number, variant: number) {
   const capColors = ["#c94b4b", "#a05a3a"];
