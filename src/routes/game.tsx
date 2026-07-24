@@ -4377,7 +4377,62 @@ function GamePage() {
       );
 
       ctx.restore();
+
+      // ---------- Day/night overlay ----------
+      // Caves stay dark on their own; only tint the overworld.
+      if (modeRef.current !== "cave" && modeRef.current !== "cave2") {
+        const night = getNightIntensity(now);
+        if (night > 0.001) {
+          // Stars & moon come in during the night portion of dusk.
+          if (night > 0.35) {
+            const starA = Math.min(1, (night - 0.35) / 0.35);
+            ctx.save();
+            for (const st of NIGHT_STARS) {
+              // Gentle twinkle
+              const tw = 0.65 + 0.35 * Math.sin(now / 480 + st.x * 0.13 + st.y * 0.21);
+              ctx.fillStyle = `rgba(240,240,255,${(st.b * tw * starA).toFixed(3)})`;
+              ctx.fillRect(st.x, st.y, 1, 1);
+            }
+            // Moon
+            const moonA = starA;
+            const mx = Math.floor(VW * 0.78);
+            const my = Math.floor(HORIZON_Y * 0.35);
+            ctx.fillStyle = `rgba(20,26,44,${(0.55 * moonA).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(mx + 1, my + 1, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = `rgba(238,234,210,${(0.95 * moonA).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(mx, my, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Crescent shadow bite
+            ctx.fillStyle = `rgba(30,36,58,${(0.85 * moonA).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(mx - 4, my - 2, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+          // Deep-blue night tint over the whole scene (multiply-ish look).
+          ctx.save();
+          ctx.globalCompositeOperation = "multiply";
+          const r = Math.round(255 - (255 - 60) * night);
+          const g = Math.round(255 - (255 - 80) * night);
+          const b = Math.round(255 - (255 - 140) * night);
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(0, 0, VW, VH);
+          ctx.restore();
+          // Cool blue haze on top for atmosphere.
+          if (night > 0.15) {
+            ctx.save();
+            ctx.fillStyle = `rgba(30,40,90,${(0.18 * night).toFixed(3)})`;
+            ctx.fillRect(0, 0, VW, VH);
+            ctx.restore();
+          }
+        }
+      }
+
       raf = requestAnimationFrame(loop);
+
     };
 
 
