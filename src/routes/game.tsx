@@ -1692,6 +1692,7 @@ function GamePage() {
         copper: data.copper ?? 0,
         bronze: data.bronze ?? 0,
         iron: data.iron ?? 0,
+        ironOre: (data as { ironOre?: number }).ironOre ?? 0,
         copperMetal: data.copperMetal ?? 0,
         bronzeMetal: data.bronzeMetal ?? 0,
         ironMetal: (data as { ironMetal?: number }).ironMetal ?? 0,
