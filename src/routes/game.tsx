@@ -5369,7 +5369,7 @@ function GamePage() {
         let bestPlantedD = 20;
         for (const pl of plantedRef.current) {
           const age = (Date.now() - pl.plantedAt) / 1000;
-          if (age < SAPLING_GROW_S) continue; // still a sapling
+          if (age < (pl.growTime ?? SAPLING_GROW_S)) continue; // still a sapling
           const trunkCenter = pl.x + 13;
           if (!withinReach(trunkCenter)) continue;
           const d = Math.abs(trunkCenter - worldX);
