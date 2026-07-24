@@ -4441,60 +4441,104 @@ function GamePage() {
 
       ctx.restore();
 
-      // ---------- Day/night overlay ----------
-      // Caves stay dark on their own; only tint the overworld.
+      // ---------- Day / night rendering ----------
+      // Caves have their own darkness; overworld only.
       if (modeRef.current !== "cave" && modeRef.current !== "cave2") {
-        const night = getNightIntensity(now);
-        if (night > 0.001) {
-          // Stars & moon come in during the night portion of dusk.
-          if (night > 0.35) {
-            const starA = Math.min(1, (night - 0.35) / 0.35);
-            ctx.save();
-            for (const st of NIGHT_STARS) {
-              // Gentle twinkle
-              const tw = 0.65 + 0.35 * Math.sin(now / 480 + st.x * 0.13 + st.y * 0.21);
-              ctx.fillStyle = `rgba(240,240,255,${(st.b * tw * starA).toFixed(3)})`;
-              ctx.fillRect(st.x, st.y, 1, 1);
-            }
-            // Moon
-            const moonA = starA;
-            const mx = Math.floor(VW * 0.78);
-            const my = Math.floor(HORIZON_Y * 0.35);
-            ctx.fillStyle = `rgba(20,26,44,${(0.55 * moonA).toFixed(3)})`;
-            ctx.beginPath();
-            ctx.arc(mx + 1, my + 1, 11, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = `rgba(238,234,210,${(0.95 * moonA).toFixed(3)})`;
-            ctx.beginPath();
-            ctx.arc(mx, my, 10, 0, Math.PI * 2);
-            ctx.fill();
-            // Crescent shadow bite
-            ctx.fillStyle = `rgba(30,36,58,${(0.85 * moonA).toFixed(3)})`;
-            ctx.beginPath();
-            ctx.arc(mx - 4, my - 2, 9, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
+        const { night, sunset } = getTimeOfDay(now);
+        // Publish for next frame's biomeColor() calls.
+        NIGHT_T = night;
+        SUNSET_T = sunset;
+
+        // Warm horizon glow band during dusk/dawn (behind foreground, over sky).
+        if (sunset > 0.02) {
+          const bandTop = HORIZON_Y - 40;
+          const grad = ctx.createLinearGradient(0, bandTop, 0, HORIZON_Y + 20);
+          const a1 = 0.42 * sunset;
+          const a2 = 0.7 * sunset;
+          grad.addColorStop(0, `rgba(255,160,90,0)`);
+          grad.addColorStop(0.5, `rgba(255,150,80,${a1.toFixed(3)})`);
+          grad.addColorStop(1, `rgba(255,200,120,${a2.toFixed(3)})`);
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, bandTop, VW, 60);
+          ctx.restore();
+        }
+
+        // Stars — fade in as night deepens.
+        if (night > 0.25) {
+          const starA = Math.min(1, (night - 0.25) / 0.35);
+          ctx.save();
+          for (const st of NIGHT_STARS) {
+            const tw = 0.55 + 0.45 * Math.sin(now / 520 + st.x * 0.17 + st.y * 0.23);
+            ctx.fillStyle = `rgba(240,240,255,${(st.b * tw * starA).toFixed(3)})`;
+            ctx.fillRect(st.x, st.y, 1, 1);
           }
-          // Deep-blue night tint over the whole scene (multiply-ish look).
+          ctx.restore();
+        }
+
+        // Moon — a proper full circle with a soft halo. Rises across the sky
+        // over the course of the night.
+        if (night > 0.15) {
+          const moonA = Math.min(1, (night - 0.15) / 0.35);
+          // Arc across the sky: enters bottom-right, peaks top-center, exits bottom-left.
+          const cycleT = ((now / 1000) % DAY_NIGHT_CYCLE_S) / DAY_NIGHT_CYCLE_S;
+          // Map night portion (~0.5..1.0) to 0..1 arc parameter.
+          const arcT = Math.min(1, Math.max(0, (cycleT - 0.5) / 0.5));
+          const mx = Math.floor(VW * (0.92 - arcT * 0.84));
+          const my = Math.floor(70 - Math.sin(arcT * Math.PI) * 40);
+          ctx.save();
+          // Soft halo
+          const halo = ctx.createRadialGradient(mx, my, 4, mx, my, 32);
+          halo.addColorStop(0, `rgba(240,235,210,${(0.35 * moonA).toFixed(3)})`);
+          halo.addColorStop(1, `rgba(240,235,210,0)`);
+          ctx.fillStyle = halo;
+          ctx.fillRect(mx - 34, my - 34, 68, 68);
+          // Solid moon body
+          ctx.fillStyle = `rgba(245,240,220,${(0.98 * moonA).toFixed(3)})`;
+          ctx.beginPath();
+          ctx.arc(mx, my, 9, 0, Math.PI * 2);
+          ctx.fill();
+          // Craters — small darker dots
+          ctx.fillStyle = `rgba(210,200,175,${(0.9 * moonA).toFixed(3)})`;
+          ctx.fillRect(mx - 3, my - 2, 2, 2);
+          ctx.fillRect(mx + 2, my + 1, 2, 2);
+          ctx.fillRect(mx - 1, my + 3, 1, 1);
+          ctx.restore();
+        }
+
+        // Mild foreground darkening — sky/ground already shifted via
+        // biomeColor(); this pulls trees, characters, drops and buildings
+        // into the same night mood without turning the whole screen into a
+        // flat filter.
+        if (night > 0.02) {
           ctx.save();
           ctx.globalCompositeOperation = "multiply";
-          const r = Math.round(255 - (255 - 60) * night);
-          const g = Math.round(255 - (255 - 80) * night);
-          const b = Math.round(255 - (255 - 140) * night);
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          const dark = 1 - night * 0.55;
+          const rr = Math.round(255 * dark);
+          const gg = Math.round(255 * dark);
+          const bb = Math.round((255 - night * 60) * dark);
+          ctx.fillStyle = `rgb(${rr},${gg},${bb})`;
           ctx.fillRect(0, 0, VW, VH);
           ctx.restore();
-          // Cool blue haze on top for atmosphere.
-          if (night > 0.15) {
-            ctx.save();
-            ctx.fillStyle = `rgba(30,40,90,${(0.18 * night).toFixed(3)})`;
-            ctx.fillRect(0, 0, VW, VH);
-            ctx.restore();
-          }
         }
+
+        // Cool blue moonlight tint on top of the darkening.
+        if (night > 0.3) {
+          ctx.save();
+          ctx.fillStyle = `rgba(40,60,130,${(0.09 * night).toFixed(3)})`;
+          ctx.fillRect(0, 0, VW, VH);
+          ctx.restore();
+        }
+      } else {
+        // Reset so any residual night-tint doesn't bleed into cave rendering
+        // (the cave doesn't use biomeColor, but be safe).
+        NIGHT_T = 0;
+        SUNSET_T = 0;
       }
 
       raf = requestAnimationFrame(loop);
+
 
     };
 
