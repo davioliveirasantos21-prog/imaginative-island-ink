@@ -609,7 +609,7 @@ function computeCaveEntranceX(worldSeed: number, spawnX: number): number {
 }
 
 // ----- Cave ores (deterministic layout per world seed) -----
-export type OreKind = "coal" | "copper" | "bronze" | "iron";
+export type OreKind = "coal" | "copper" | "bronze" | "iron" | "ironOre";
 export type CaveOre = { id: string; x: number; kind: OreKind };
 function computeCaveOres(worldSeed: number): CaveOre[] {
   let s = ((worldSeed ^ 0x0b1e5) >>> 0) || 13;
