@@ -3491,9 +3491,12 @@ function GamePage() {
           drawWallTorch(ctx, Math.round(tx), GROUND_Y, now / 1000);
         }
 
-        // Ores in cleared segments
+        // Ores in cleared segments — skip any ore that ended up over the
+        // water pool (legacy saves from before the placement guard).
         for (const ore of cave2OresRef.current) {
           if (cave2MinedOresRef.current.has(ore.id)) continue;
+          const oreSeg = segmentAt(cave2SegsRef.current, ore.x);
+          if (isOverWaterPool(oreSeg, ore.x)) continue;
           const sx = ore.x - camX;
           if (sx < -20 || sx > VW + 20) continue;
           drawOre(ctx, Math.round(sx), GROUND_Y, ore.kind);
