@@ -8948,16 +8948,6 @@ function drawGround(ctx: CanvasRenderingContext2D, camX: number) {
   bandGradient(ctx, "grass", camX, GROUND_Y, 6);
   bandGradient(ctx, "grassTop", camX, GROUND_Y, 2);
 
-  for (let x = 0; x < VW; x += 12) {
-    const wx = x + camX;
-    if (wx < forestLo || wx > forestHi) continue;
-    const mix = biomeMix(wx);
-    const tuft = mixHex(BIOME_A.grass, BIOME_B.grass, mix);
-    ctx.fillStyle = tuft;
-    const jitter = ((wx * 3) % 5) - 2;
-    ctx.fillRect(x + ((wx * 7) % 6), GROUND_Y + 3, 3, 1);
-    ctx.fillRect(x + ((wx * 11) % 8), GROUND_Y + 4 + jitter, 4, 1);
-  }
   ctx.restore();
 }
 
