@@ -161,6 +161,7 @@ function AdmPage() {
         {stats && tab === "errors" && <Errors stats={stats} />}
         {stats && tab === "users" && <Users stats={stats} />}
         {tab === "webmail" && <Webmail />}
+        {tab === "itch" && <ItchBuild />}
       </main>
     </div>
   );
