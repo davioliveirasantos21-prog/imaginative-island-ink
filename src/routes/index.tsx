@@ -219,7 +219,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       or: "or write directly to",
       directEmail: "contact@pixelislands.site",
     },
-    footer: "Pixel Islands · built with vibecoding · pixelislands.site",
+    footer: "Pixel Islands · built with vibecoding · Fabio de Oliveira Santos · CNPJ 65.550.537/0001-70 · pixelislands.site",
   },
   es: {
     nav: { features: "Estilo", screens: "Imágenes", faq: "FAQ", contact: "Contacto", play: "Jugar" },
@@ -292,7 +292,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       or: "o escribe directamente a",
       directEmail: "contact@pixelislands.site",
     },
-    footer: "Pixel Islands · hecho con vibecoding · pixelislands.site",
+    footer: "Pixel Islands · hecho con vibecoding · Fabio de Oliveira Santos · CNPJ 65.550.537/0001-70 · pixelislands.site",
   },
 };
 
