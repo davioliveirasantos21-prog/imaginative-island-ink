@@ -4,7 +4,23 @@ Disallow: /adm
 Disallow: /reset-password
 Disallow: /api/
 
-# Allow AI/GEO crawlers explicitly
+# Search engines
+User-agent: Googlebot
+Allow: /
+User-agent: Bingbot
+Allow: /
+User-agent: Slurp
+Allow: /
+User-agent: DuckDuckBot
+Allow: /
+User-agent: Baiduspider
+Allow: /
+User-agent: YandexBot
+Allow: /
+User-agent: Applebot
+Allow: /
+
+# AI / GEO crawlers
 User-agent: GPTBot
 Allow: /
 User-agent: OAI-SearchBot

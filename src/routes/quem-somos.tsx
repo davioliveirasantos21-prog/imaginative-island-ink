@@ -270,17 +270,20 @@ function AboutPage() {
             href={I9_URL}
             target="_blank"
             rel="noreferrer"
-            className="mx-auto block border-4 border-[#7a3e1d] bg-white p-6"
-            style={{ boxShadow: "0 6px 0 #7a3e1d" }}
+            className="mx-auto block border-4 border-[#ffd166] p-6"
+            style={{
+              background: "linear-gradient(180deg, #1a2942 0%, #0d1b2a 100%)",
+              boxShadow: "0 6px 0 #7a3e1d",
+            }}
           >
             <img
               src={i9Logo.url}
               alt="i9company marketing digital"
               className="h-32 w-auto sm:h-40"
-              style={{ imageRendering: "auto", filter: "contrast(1.15) saturate(1.2)" }}
+              style={{ imageRendering: "auto", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" }}
             />
-
           </a>
+
           <div>
             <div className="mb-3 text-[10px] tracking-[0.4em] text-[#7a3e1d]">{c.agency.kicker}</div>
             <h2 className="mb-4 text-xl sm:text-2xl">{c.agency.title}</h2>
