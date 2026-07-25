@@ -430,10 +430,10 @@ function Landing() {
           <h2 className="text-2xl leading-tight sm:text-4xl">{c.vibe.title}</h2>
           <p className="mx-auto mt-6 max-w-2xl text-xs leading-relaxed text-[#f4e9c1] sm:text-sm">{c.vibe.body}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-[9px] tracking-widest text-[#ffd166] sm:text-[10px]">
-            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">AI-DESIGNED SPRITES</span>
-            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">LIVE ITERATION</span>
-            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">HANDCRAFTED FEEL</span>
-            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">NO ASSET FLIP</span>
+            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">REACT + TYPESCRIPT</span>
+            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">CANVAS 2D ENGINE</span>
+            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">PWA · OFFLINE READY</span>
+            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">CLOUD SAVE</span>
           </div>
         </div>
       </section>
