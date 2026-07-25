@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useI18n, LANGUAGES, type Lang } from "@/lib/i18n";
-import { logPageView } from "@/lib/tracker.functions";
 import { submitContact } from "@/lib/contact.functions";
+
 import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
 import menuBg from "@/assets/menu-bg.png";
 import beachBg from "@/assets/beach-bg.png.asset.json";
