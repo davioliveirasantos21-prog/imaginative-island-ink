@@ -414,12 +414,13 @@ function Landing() {
           <img
             src={pixelIslandsLogo}
             alt="Pixel Islands"
-            className="w-full max-w-[520px]"
+            className="w-full max-w-[520px] md:max-w-[760px] lg:max-w-[880px]"
             style={{
               imageRendering: "pixelated",
               filter: "drop-shadow(0 0 24px rgba(255,209,102,0.6)) drop-shadow(6px 6px 0 rgba(0,0,0,0.45))",
             }}
           />
+
           <h1 className="max-w-3xl text-2xl leading-tight sm:text-4xl md:text-5xl" style={{ textShadow: "3px 3px 0 #fff8dc, 0 0 18px rgba(255,255,255,0.55)" }}>
             <span className="text-[#7a3e1d]">{c.hero.title1}</span>{" "}
             <span className="text-[#2a1a0a]">{c.hero.title2}</span>
