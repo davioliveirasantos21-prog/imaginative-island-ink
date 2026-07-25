@@ -370,3 +370,56 @@ function Webmail() {
     </div>
   );
 }
+
+function ItchBuild() {
+  const url = "/api/public/itch-build";
+  const gameUrl = "https://pixelislandsultimate.lovable.app/game/play";
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl border border-amber-500/30 bg-slate-900/60 p-6">
+        <div className="mb-1 text-[10px] uppercase tracking-[0.35em] text-amber-400">Publicar no itch.io</div>
+        <h2 className="text-lg font-semibold text-slate-100">Build “live-update” pra HTML5</h2>
+        <p className="mt-2 text-sm text-slate-300">
+          Baixe o zip abaixo e faça upload <b>uma única vez</b> no itch.io. Ele contém um <code>index.html</code>{" "}
+          leve que carrega o jogo direto do site oficial — toda atualização feita aqui no Lovable aparece
+          instantaneamente lá, <b>sem precisar re-uploadar</b>.
+        </p>
+
+        <a
+          href={url}
+          download="pixel-islands-itch.zip"
+          className="mt-5 inline-flex items-center gap-2 rounded-md bg-amber-500 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-amber-400"
+        >
+          ⬇ Baixar pixel-islands-itch.zip
+        </a>
+      </div>
+
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <h3 className="text-sm font-semibold text-slate-200">Como preencher o formulário do itch.io</h3>
+        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-slate-300">
+          <li>Vá em <b>itch.io &rarr; New project</b> (ou edite o já existente).</li>
+          <li>Em <b>Kind of project</b>: escolha <b>HTML</b>.</li>
+          <li>Em <b>Uploads</b>: arraste o <code>pixel-islands-itch.zip</code> baixado acima.</li>
+          <li>Marque a caixinha <b>“This file will be played in the browser”</b> ao lado do zip.</li>
+          <li>
+            Em <b>Embed options</b>: use <b>1280 x 720</b> (ou 1920 x 1080), ative <b>Fullscreen button</b> e{" "}
+            <b>Mobile friendly</b>.
+          </li>
+          <li>Em <b>Genre</b>: Adventure / Survival. <b>Tags</b>: pixel-art, survival, exploration, 2d, sandbox.</li>
+          <li>Publique como <b>Public</b> (ou Draft se quiser testar antes).</li>
+        </ol>
+
+        <div className="mt-4 rounded-md border border-slate-800 bg-slate-950 p-3 text-xs text-slate-400">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500">URL embutida no zip</div>
+          <code className="mt-1 block break-all font-mono text-slate-300">{gameUrl}</code>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-400">
+        <b className="text-slate-200">Precisa mudar algo no jogo depois?</b> É só fazer aqui no Lovable e clicar
+        em <b>Publish</b>. O itch.io continua servindo o mesmo zip, mas o conteúdo dentro do iframe é o site
+        atualizado — sem re-upload, sem cache travado, sem retrabalho.
+      </div>
+    </div>
+  );
+}
