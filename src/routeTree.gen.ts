@@ -13,6 +13,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as GameRouteImport } from './routes/game'
 import { Route as CharactersRouteImport } from './routes/characters'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdmRouteImport } from './routes/adm'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamePlayRouteImport } from './routes/game.play'
 
@@ -36,6 +37,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdmRoute = AdmRouteImport.update({
+  id: '/adm',
+  path: '/adm',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const GamePlayRoute = GamePlayRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/adm': typeof AdmRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/adm': typeof AdmRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/adm': typeof AdmRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
@@ -76,16 +85,25 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/adm'
     | '/auth'
     | '/characters'
     | '/game'
     | '/reset-password'
     | '/game/play'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/characters' | '/game' | '/reset-password' | '/game/play'
+  to:
+    | '/'
+    | '/adm'
+    | '/auth'
+    | '/characters'
+    | '/game'
+    | '/reset-password'
+    | '/game/play'
   id:
     | '__root__'
     | '/'
+    | '/adm'
     | '/auth'
     | '/characters'
     | '/game'
@@ -95,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdmRoute: typeof AdmRoute
   AuthRoute: typeof AuthRoute
   CharactersRoute: typeof CharactersRoute
   GameRoute: typeof GameRouteWithChildren
@@ -131,6 +150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/adm': {
+      id: '/adm'
+      path: '/adm'
+      fullPath: '/adm'
+      preLoaderRoute: typeof AdmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -160,6 +186,7 @@ const GameRouteWithChildren = GameRoute._addFileChildren(GameRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdmRoute: AdmRoute,
   AuthRoute: AuthRoute,
   CharactersRoute: CharactersRoute,
   GameRoute: GameRouteWithChildren,

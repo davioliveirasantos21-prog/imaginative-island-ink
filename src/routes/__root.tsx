@@ -145,6 +145,63 @@ function RootComponent() {
     void import("../lib/register-sw").then(({ registerServiceWorker }) => registerServiceWorker());
   }, []);
 
+  // Global page-view & client-error tracking (fire-and-forget).
+  useEffect(() => {
+    let lastPath = "";
+    async function log(path: string) {
+      if (path === lastPath) return;
+      lastPath = path;
+      try {
+        const { logPageView } = await import("../lib/tracker.functions");
+        await logPageView({
+          data: {
+            path,
+            referrer: document.referrer || "",
+            userAgent: navigator.userAgent || "",
+          },
+        });
+      } catch {}
+    }
+    void log(window.location.pathname);
+    const onNav = () => void log(window.location.pathname);
+    window.addEventListener("popstate", onNav);
+    const push = history.pushState.bind(history);
+    const replace = history.replaceState.bind(history);
+    history.pushState = function (...args: Parameters<typeof push>) { const r = push(...args); onNav(); return r; };
+    history.replaceState = function (...args: Parameters<typeof replace>) { const r = replace(...args); onNav(); return r; };
+
+    const onErr = async (msg: string, stack?: string) => {
+      try {
+        const { logClientError } = await import("../lib/tracker.functions");
+        await logClientError({
+          data: {
+            message: msg.slice(0, 2000),
+            stack: (stack || "").slice(0, 8000),
+            path: window.location.pathname,
+            userAgent: navigator.userAgent || "",
+          },
+        });
+      } catch {}
+    };
+    const onWindowError = (e: ErrorEvent) => void onErr(e.message || "error", (e.error as Error | undefined)?.stack);
+    const onRejection = (e: PromiseRejectionEvent) => {
+      const r = e.reason as { message?: string; stack?: string } | string | undefined;
+      const msg = typeof r === "string" ? r : r?.message ?? "unhandledrejection";
+      void onErr(String(msg), typeof r === "object" ? r?.stack : undefined);
+    };
+    window.addEventListener("error", onWindowError);
+    window.addEventListener("unhandledrejection", onRejection);
+    return () => {
+      window.removeEventListener("popstate", onNav);
+      window.removeEventListener("error", onWindowError);
+      window.removeEventListener("unhandledrejection", onRejection);
+      history.pushState = push;
+      history.replaceState = replace;
+    };
+  }, []);
+
+
+
 
 
   return (

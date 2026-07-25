@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          lang: string | null
+          message: string
+          name: string
+          subject: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          lang?: string | null
+          message: string
+          name: string
+          subject?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          lang?: string | null
+          message?: string
+          name?: string
+          subject?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      error_logs: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          path: string | null
+          stack: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          path?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          path?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       game_content: {
         Row: {
           data: Json
@@ -32,6 +95,36 @@ export type Database = {
           key?: string
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      page_events: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          path: string
+          referrer: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          path: string
+          referrer?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          path?: string
+          referrer?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
