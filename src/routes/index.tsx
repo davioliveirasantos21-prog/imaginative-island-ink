@@ -482,9 +482,9 @@ function Landing() {
                 style={{ imageRendering: "pixelated" }}
                 loading="lazy"
               />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a141f] via-[#0a141f]/85 to-transparent p-5 sm:p-8">
-                <div className="text-[10px] tracking-[0.4em] text-[#7a3e1d]">{shots[0].cap}</div>
-                <div className="mt-2 max-w-xl text-xs leading-relaxed text-[#2a1a0a] sm:text-sm">{shots[0].desc}</div>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#2a1a0a]/95 via-[#2a1a0a]/70 to-transparent p-5 sm:p-8">
+                <div className="text-[10px] tracking-[0.4em] text-[#ffd166]">{shots[0].cap}</div>
+                <div className="mt-2 max-w-xl text-xs leading-relaxed text-[#f4e9c1] sm:text-sm">{shots[0].desc}</div>
               </div>
             </div>
           </div>
