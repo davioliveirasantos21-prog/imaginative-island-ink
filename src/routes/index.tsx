@@ -331,6 +331,9 @@ function Landing() {
             <a href="#screens" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.screens}</a>
             <a href="#faq" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.faq}</a>
             <a href="#contact" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.contact}</a>
+            <Link to="/quem-somos" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.about}</Link>
+            <Link to="/apoio" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.support}</Link>
+            <a href="https://davioliver.itch.io/pixel-islands" target="_blank" rel="noreferrer" className="hidden text-[#c48a2e] hover:text-[#7a3e1d] sm:inline">itch.io ↗</a>
 
             <div className="relative">
               <button
