@@ -163,10 +163,10 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       stat3: "∞", stat3l: "Islands generated",
     },
     vibe: {
-      kicker: "· Built with Vibecoding AI ·",
+      kicker: "· Programmed with Vibecoding & Modern Tech ·",
       title: "One of the first games born from vibecoding.",
       body:
-        "Pixel Islands is an honest experiment: every tile, every sound, every line of mechanics was orchestrated with a generative AI in real time. Not an asset flip — real design, iterated at the speed of thought.",
+        "Pixel Islands is an honest experiment: every tile, every sound and every mechanic was orchestrated through vibecoding on a modern web stack — React, TypeScript, Canvas 2D, PWA and a custom cloud save layer. Real design, iterated at the speed of thought.",
     },
     style: {
       title: "Game style",
