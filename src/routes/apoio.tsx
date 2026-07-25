@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { BuyButton } from "@/components/BuyButton";
+import { createDonationSession } from "@/lib/donations.functions";
 import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
 import forgeScene from "@/assets/lp-scene-forge.jpg";
 
@@ -30,6 +32,27 @@ type Copy = {
   nav: { home: string; play: string };
   hero: { kicker: string; title: string; subtitle: string };
   why: { title: string; items: { title: string; body: string }[] };
+  donate: {
+    kicker: string;
+    title: string;
+    subtitle: string;
+    pickAmount: string;
+    custom: string;
+    customPlaceholder: string;
+    method: string;
+    methodCard: string;
+    methodPix: string;
+    methodBoth: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    msgLabel: string;
+    msgPlaceholder: string;
+    cta: string;
+    sending: string;
+    err: string;
+    min: string;
+    legal: string;
+  };
   tiers: {
     title: string;
     subtitle: string;
@@ -64,6 +87,29 @@ const COPY: Record<"pt" | "en", Copy> = {
         { title: "Arte e Áudio", body: "Novos sprites, cenários, trilha sonora e efeitos sonoros." },
         { title: "Novas mecânicas", body: "Mais biomas, criaturas, ferramentas e conteúdo cooperativo." },
       ],
+    },
+    donate: {
+      kicker: "Doação",
+      title: "Doe com Cartão ou Pix",
+      subtitle:
+        "Contribuição voluntária, sem contrapartida obrigatória. Recibo emitido pelo Stripe · Emitente: Fabio de Oliveira Santos · CNPJ 65.550.537/0001-70.",
+      pickAmount: "Escolha o valor",
+      custom: "Outro valor (R$)",
+      customPlaceholder: "Ex: 15",
+      method: "Forma de pagamento",
+      methodCard: "Cartão",
+      methodPix: "Pix",
+      methodBoth: "Cartão + Pix",
+      nameLabel: "Seu nome (opcional)",
+      namePlaceholder: "Como aparecer nos créditos",
+      msgLabel: "Recado (opcional)",
+      msgPlaceholder: "Deixe uma mensagem pro dev",
+      cta: "Doar agora",
+      sending: "Abrindo pagamento…",
+      err: "Não deu pra abrir o pagamento. Tente novamente.",
+      min: "Valor mínimo R$ 5,00.",
+      legal:
+        "Ao doar, você concorda que a contribuição é voluntária e não configura compra de produto.",
     },
     tiers: {
       title: "Formas de apoiar",
@@ -123,6 +169,29 @@ const COPY: Record<"pt" | "en", Copy> = {
         { title: "Art & Audio", body: "New sprites, scenery, soundtrack and effects." },
         { title: "New mechanics", body: "More biomes, creatures, tools and co-op content." },
       ],
+    },
+    donate: {
+      kicker: "Donation",
+      title: "Donate with Card or Pix",
+      subtitle:
+        "Voluntary contribution, no strings attached. Receipts issued by Stripe · Issuer: Fabio de Oliveira Santos · CNPJ 65.550.537/0001-70 (Brazil).",
+      pickAmount: "Pick an amount (BRL)",
+      custom: "Other amount (BRL)",
+      customPlaceholder: "e.g. 15",
+      method: "Payment method",
+      methodCard: "Card",
+      methodPix: "Pix",
+      methodBoth: "Card + Pix",
+      nameLabel: "Your name (optional)",
+      namePlaceholder: "How to credit you",
+      msgLabel: "Message (optional)",
+      msgPlaceholder: "Leave a note for the dev",
+      cta: "Donate now",
+      sending: "Opening payment…",
+      err: "Couldn't open payment. Please try again.",
+      min: "Minimum amount R$ 5.00.",
+      legal:
+        "By donating you agree the contribution is voluntary and is not a product purchase.",
     },
     tiers: {
       title: "Ways to support",
@@ -246,6 +315,10 @@ function SupportPage() {
           </div>
         </div>
       </section>
+
+      {/* Donate */}
+      <DonationSection copy={c.donate} />
+
 
       {/* Tiers */}
       <section className="border-b-4 border-[#7a3e1d]/40 bg-[#b7e4f3] py-14">
@@ -389,5 +462,179 @@ function TierCard({
         </BuyButton>
       </div>
     </div>
+  );
+}
+
+const PRESETS = [10, 25, 50, 100, 200];
+
+function DonationSection({ copy }: { copy: Copy["donate"] }) {
+  const donate = useServerFn(createDonationSession);
+  const [amount, setAmount] = useState<number>(25);
+  const [custom, setCustom] = useState<string>("");
+  const [method, setMethod] = useState<"card" | "pix" | "both">("both");
+  const [donorName, setDonorName] = useState("");
+  const [message, setMessage] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "err">("idle");
+  const [errMsg, setErrMsg] = useState<string>("");
+
+  const finalAmount = custom.trim() ? Number(custom.replace(",", ".")) : amount;
+  const valid = Number.isFinite(finalAmount) && finalAmount >= 5;
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (state === "sending") return;
+    if (!valid) {
+      setState("err");
+      setErrMsg(copy.min);
+      return;
+    }
+    setState("sending");
+    setErrMsg("");
+    try {
+      const cents = Math.round(finalAmount * 100);
+      const res = await donate({
+        data: {
+          amountBrlCents: cents,
+          method,
+          donorName: donorName || undefined,
+          message: message || undefined,
+        },
+      });
+      if (res.url) window.location.href = res.url;
+    } catch (err) {
+      setState("err");
+      setErrMsg((err as Error).message || copy.err);
+    }
+  }
+
+  return (
+    <section id="doar" className="border-b-4 border-[#7a3e1d]/40 bg-[#fdf6dc] py-14">
+      <div className="mx-auto max-w-3xl px-4">
+        <div className="mb-8 text-center">
+          <div className="mb-3 text-[10px] tracking-[0.4em] text-[#7a3e1d]">{copy.kicker}</div>
+          <h2 className="text-xl sm:text-2xl">{copy.title}</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-[10px] leading-loose text-[#3a2410]/80 sm:text-xs">
+            {copy.subtitle}
+          </p>
+        </div>
+
+        <form
+          onSubmit={onSubmit}
+          className="border-4 border-[#7a3e1d] bg-[#b7e4f3] p-5 sm:p-7"
+          style={{ boxShadow: "0 8px 0 #7a3e1d" }}
+        >
+          <div className="mb-2 text-[10px] tracking-widest text-[#7a3e1d]">{copy.pickAmount}</div>
+          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {PRESETS.map((v) => {
+              const active = !custom && amount === v;
+              return (
+                <button
+                  type="button"
+                  key={v}
+                  onClick={() => {
+                    setAmount(v);
+                    setCustom("");
+                  }}
+                  className={`border-4 px-2 py-3 text-[11px] tracking-widest ${
+                    active
+                      ? "border-[#7a3e1d] bg-[#ffd166] text-[#0a141f]"
+                      : "border-[#7a3e1d]/40 bg-[#fdf6dc] text-[#7a3e1d]"
+                  }`}
+                >
+                  R${v}
+                </button>
+              );
+            })}
+          </div>
+
+          <label className="mb-1 block text-[10px] tracking-widest text-[#7a3e1d]">
+            {copy.custom}
+          </label>
+          <input
+            inputMode="decimal"
+            value={custom}
+            onChange={(e) => setCustom(e.target.value.replace(/[^\d.,]/g, ""))}
+            placeholder={copy.customPlaceholder}
+            className="mb-5 w-full border-4 border-[#7a3e1d]/50 bg-[#fdf6dc] px-3 py-2 text-sm text-[#2a1a0a] outline-none focus:border-[#ffd166]"
+          />
+
+          <div className="mb-2 text-[10px] tracking-widest text-[#7a3e1d]">{copy.method}</div>
+          <div className="mb-5 grid grid-cols-3 gap-2">
+            {(
+              [
+                ["both", copy.methodBoth],
+                ["card", copy.methodCard],
+                ["pix", copy.methodPix],
+              ] as const
+            ).map(([k, label]) => {
+              const active = method === k;
+              return (
+                <button
+                  type="button"
+                  key={k}
+                  onClick={() => setMethod(k)}
+                  className={`border-4 px-2 py-3 text-[10px] tracking-widest ${
+                    active
+                      ? "border-[#7a3e1d] bg-[#7ee787] text-[#0a141f]"
+                      : "border-[#7a3e1d]/40 bg-[#fdf6dc] text-[#7a3e1d]"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-[10px] tracking-widest text-[#7a3e1d]">
+                {copy.nameLabel}
+              </label>
+              <input
+                maxLength={120}
+                value={donorName}
+                onChange={(e) => setDonorName(e.target.value)}
+                placeholder={copy.namePlaceholder}
+                className="w-full border-4 border-[#7a3e1d]/50 bg-[#fdf6dc] px-3 py-2 text-sm text-[#2a1a0a] outline-none focus:border-[#ffd166]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-[10px] tracking-widest text-[#7a3e1d]">
+                {copy.msgLabel}
+              </label>
+              <input
+                maxLength={200}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={copy.msgPlaceholder}
+                className="w-full border-4 border-[#7a3e1d]/50 bg-[#fdf6dc] px-3 py-2 text-sm text-[#2a1a0a] outline-none focus:border-[#ffd166]"
+              />
+            </div>
+          </div>
+
+          {state === "err" && (
+            <div className="mt-4 border-2 border-[#e94560]/60 bg-[#e94560]/10 px-3 py-2 text-[11px] text-[#7a1020]">
+              {errMsg}
+            </div>
+          )}
+
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <button
+              type="submit"
+              disabled={state === "sending" || !valid}
+              className="w-full border-4 border-[#7a3e1d] bg-[#ffd166] px-6 py-4 text-xs uppercase tracking-widest text-[#0a141f] disabled:opacity-60 sm:w-auto"
+              style={{ boxShadow: "0 5px 0 #7a3e1d" }}
+            >
+              {state === "sending"
+                ? copy.sending
+                : `${copy.cta} · R$ ${valid ? finalAmount.toFixed(2).replace(".", ",") : "—"}`}
+            </button>
+            <div className="text-center text-[9px] leading-relaxed tracking-widest text-[#3a2410]/60">
+              {copy.legal}
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
   );
 }
