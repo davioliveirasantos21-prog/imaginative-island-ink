@@ -45,20 +45,17 @@ type Copy = {
     pickAmount: string;
     custom: string;
     customPlaceholder: string;
-    method: string;
-    methodCard: string;
-    methodPix: string;
-    methodBoth: string;
-    nameLabel: string;
-    namePlaceholder: string;
-    msgLabel: string;
-    msgPlaceholder: string;
-    cta: string;
-    sending: string;
-    err: string;
-    min: string;
+    anyAmount: string;
+    scanTitle: string;
+    scanHint: string;
+    copyCode: string;
+    copied: string;
+    keyLabel: string;
+    keyType: string;
+    receiver: string;
     legal: string;
   };
+
   tiers: {
     title: string;
     subtitle: string;
