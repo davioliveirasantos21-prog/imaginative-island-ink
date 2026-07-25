@@ -376,7 +376,7 @@ function Landing() {
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#87ceeb]/10 via-transparent to-[#f4e9c1]/70" />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-20 text-center sm:py-28">
-          <span className="border-2 border-[#7a3e1d]/70 bg-[#f4e9c1]/90 px-3 py-1 text-[10px] tracking-[0.35em] text-[#7a3e1d]">
+          <span className="border-2 border-[#7a3e1d] bg-[#ffd166] px-3 py-1 text-[10px] tracking-[0.35em] text-[#2a1a0a]" style={{ boxShadow: "0 3px 0 #7a3e1d" }}>
             {c.hero.badge}
           </span>
           <img
@@ -385,14 +385,14 @@ function Landing() {
             className="w-full max-w-[520px]"
             style={{
               imageRendering: "pixelated",
-              filter: "drop-shadow(0 0 24px rgba(255,209,102,0.45)) drop-shadow(6px 6px 0 rgba(0,0,0,0.7))",
+              filter: "drop-shadow(0 0 24px rgba(255,209,102,0.6)) drop-shadow(6px 6px 0 rgba(0,0,0,0.45))",
             }}
           />
-          <h1 className="max-w-3xl text-2xl leading-tight sm:text-4xl md:text-5xl" style={{ textShadow: "3px 3px 0 #000, 0 0 20px rgba(0,0,0,0.9)" }}>
+          <h1 className="max-w-3xl text-2xl leading-tight sm:text-4xl md:text-5xl" style={{ textShadow: "3px 3px 0 #fff8dc, 0 0 18px rgba(255,255,255,0.55)" }}>
             <span className="text-[#7a3e1d]">{c.hero.title1}</span>{" "}
             <span className="text-[#2a1a0a]">{c.hero.title2}</span>
           </h1>
-          <p className="max-w-2xl rounded-sm bg-[#f4e9c1]/85 px-4 py-3 text-xs leading-relaxed text-[#2a1a0a] sm:text-sm">
+          <p className="max-w-2xl border-2 border-[#7a3e1d]/60 bg-[#fdf6dc]/95 px-4 py-3 text-xs leading-relaxed text-[#2a1a0a] sm:text-sm">
             {c.hero.subtitle}
           </p>
           <div className="flex flex-col items-center gap-3 sm:flex-row">
