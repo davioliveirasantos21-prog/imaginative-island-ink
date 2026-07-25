@@ -5,12 +5,13 @@ import { useI18n, LANGUAGES, type Lang } from "@/lib/i18n";
 import { submitContact } from "@/lib/contact.functions";
 
 import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
-import menuBg from "@/assets/menu-bg.png";
-import beachBg from "@/assets/beach-bg.png.asset.json";
-import caveEntrance from "@/assets/cave-entrance.png.asset.json";
-import stoneBg from "@/assets/stone-bg.png.asset.json";
-import skillsBg from "@/assets/skills-bg.png.asset.json";
-import settingsBg from "@/assets/settings-bg.png.asset.json";
+import heroScene from "@/assets/lp-scene-hero.jpg";
+import beachScene from "@/assets/lp-scene-beach.jpg";
+import caveScene from "@/assets/lp-scene-cave.jpg";
+import nightScene from "@/assets/lp-scene-night.jpg";
+import forgeScene from "@/assets/lp-scene-forge.jpg";
+import combatScene from "@/assets/lp-scene-combat.jpg";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
