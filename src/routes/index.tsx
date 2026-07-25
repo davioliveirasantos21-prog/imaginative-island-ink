@@ -384,16 +384,36 @@ function Landing() {
       {/* NAV */}
       <header className="sticky top-0 z-40 border-b-4 border-[#7a3e1d]/50 bg-[#87ceeb]/95 backdrop-blur">
 
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <a href="#top" className="flex items-center gap-3">
-            <img src={pixelIslandsLogo} alt="Pixel Islands" className="h-14 w-auto sm:h-16" style={{ imageRendering: "pixelated", filter: "drop-shadow(3px 3px 0 rgba(0,0,0,0.4))" }} />
-            <span className="hidden text-[10px] tracking-[0.3em] text-[#7a3e1d] sm:inline">PIXEL ISLANDS</span>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+          <a href="#top" className="flex shrink-0 items-center">
+            <img
+              src={pixelIslandsLogo}
+              alt="Pixel Islands"
+              className="h-14 w-auto sm:h-16"
+              style={{ imageRendering: "pixelated", filter: "drop-shadow(3px 3px 0 rgba(0,0,0,0.4))" }}
+            />
           </a>
-          <nav className="flex items-center gap-1 text-[10px] tracking-widest sm:gap-4 sm:text-xs">
-            <a href="#contact" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.contact}</a>
-            <Link to="/quem-somos" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.about}</Link>
-            <Link to="/apoio" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.support}</Link>
-            <a href="https://davioliver.itch.io/pixel-islands" target="_blank" rel="noreferrer" className="hidden text-[#c48a2e] hover:text-[#7a3e1d] sm:inline">itch.io ↗</a>
+
+          <nav className="flex items-center gap-4 text-[11px] tracking-[0.25em] sm:gap-6 sm:text-xs">
+            <Link to="/quem-somos" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] md:inline">
+              {c.nav.about}
+            </Link>
+            <Link to="/apoio" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] md:inline">
+              {c.nav.support}
+            </Link>
+            <a href="#contact" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] md:inline">
+              {c.nav.contact}
+            </a>
+            <a
+              href="https://davioliver.itch.io/pixel-islands"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden text-[#c48a2e] hover:text-[#7a3e1d] md:inline"
+            >
+              itch.io ↗
+            </a>
+
+            <span className="hidden h-5 w-px bg-[#7a3e1d]/30 md:inline-block" />
 
             <div className="relative">
               <button
@@ -421,11 +441,25 @@ function Landing() {
 
             <Link
               to="/game"
-              className="ml-1 border-2 border-[#ffd166] bg-[#ffd166] px-3 py-1 text-[10px] uppercase tracking-widest text-[#0a141f] hover:bg-[#ffe08a]"
+              className="border-2 border-[#7a3e1d] bg-[#ffd166] px-3 py-1.5 text-[10px] uppercase tracking-widest text-[#0a141f] hover:bg-[#ffe08a] sm:px-4"
+              style={{ boxShadow: "0 3px 0 #7a3e1d" }}
             >
               {c.nav.play}
             </Link>
           </nav>
+        </div>
+
+        {/* Mobile secondary row */}
+        <nav className="flex items-center justify-center gap-4 border-t border-[#7a3e1d]/25 bg-[#fdf6dc]/60 px-4 py-2 text-[10px] tracking-[0.25em] md:hidden">
+          <Link to="/quem-somos" className="text-[#3a2410]/85 hover:text-[#c48a2e]">{c.nav.about}</Link>
+          <span className="text-[#7a3e1d]/40">·</span>
+          <Link to="/apoio" className="text-[#3a2410]/85 hover:text-[#c48a2e]">{c.nav.support}</Link>
+          <span className="text-[#7a3e1d]/40">·</span>
+          <a href="#contact" className="text-[#3a2410]/85 hover:text-[#c48a2e]">{c.nav.contact}</a>
+          <span className="text-[#7a3e1d]/40">·</span>
+          <a href="https://davioliver.itch.io/pixel-islands" target="_blank" rel="noreferrer" className="text-[#c48a2e] hover:text-[#7a3e1d]">itch.io ↗</a>
+        </nav>
+
         </div>
       </header>
 
