@@ -462,45 +462,50 @@ function TierCard({
   );
 }
 
-const PRESETS = [10, 25, 50, 100, 200];
+const PRESETS = [0, 10, 25, 50, 100, 200];
 
 function DonationSection({ copy }: { copy: Copy["donate"] }) {
-  const donate = useServerFn(createDonationSession);
-  const [amount, setAmount] = useState<number>(25);
+  const [amount, setAmount] = useState<number>(0);
   const [custom, setCustom] = useState<string>("");
-  const [method, setMethod] = useState<"card" | "pix" | "both">("both");
-  const [donorName, setDonorName] = useState("");
-  const [message, setMessage] = useState("");
-  const [state, setState] = useState<"idle" | "sending" | "err">("idle");
-  const [errMsg, setErrMsg] = useState<string>("");
+  const [copied, setCopied] = useState(false);
 
-  const finalAmount = custom.trim() ? Number(custom.replace(",", ".")) : amount;
-  const valid = Number.isFinite(finalAmount) && finalAmount >= 5;
+  const finalAmount = useMemo(() => {
+    const v = custom.trim() ? Number(custom.replace(",", ".")) : amount;
+    return Number.isFinite(v) && v > 0 ? v : 0;
+  }, [custom, amount]);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (state === "sending") return;
-    if (!valid) {
-      setState("err");
-      setErrMsg(copy.min);
-      return;
-    }
-    setState("sending");
-    setErrMsg("");
+  const payload = useMemo(
+    () =>
+      buildPixPayload({
+        key: PIX_KEY,
+        merchantName: PIX_MERCHANT_NAME,
+        merchantCity: PIX_MERCHANT_CITY,
+        amount: finalAmount > 0 ? finalAmount : undefined,
+        txid: "PIXELISLANDS",
+        description: "Apoio Pixel Islands",
+      }),
+    [finalAmount],
+  );
+
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  useEffect(() => {
+    QRCode.toDataURL(payload, {
+      width: 320,
+      margin: 1,
+      color: { dark: "#2a1a0a", light: "#fdf6dc" },
+      errorCorrectionLevel: "M",
+    })
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(""));
+  }, [payload]);
+
+  async function onCopy() {
     try {
-      const cents = Math.round(finalAmount * 100);
-      const res = await donate({
-        data: {
-          amountBrlCents: cents,
-          method,
-          donorName: donorName || undefined,
-          message: message || undefined,
-        },
-      });
-      if (res.url) window.location.href = res.url;
-    } catch (err) {
-      setState("err");
-      setErrMsg((err as Error).message || copy.err);
+      await navigator.clipboard.writeText(payload);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* noop */
     }
   }
 
@@ -515,13 +520,12 @@ function DonationSection({ copy }: { copy: Copy["donate"] }) {
           </p>
         </div>
 
-        <form
-          onSubmit={onSubmit}
+        <div
           className="border-4 border-[#7a3e1d] bg-[#b7e4f3] p-5 sm:p-7"
           style={{ boxShadow: "0 8px 0 #7a3e1d" }}
         >
           <div className="mb-2 text-[10px] tracking-widest text-[#7a3e1d]">{copy.pickAmount}</div>
-          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-6">
             {PRESETS.map((v) => {
               const active = !custom && amount === v;
               return (
@@ -532,13 +536,13 @@ function DonationSection({ copy }: { copy: Copy["donate"] }) {
                     setAmount(v);
                     setCustom("");
                   }}
-                  className={`border-4 px-2 py-3 text-[11px] tracking-widest ${
+                  className={`border-4 px-2 py-3 text-[10px] tracking-widest ${
                     active
                       ? "border-[#7a3e1d] bg-[#ffd166] text-[#0a141f]"
                       : "border-[#7a3e1d]/40 bg-[#fdf6dc] text-[#7a3e1d]"
                   }`}
                 >
-                  R${v}
+                  {v === 0 ? "—" : `R$${v}`}
                 </button>
               );
             })}
@@ -552,86 +556,71 @@ function DonationSection({ copy }: { copy: Copy["donate"] }) {
             value={custom}
             onChange={(e) => setCustom(e.target.value.replace(/[^\d.,]/g, ""))}
             placeholder={copy.customPlaceholder}
-            className="mb-5 w-full border-4 border-[#7a3e1d]/50 bg-[#fdf6dc] px-3 py-2 text-sm text-[#2a1a0a] outline-none focus:border-[#ffd166]"
+            className="mb-2 w-full border-4 border-[#7a3e1d]/50 bg-[#fdf6dc] px-3 py-2 text-sm text-[#2a1a0a] outline-none focus:border-[#ffd166]"
           />
-
-          <div className="mb-2 text-[10px] tracking-widest text-[#7a3e1d]">{copy.method}</div>
-          <div className="mb-5 grid grid-cols-3 gap-2">
-            {(
-              [
-                ["both", copy.methodBoth],
-                ["card", copy.methodCard],
-                ["pix", copy.methodPix],
-              ] as const
-            ).map(([k, label]) => {
-              const active = method === k;
-              return (
-                <button
-                  type="button"
-                  key={k}
-                  onClick={() => setMethod(k)}
-                  className={`border-4 px-2 py-3 text-[10px] tracking-widest ${
-                    active
-                      ? "border-[#7a3e1d] bg-[#7ee787] text-[#0a141f]"
-                      : "border-[#7a3e1d]/40 bg-[#fdf6dc] text-[#7a3e1d]"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-[10px] tracking-widest text-[#7a3e1d]">
-                {copy.nameLabel}
-              </label>
-              <input
-                maxLength={120}
-                value={donorName}
-                onChange={(e) => setDonorName(e.target.value)}
-                placeholder={copy.namePlaceholder}
-                className="w-full border-4 border-[#7a3e1d]/50 bg-[#fdf6dc] px-3 py-2 text-sm text-[#2a1a0a] outline-none focus:border-[#ffd166]"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-[10px] tracking-widest text-[#7a3e1d]">
-                {copy.msgLabel}
-              </label>
-              <input
-                maxLength={200}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder={copy.msgPlaceholder}
-                className="w-full border-4 border-[#7a3e1d]/50 bg-[#fdf6dc] px-3 py-2 text-sm text-[#2a1a0a] outline-none focus:border-[#ffd166]"
-              />
-            </div>
-          </div>
-
-          {state === "err" && (
-            <div className="mt-4 border-2 border-[#e94560]/60 bg-[#e94560]/10 px-3 py-2 text-[11px] text-[#7a1020]">
-              {errMsg}
+          {finalAmount === 0 && (
+            <div className="mb-4 text-[10px] leading-relaxed text-[#3a2410]/70">
+              {copy.anyAmount}
             </div>
           )}
 
-          <div className="mt-6 flex flex-col items-center gap-3">
-            <button
-              type="submit"
-              disabled={state === "sending" || !valid}
-              className="w-full border-4 border-[#7a3e1d] bg-[#ffd166] px-6 py-4 text-xs uppercase tracking-widest text-[#0a141f] disabled:opacity-60 sm:w-auto"
-              style={{ boxShadow: "0 5px 0 #7a3e1d" }}
-            >
-              {state === "sending"
-                ? copy.sending
-                : `${copy.cta} · R$ ${valid ? finalAmount.toFixed(2).replace(".", ",") : "—"}`}
-            </button>
-            <div className="text-center text-[9px] leading-relaxed tracking-widest text-[#3a2410]/60">
-              {copy.legal}
+          <div className="mt-6 grid gap-6 sm:grid-cols-[auto,1fr] sm:items-center">
+            <div className="mx-auto border-4 border-[#7a3e1d] bg-[#fdf6dc] p-2">
+              {qrDataUrl ? (
+                <img
+                  src={qrDataUrl}
+                  alt="Pix QR Code"
+                  width={240}
+                  height={240}
+                  style={{ imageRendering: "pixelated", display: "block" }}
+                />
+              ) : (
+                <div className="flex h-[240px] w-[240px] items-center justify-center text-[10px] text-[#7a3e1d]">
+                  …
+                </div>
+              )}
+            </div>
+            <div className="min-w-0">
+              <div className="mb-2 text-[10px] tracking-widest text-[#7a3e1d]">{copy.scanTitle}</div>
+              <p className="mb-4 text-[11px] leading-relaxed text-[#3a2410]">{copy.scanHint}</p>
+
+              <div className="mb-3 border-2 border-[#7a3e1d]/50 bg-[#fdf6dc] p-3">
+                <div className="mb-1 text-[9px] tracking-widest text-[#7a3e1d]">{copy.keyLabel}</div>
+                <div className="break-all font-mono text-[11px] text-[#2a1a0a]">
+                  {PIX_CNPJ_DISPLAY}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={onCopy}
+                className="w-full border-4 border-[#7a3e1d] bg-[#ffd166] px-4 py-3 text-[10px] uppercase tracking-widest text-[#0a141f]"
+                style={{ boxShadow: "0 5px 0 #7a3e1d" }}
+              >
+                {copied ? copy.copied : copy.copyCode}
+              </button>
+
+              <details className="mt-3">
+                <summary className="cursor-pointer text-[9px] tracking-widest text-[#7a3e1d]">
+                  Pix Copia e Cola
+                </summary>
+                <textarea
+                  readOnly
+                  value={payload}
+                  className="mt-2 h-24 w-full resize-none break-all border-2 border-[#7a3e1d]/50 bg-[#fdf6dc] p-2 font-mono text-[10px] text-[#2a1a0a]"
+                  onFocus={(e) => e.currentTarget.select()}
+                />
+              </details>
             </div>
           </div>
-        </form>
+
+          <div className="mt-6 border-t-2 border-[#7a3e1d]/30 pt-4 text-center text-[9px] leading-relaxed tracking-widest text-[#3a2410]/70">
+            <div className="mb-1">{copy.receiver}</div>
+            <div>{copy.legal}</div>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
+
