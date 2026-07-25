@@ -248,7 +248,7 @@ function SupportPage() {
       <nav className="sticky top-0 z-40 border-b-4 border-[#7a3e1d] bg-[#fdf6dc]/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <Link to="/" className="flex items-center gap-2">
-            <img src={pixelIslandsLogo} alt="Pixel Islands" className="h-8 w-8" />
+            <img src={pixelIslandsLogo} alt="Pixel Islands" className="h-14 w-auto sm:h-16" style={{ imageRendering: "pixelated", filter: "drop-shadow(3px 3px 0 rgba(0,0,0,0.4))" }} />
             <span className="text-[10px] tracking-widest text-[#7a3e1d]">PIXEL ISLANDS</span>
           </Link>
           <div className="flex items-center gap-2">
