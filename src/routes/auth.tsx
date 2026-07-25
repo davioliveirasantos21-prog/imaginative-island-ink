@@ -1,7 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+
 import { playerSignIn, playerSignUp } from "@/lib/player-sync";
+import { sendPasswordResetEmail } from "@/lib/auth-email.functions";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -20,6 +23,8 @@ const USERNAME_RE = /^[a-z0-9_.-]{3,32}$/i;
 
 function AuthPage() {
   const navigate = useNavigate();
+  const sendReset = useServerFn(sendPasswordResetEmail);
+
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -46,16 +51,20 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        if (error) {
-          setErr(error.message);
-          return;
+        try {
+          await sendReset({
+            data: {
+              email: cleanEmail,
+              redirectTo: `${window.location.origin}/reset-password`,
+            },
+          });
+        } catch (e) {
+          console.error(e);
         }
         setOk("Se o e-mail existir, enviamos um link para redefinir a senha.");
         return;
       }
+
 
       if (password.length < 6) {
         setErr("Senha deve ter pelo menos 6 caracteres.");
