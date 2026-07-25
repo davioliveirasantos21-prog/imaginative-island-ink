@@ -368,7 +368,7 @@ function Landing() {
       {/* HERO */}
       <section id="top" className="relative overflow-hidden border-b-4 border-[#ffd166]/30">
         <img
-          src={menuBg}
+          src={heroScene}
           alt=""
           aria-hidden
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
