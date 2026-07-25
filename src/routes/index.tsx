@@ -22,19 +22,82 @@ export const Route = createFileRoute("/")({
         content:
           "Pixel Islands é um sandbox 2D de sobrevivência artesanal — um dos primeiros jogos programados com vibecoding e tecnologias web modernas. Explore ilhas, mine, forje, lute e construa seu mundo.",
       },
+      { name: "keywords", content: "pixel islands, sandbox, sobrevivência, jogo indie, vibecoding, jogo web, pixel art, jogo brasileiro, davi oliveira" },
+      { name: "author", content: "Davi Oliveira" },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Pixel Islands" },
+      { property: "og:url", content: "https://pixelislandsultimate.lovable.app/" },
       { property: "og:title", content: "Pixel Islands — Sandbox Pixel de Sobrevivência" },
       {
         property: "og:description",
         content:
           "Explore, mine, forje e lute em Pixel Islands — um sandbox pixel-art programado com vibecoding e tecnologias web modernas.",
       },
+      { property: "og:image", content: "https://pixelislandsultimate.lovable.app/pwa-512.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Pixel Islands — Sandbox Pixel de Sobrevivência" },
+      { name: "twitter:description", content: "Um dos primeiros jogos criados com vibecoding. Explore, minere, forje e sobreviva." },
+      { name: "twitter:image", content: "https://pixelislandsultimate.lovable.app/pwa-512.png" },
     ],
-
+    links: [{ rel: "canonical", href: "https://pixelislandsultimate.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "VideoGame",
+              name: "Pixel Islands",
+              url: "https://pixelislandsultimate.lovable.app/",
+              image: "https://pixelislandsultimate.lovable.app/pwa-512.png",
+              description:
+                "Sandbox 2D de sobrevivência pixel-art programado com vibecoding. Explore ilhas, mine, forje, lute e construa.",
+              genre: ["Sandbox", "Survival", "Indie", "Pixel Art"],
+              gamePlatform: ["Web browser", "PWA", "itch.io"],
+              applicationCategory: "Game",
+              operatingSystem: "Any (Web)",
+              inLanguage: ["pt-BR", "en", "es"],
+              playMode: "SinglePlayer",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "BRL", availability: "https://schema.org/InStock" },
+              author: { "@type": "Person", name: "Davi Oliveira", url: "https://pixelislandsultimate.lovable.app/quem-somos" },
+              publisher: { "@type": "Person", name: "Davi Oliveira" },
+              sameAs: ["https://davioliver.itch.io/pixel-islands"],
+            },
+            {
+              "@type": "Organization",
+              name: "Pixel Islands",
+              url: "https://pixelislandsultimate.lovable.app/",
+              logo: "https://pixelislandsultimate.lovable.app/pwa-512.png",
+              founder: { "@type": "Person", name: "Davi Oliveira" },
+            },
+            {
+              "@type": "WebSite",
+              url: "https://pixelislandsultimate.lovable.app/",
+              name: "Pixel Islands",
+              inLanguage: ["pt-BR", "en", "es"],
+              potentialAction: {
+                "@type": "PlayAction",
+                target: "https://pixelislandsultimate.lovable.app/game",
+              },
+            },
+            {
+              "@type": "FAQPage",
+              mainEntity: [
+                { "@type": "Question", name: "O jogo é gratuito?", acceptedAnswer: { "@type": "Answer", text: "Sim. Durante o pré-alpha, Pixel Islands é totalmente gratuito." } },
+                { "@type": "Question", name: "Meu progresso fica salvo?", acceptedAnswer: { "@type": "Answer", text: "Sim. Cada personagem é sincronizado com a nuvem por conta." } },
+                { "@type": "Question", name: "Precisa instalar?", acceptedAnswer: { "@type": "Answer", text: "Não. Pixel Islands roda direto no navegador como PWA." } },
+              ],
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: Landing,
 });
+
 
 type Copy = {
   nav: { features: string; screens: string; faq: string; contact: string; about: string; support: string; play: string };
