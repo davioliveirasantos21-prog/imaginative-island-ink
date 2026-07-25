@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { BuyButton } from "@/components/BuyButton";
+import { createDonationSession } from "@/lib/donations.functions";
 import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
 import forgeScene from "@/assets/lp-scene-forge.jpg";
 
@@ -30,6 +32,27 @@ type Copy = {
   nav: { home: string; play: string };
   hero: { kicker: string; title: string; subtitle: string };
   why: { title: string; items: { title: string; body: string }[] };
+  donate: {
+    kicker: string;
+    title: string;
+    subtitle: string;
+    pickAmount: string;
+    custom: string;
+    customPlaceholder: string;
+    method: string;
+    methodCard: string;
+    methodPix: string;
+    methodBoth: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    msgLabel: string;
+    msgPlaceholder: string;
+    cta: string;
+    sending: string;
+    err: string;
+    min: string;
+    legal: string;
+  };
   tiers: {
     title: string;
     subtitle: string;
