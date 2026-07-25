@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
 });
 
 type Copy = {
-  nav: { features: string; screens: string; faq: string; contact: string; play: string };
+  nav: { features: string; screens: string; faq: string; contact: string; about: string; support: string; play: string };
   hero: {
     badge: string;
     title1: string;
