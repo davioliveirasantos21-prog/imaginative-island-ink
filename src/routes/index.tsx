@@ -307,13 +307,14 @@ function Landing() {
 
 
   const shots = [
-    { url: menuBg as unknown as string, cap: c.screens.caps[0], desc: c.screens.captions[0] },
-    { url: caveEntrance.url, cap: c.screens.caps[1], desc: c.screens.captions[1] },
-    { url: skillsBg.url, cap: c.screens.caps[2], desc: c.screens.captions[2] },
-    { url: stoneBg.url, cap: c.screens.caps[3], desc: c.screens.captions[3] },
-    { url: settingsBg.url, cap: c.screens.caps[4], desc: c.screens.captions[4] },
-    { url: beachBg.url, cap: c.screens.caps[5], desc: c.screens.captions[5] },
+    { url: heroScene, cap: c.screens.caps[0], desc: c.screens.captions[0] },
+    { url: caveScene, cap: c.screens.caps[1], desc: c.screens.captions[1] },
+    { url: combatScene, cap: c.screens.caps[2], desc: c.screens.captions[2] },
+    { url: forgeScene, cap: c.screens.caps[3], desc: c.screens.captions[3] },
+    { url: nightScene, cap: c.screens.caps[4], desc: c.screens.captions[4] },
+    { url: beachScene, cap: c.screens.caps[5], desc: c.screens.captions[5] },
   ];
+
 
   return (
     <div className="min-h-screen bg-[#0a141f] text-[#f4e9c1] font-pixel selection:bg-[#ffd166] selection:text-[#0a141f]">
