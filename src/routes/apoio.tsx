@@ -316,6 +316,10 @@ function SupportPage() {
         </div>
       </section>
 
+      {/* Donate */}
+      <DonationSection copy={c.donate} />
+
+
       {/* Tiers */}
       <section className="border-b-4 border-[#7a3e1d]/40 bg-[#b7e4f3] py-14">
         <div className="mx-auto max-w-6xl px-4">
