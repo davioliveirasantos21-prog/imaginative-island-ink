@@ -1,7 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { playerSignIn, playerSignUp } from "@/lib/player-sync";
+import { sendPasswordResetEmail } from "@/lib/auth-email.functions";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
