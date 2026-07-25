@@ -1,10 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useMemo, useState } from "react";
+import QRCode from "qrcode";
 import { BuyButton } from "@/components/BuyButton";
-import { createDonationSession } from "@/lib/donations.functions";
+import { buildPixPayload } from "@/lib/pix";
 import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
 import forgeScene from "@/assets/lp-scene-forge.jpg";
+
+const PIX_KEY = "65550537000170"; // CNPJ (Pix key)
+const PIX_MERCHANT_NAME = "Fabio de Oliveira Santos";
+const PIX_MERCHANT_CITY = "SAO PAULO";
+const PIX_CNPJ_DISPLAY = "65.550.537/0001-70";
+
 
 export const Route = createFileRoute("/apoio")({
   head: () => ({
