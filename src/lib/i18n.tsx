@@ -1314,7 +1314,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as Lang | null;
-      if (saved && dictionaries[saved]) setLangState(saved);
+      if (saved && dictionaries[saved]) {
+        setLangState(saved);
+        return;
+      }
+      // Auto-detect from browser locale on first visit
+      const nav = navigator.language?.toLowerCase() ?? "";
+      if (nav.startsWith("pt")) setLangState("pt");
+      else if (nav.startsWith("es")) setLangState("es");
+      else setLangState("en");
     } catch {
       /* ignore */
     }

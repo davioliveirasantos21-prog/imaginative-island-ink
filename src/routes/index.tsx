@@ -1,628 +1,602 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useState } from "react";
-import { LANGUAGES, useI18n, type Lang } from "@/lib/i18n";
-
-const AdminPanel = lazy(() => import("@/components/AdminPanel").then((m) => ({ default: m.AdminPanel })));
-import {
-  signInWithPassword,
-  signUpWithPassword,
-  getCurrentUser,
-} from "@/lib/cloud-sync";
-import { playerSignOut } from "@/lib/player-sync";
-import { usePlayerSession } from "@/hooks/use-player-session";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useI18n, LANGUAGES, type Lang } from "@/lib/i18n";
 import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
 import menuBg from "@/assets/menu-bg.png";
-
+import beachBg from "@/assets/beach-bg.png.asset.json";
+import caveEntrance from "@/assets/cave-entrance.png.asset.json";
+import stoneBg from "@/assets/stone-bg.png.asset.json";
+import skillsBg from "@/assets/skills-bg.png.asset.json";
+import settingsBg from "@/assets/settings-bg.png.asset.json";
 
 export const Route = createFileRoute("/")({
-  component: MainMenu,
+  head: () => ({
+    meta: [
+      { title: "Pixel Islands — Survival Pixel Sandbox Built with Vibecoding AI" },
+      {
+        name: "description",
+        content:
+          "Pixel Islands is a handcrafted 2D survival sandbox — one of the first games built end-to-end with vibecoding AI. Explore islands, mine, craft, fight and shape your world.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Pixel Islands — Pixel Survival Sandbox" },
+      {
+        property: "og:description",
+        content:
+          "Explore, mine, craft and fight in Pixel Islands — a pixel-art survival sandbox forged with vibecoding AI.",
+      },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Landing,
 });
 
-type Modal = null | "settings" | "language" | "admin-login";
-
-function MainMenu() {
-  const { t, lang, setLang } = useI18n();
-  const navigate = useNavigate();
-  const [modal, setModal] = useState<Modal>(null);
-  const [music, setMusic] = useState(70);
-  const [sfx, setSfx] = useState(80);
-  const [adminOpen, setAdminOpen] = useState(false);
-  const [adminUser, setAdminUser] = useState("");
-  const [adminPw, setAdminPw] = useState("");
-  const [adminErr, setAdminErr] = useState<string | null>(null);
-  const [adminMode, setAdminMode] = useState<"signin" | "signup">("signin");
-  const [adminBusy, setAdminBusy] = useState(false);
-  const { canInstall, isInstalled, promptInstall } = usePwaInstall();
-  const { session: playerSession } = usePlayerSession();
-
-  /** Admin accounts are addressed by username only. Supabase Auth still
-   *  requires an email under the hood, so we deterministically derive one
-   *  from the username. Users never see or type this email. */
-  function usernameToEmail(u: string): string {
-    return `${u.trim().toLowerCase()}@admin.local`;
-  }
-
-  async function submitAdminAuth() {
-    if (adminBusy) return;
-    const uname = adminUser.trim();
-    if (!/^[a-z0-9_.-]{3,32}$/i.test(uname)) {
-      setAdminErr("Usuário deve ter 3-32 caracteres (letras, números, _.-).");
-      return;
-    }
-    if (adminPw.length < 6) {
-      setAdminErr("Senha deve ter pelo menos 6 caracteres.");
-      return;
-    }
-    setAdminBusy(true);
-    setAdminErr(null);
-    try {
-      const fn = adminMode === "signin" ? signInWithPassword : signUpWithPassword;
-      const email = usernameToEmail(uname);
-      const { error } = await fn(email, adminPw);
-      if (error) {
-        setAdminErr(error.message);
-        return;
-      }
-      // Auto-confirm is on, so signup returns a live session — sign in again
-      // is unnecessary. Just verify we have a user.
-      const u = await getCurrentUser();
-      if (!u) {
-        setAdminErr("Não foi possível entrar.");
-        return;
-      }
-      if (!u.isAdmin) {
-        setAdminErr("Sua conta não é admin. Peça a um admin para promover.");
-        return;
-      }
-      setModal(null);
-      setAdminOpen(true);
-      setAdminPw("");
-      setAdminUser("");
-    } finally {
-      setAdminBusy(false);
-    }
-  }
-
-
-  return (
-    <div className="relative min-h-screen overflow-hidden bg-[#1a4a7a] text-[#f4e9c1] font-pixel">
-      <img
-        src={menuBg}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full select-none"
-        style={{
-          objectFit: "cover",
-          objectPosition: "left center",
-          transform: "scale(1.0667)",
-          transformOrigin: "left center",
-          imageRendering: "pixelated",
-        }}
-        draggable={false}
-      />
-
-      <main className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 py-6 short:px-4 short:py-2">
-        <img
-          src={pixelIslandsLogo}
-          alt={t("menu.title")}
-          className="mt-4 w-full max-w-[92vw] sm:max-w-[560px] short:max-w-[360px] h-auto select-none"
-          style={{
-            imageRendering: "pixelated",
-            filter:
-              "drop-shadow(0 0 18px rgba(255,209,102,0.35)) drop-shadow(6px 6px 0 rgba(0,0,0,0.55))",
-            transform: "scale(1.5)"
-          }}
-          draggable={false}
-        />
-
-        <div className="mb-6 flex w-full max-w-xs flex-col gap-4 short:mb-2 short:max-w-2xl short:flex-row short:gap-2">
-
-          <PixelButton
-            variant="primary"
-            onClick={() =>
-              navigate({ to: playerSession ? "/characters" : "/auth" })
-            }
-          >
-            {t("menu.play")}
-          </PixelButton>
-          <PixelButton onClick={() => setModal("settings")}>
-            {t("menu.settings")}
-          </PixelButton>
-          <PixelButton onClick={() => setModal("language")}>
-            {(() => {
-              const current = LANGUAGES.find((l) => l.code === lang);
-              return current ? `${current.label} ${current.flag}` : lang.toUpperCase();
-            })()}
-          </PixelButton>
-          {!isInstalled && canInstall && (
-            <PixelButton onClick={() => void promptInstall()}>
-              📱 Instalar App
-            </PixelButton>
-          )}
-        </div>
-
-
-        <div className="absolute bottom-4 text-[10px] text-[#f4e9c1]/50 tracking-widest short:bottom-1 short:text-[8px]">
-          v0.1 · pre-alpha
-        </div>
-
-        <button
-          onClick={async () => {
-            setAdminPw("");
-            setAdminUser("");
-            setAdminErr(null);
-            setAdminMode("signin");
-            // If already signed in as admin, skip the login modal.
-            const u = await getCurrentUser();
-            if (u?.isAdmin) {
-              setAdminOpen(true);
-            } else {
-              setModal("admin-login");
-            }
-          }}
-          className="absolute bottom-3 right-3 border-2 border-[#ffd166]/60 bg-[#1b2a3a]/80 px-2 py-1 text-[9px] uppercase tracking-widest text-[#ffd166] hover:border-[#ffd166]"
-        >
-          🛠 Admin
-        </button>
-
-        {playerSession ? (
-          <button
-            onClick={() => void playerSignOut()}
-            className="absolute bottom-11 right-3 border-2 border-[#f4e9c1]/50 bg-[#1b2a3a]/80 px-2 py-1 text-[9px] uppercase tracking-widest text-[#f4e9c1] hover:border-[#f4e9c1] max-w-[160px] truncate"
-            title={`Sair (${playerSession.username})`}
-          >
-            🚪 {playerSession.username}
-          </button>
-        ) : (
-          <button
-            onClick={() => navigate({ to: "/auth" })}
-            className="absolute bottom-11 right-3 border-2 border-[#f4e9c1]/50 bg-[#1b2a3a]/80 px-2 py-1 text-[9px] uppercase tracking-widest text-[#f4e9c1] hover:border-[#f4e9c1]"
-          >
-            🔑 Entrar
-          </button>
-        )}
-      </main>
-
-
-      {modal === "settings" && (
-        <Modal title={t("settings.title")} onClose={() => setModal(null)}>
-          <SliderRow label={t("settings.music")} value={music} onChange={setMusic} />
-          <SliderRow label={t("settings.sfx")} value={sfx} onChange={setSfx} />
-          <div className="mt-6 flex justify-end">
-            <PixelButton onClick={() => setModal(null)}>{t("settings.close")}</PixelButton>
-          </div>
-        </Modal>
-      )}
-
-      {modal === "language" && (
-        <Modal title={t("lang.title")} onClose={() => setModal(null)}>
-          <div className="flex flex-col gap-3">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => {
-                  setLang(l.code as Lang);
-                  setModal(null);
-                }}
-                className={`flex items-center justify-between border-4 px-4 py-3 text-sm transition-colors ${
-                  lang === l.code
-                    ? "border-[#ffd166] bg-[#ffd166]/10"
-                    : "border-[#f4e9c1]/30 hover:border-[#f4e9c1]/70"
-                }`}
-              >
-                <span>{l.label}</span>
-                <span className="text-lg">{l.flag}</span>
-              </button>
-            ))}
-          </div>
-        </Modal>
-      )}
-
-      {modal === "admin-login" && (
-        <Modal title="ADMIN" onClose={() => setModal(null)}>
-          <div className="mb-3 text-[10px] tracking-widest text-[#f4e9c1]/70">
-            {adminMode === "signin"
-              ? "Entre com sua conta de admin:"
-              : "Crie uma conta (o primeiro cadastro vira admin):"}
-          </div>
-          <input
-            autoFocus
-            type="text"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            placeholder="usuário"
-            value={adminUser}
-            onChange={(e) => {
-              setAdminUser(e.target.value);
-              setAdminErr(null);
-            }}
-            className="mb-2 w-full border-4 border-[#f4e9c1]/50 bg-[#0d1b2a] px-3 py-2 text-sm text-[#f4e9c1] outline-none focus:border-[#ffd166]"
-          />
-          <input
-            type="password"
-            placeholder="senha"
-            value={adminPw}
-            onChange={(e) => {
-              setAdminPw(e.target.value);
-              setAdminErr(null);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") void submitAdminAuth();
-            }}
-            className="w-full border-4 border-[#f4e9c1]/50 bg-[#0d1b2a] px-3 py-2 text-sm text-[#f4e9c1] outline-none focus:border-[#ffd166]"
-          />
-          {adminErr && (
-            <div className="mt-2 text-[10px] text-[#e94560]">{adminErr}</div>
-          )}
-          {/* Cadastro público desativado — só o admin existente pode entrar. */}
-          <div className="mt-4 flex justify-end gap-2">
-            <PixelButton onClick={() => setModal(null)}>Cancelar</PixelButton>
-            <PixelButton variant="primary" onClick={() => void submitAdminAuth()}>
-              {adminBusy ? "..." : adminMode === "signin" ? "Entrar" : "Criar"}
-            </PixelButton>
-          </div>
-        </Modal>
-      )}
-
-      {adminOpen && (
-        <Suspense fallback={null}>
-          <AdminPanel onClose={() => setAdminOpen(false)} />
-        </Suspense>
-      )}
-    </div>
-  );
-}
-
-function PixelButton({
-  children,
-  onClick,
-  variant = "default",
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  variant?: "default" | "primary";
-}) {
-  const isPrimary = variant === "primary";
-  return (
-    <button
-      onClick={onClick}
-      className={`group relative w-full select-none text-xs sm:text-sm uppercase transition-transform active:translate-y-[3px] ${
-        isPrimary ? "text-[#0d1b2a]" : "text-[#f4e9c1]"
-      }`}
-    >
-      <span
-        className="block px-6 py-4 border-4 short:px-3 short:py-2 short:text-[10px]"
-        style={{
-          background: isPrimary ? "#ffd166" : "#1b2a3a",
-          borderColor: isPrimary ? "#7a3e1d" : "#f4e9c1",
-          boxShadow: isPrimary
-            ? "0 6px 0 #7a3e1d, 0 8px 0 rgba(0,0,0,0.5)"
-            : "0 6px 0 #0a141f, 0 8px 0 rgba(0,0,0,0.5)",
-        }}
-      >
-        {children}
-      </span>
-    </button>
-  );
-}
-
-function Modal({
-  title,
-  children,
-  onClose,
-}: {
-  title: string;
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-md border-4 border-[#f4e9c1] bg-[#1b2a3a] p-6 text-[#f4e9c1] font-pixel"
-        style={{ boxShadow: "0 8px 0 #0a141f, 0 12px 0 rgba(0,0,0,0.5)" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="mb-4 text-sm sm:text-base tracking-widest text-[#ffd166]">
-          {title}
-        </h2>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function SliderRow({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  onChange: (n: number) => void;
-}) {
-  return (
-    <div className="mb-4">
-      <div className="mb-2 flex items-center justify-between text-[10px] sm:text-xs">
-        <span>{label}</span>
-        <span className="text-[#ffd166]">{value}</span>
-      </div>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-[#ffd166]"
-      />
-    </div>
-  );
-}
-
-function PixelSun() {
-  // Pixel sun with soft outer glow and 8 radiating pixel rays.
-  const px = 4;
-  const size = 22 * px; // 88px
-  const cx = 11, cy = 11;
-  const cells: Array<[number, number, string]> = [];
-  // Body (circle-ish 8x8) with shading
-  for (let y = 0; y < 22; y++) {
-    for (let x = 0; x < 22; x++) {
-      const d = Math.hypot(x - cx + 0.5, y - cy + 0.5);
-      if (d < 4.2) cells.push([x, y, "#ffe08a"]);
-      else if (d < 5.3) cells.push([x, y, "#ffd166"]);
-      else if (d < 6.2) cells.push([x, y, "#f0a93a"]);
-    }
-  }
-  // Rays (short pixel bars N/S/E/W + diagonals)
-  const ray = (x: number, y: number) => cells.push([x, y, "#ffd166"]);
-  for (let i = 0; i < 3; i++) { ray(cx, i); ray(cx, 21 - i); ray(i, cy); ray(21 - i, cy); }
-  ray(2, 2); ray(3, 3); ray(19, 2); ray(18, 3);
-  ray(2, 19); ray(3, 18); ray(19, 19); ray(18, 18);
-  return (
-    <svg width={size} height={size} shapeRendering="crispEdges"
-      style={{ filter: "drop-shadow(0 0 12px rgba(255,209,102,0.45))" }}>
-      {cells.map(([x, y, c], i) => (
-        <rect key={i} x={x * px} y={y * px} width={px} height={px} fill={c} />
-      ))}
-    </svg>
-  );
-}
-
-function PixelGull({ small = false }: { small?: boolean }) {
-  // Two chevrons — a stylized flying seagull. Chunky pixel style.
-  const px = small ? 3 : 4;
-  const cells: Array<[number, number]> = [
-    [0,1],[1,0],[2,1],       // left wing
-    [3,1],                     // body
-    [4,1],[5,0],[6,1],       // right wing
-  ];
-  return (
-    <svg width={7 * px} height={2 * px} shapeRendering="crispEdges"
-      style={{ filter: "drop-shadow(1px 2px 0 rgba(0,0,0,0.25))" }}>
-      {cells.map(([x, y], i) => (
-        <rect key={i} x={x * px} y={y * px} width={px} height={px} fill="#2c2830" />
-      ))}
-    </svg>
-  );
-}
-
-function PixelHorizonIsland({ w, h }: { w: number; h: number }) {
-  // A flat silhouette dome for distant islands.
-  const px = 4;
-  const cells: Array<[number, number]> = [];
-  for (let y = 0; y < h; y++) {
-    const inset = Math.round((y / h) * (w * 0.35));
-    for (let x = inset; x < w - inset; x++) cells.push([x, h - 1 - y]);
-  }
-  return (
-    <svg width={w * px} height={h * px} shapeRendering="crispEdges">
-      {cells.map(([x, y], i) => (
-        <rect key={i} x={x * px} y={y * px} width={px} height={px} fill="#1a4a7a" />
-      ))}
-    </svg>
-  );
-}
-
-function PixelCloud({ variant = "big" }: { variant?: "big" | "small" | "wide" }) {
-  const px = 6;
-  let cells: Array<[number, number]>;
-  let w = 7, h = 4;
-  if (variant === "small") {
-    w = 5; h = 3;
-    cells = [
-      [1,0],[2,0],
-      [0,1],[1,1],[2,1],[3,1],[4,1],
-      [1,2],[2,2],[3,2],
-    ];
-  } else if (variant === "wide") {
-    w = 10; h = 4;
-    cells = [
-      [2,1],[3,1],[4,1],[5,1],[6,1],[7,1],
-      [1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],
-      [2,3],[3,3],[4,3],[5,3],[6,3],[7,3],
-    ];
-  } else {
-    cells = [
-      [1,1],[2,1],[3,1],[4,1],
-      [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],
-      [1,3],[2,3],[3,3],[4,3],[5,3],
-    ];
-  }
-  // Bottom shading row
-  const shade = new Set(cells.filter(([, y]) => y === h - 1).map(([x]) => x));
-  return (
-    <svg width={w * px} height={h * px} shapeRendering="crispEdges"
-      style={{ display: "block", filter: "drop-shadow(2px 3px 0 rgba(0,0,0,0.15))" }}>
-      {cells.map(([x, y], i) => (
-        <rect key={i} x={x * px} y={y * px} width={px} height={px}
-          fill={shade.has(x) && y === h - 1 ? "#dfeaf3" : "#ffffff"} />
-      ))}
-    </svg>
-  );
-}
-
-function PixelIsland({ variant, scale = 1 }: { variant: "palm" | "rock" | "small" | "twin" | "arch"; scale?: number }) {
-
-  const px = 5;
-  // Base sand + darker sand + rim of shadow water underneath
-  const SAND = "#f2d17a";
-  const SAND_D = "#c99b48";
-  const GRASS = "#4aa64a";
-  const GRASS_D = "#2e7a34";
-  const TRUNK = "#7a4a1f";
-  const ROCK = "#6a7080";
-  const ROCK_D = "#3f4553";
-  const WATER = "#1a4a7a";
-
-  // Simple pixel patterns per variant
-  type Cell = { x: number; y: number; c: string };
-  const cells: Cell[] = [];
-  const add = (x: number, y: number, c: string) => cells.push({ x, y, c });
-
-  if (variant === "palm") {
-    // 10x8 grid
-    // sand base
-    for (let x = 1; x <= 8; x++) add(x, 5, SAND);
-    for (let x = 2; x <= 7; x++) add(x, 4, SAND);
-    for (let x = 0; x <= 9; x++) add(x, 6, SAND_D);
-    for (let x = 1; x <= 8; x++) add(x, 7, WATER);
-    // trunk
-    add(4, 3, TRUNK); add(4, 2, TRUNK); add(4, 1, TRUNK);
-    // leaves
-    add(3, 0, GRASS_D); add(4, 0, GRASS); add(5, 0, GRASS_D);
-    add(2, 1, GRASS_D); add(3, 1, GRASS); add(5, 1, GRASS); add(6, 1, GRASS_D);
-  } else if (variant === "rock") {
-    // 8x6
-    for (let x = 1; x <= 6; x++) add(x, 4, SAND);
-    for (let x = 0; x <= 7; x++) add(x, 5, SAND_D);
-    add(2, 3, ROCK); add(3, 3, ROCK); add(4, 3, ROCK); add(5, 3, ROCK_D);
-    add(3, 2, ROCK); add(4, 2, ROCK_D);
-    add(4, 1, ROCK_D);
-    for (let x = 1; x <= 6; x++) add(x, 6, WATER);
-  } else if (variant === "twin") {
-    // 14x8 wider island with two palms
-    for (let x = 1; x <= 12; x++) add(x, 5, SAND);
-    for (let x = 2; x <= 11; x++) add(x, 4, SAND);
-    for (let x = 0; x <= 13; x++) add(x, 6, SAND_D);
-    for (let x = 1; x <= 12; x++) add(x, 7, WATER);
-    // left palm
-    add(3, 3, TRUNK); add(3, 2, TRUNK); add(3, 1, TRUNK);
-    add(2, 0, GRASS_D); add(3, 0, GRASS); add(4, 0, GRASS_D);
-    add(1, 1, GRASS_D); add(2, 1, GRASS); add(4, 1, GRASS);
-    // right palm (taller)
-    add(9, 3, TRUNK); add(9, 2, TRUNK); add(9, 1, TRUNK); add(9, 0, TRUNK);
-    add(8, -1 as unknown as number, GRASS_D); // fallback; use y=0..
-    add(8, 0, GRASS); add(9, 0, GRASS_D); add(10, 0, GRASS);
-    add(7, 1, GRASS_D); add(11, 1, GRASS_D);
-  } else if (variant === "arch") {
-    // 10x7 rocky arch island
-    for (let x = 1; x <= 8; x++) add(x, 4, SAND);
-    for (let x = 0; x <= 9; x++) add(x, 5, SAND_D);
-    for (let x = 1; x <= 8; x++) add(x, 6, WATER);
-    // arch pillars
-    add(2, 3, ROCK); add(2, 2, ROCK); add(2, 1, ROCK_D);
-    add(7, 3, ROCK); add(7, 2, ROCK); add(7, 1, ROCK_D);
-    // arch top
-    add(3, 0, ROCK_D); add(4, 0, ROCK); add(5, 0, ROCK); add(6, 0, ROCK_D);
-    add(3, 1, ROCK); add(6, 1, ROCK);
-  } else {
-    // small: 6x4
-    for (let x = 1; x <= 4; x++) add(x, 2, SAND);
-    for (let x = 0; x <= 5; x++) add(x, 3, SAND_D);
-    add(2, 1, GRASS); add(3, 1, GRASS_D);
-    for (let x = 1; x <= 4; x++) add(x, 4, WATER);
-  }
-
-  // Drop any negative-y stragglers
-  const filtered = cells.filter((c) => c.y >= 0);
-  cells.length = 0;
-  cells.push(...filtered);
-
-
-  const maxX = Math.max(...cells.map((c) => c.x)) + 1;
-  const maxY = Math.max(...cells.map((c) => c.y)) + 1;
-
-  return (
-    <svg
-      width={maxX * px * scale}
-      height={maxY * px * scale}
-      viewBox={`0 0 ${maxX * px} ${maxY * px}`}
-      shapeRendering="crispEdges"
-      style={{ display: "block", filter: "drop-shadow(2px 4px 0 rgba(0,0,0,0.35))" }}
-    >
-      {cells.map((c, i) => (
-        <rect key={i} x={c.x * px} y={c.y * px} width={px} height={px} fill={c.c} />
-      ))}
-    </svg>
-  );
-}
-
-
-
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+type Copy = {
+  nav: { features: string; screens: string; faq: string; play: string };
+  hero: {
+    badge: string;
+    title1: string;
+    title2: string;
+    subtitle: string;
+    ctaPlay: string;
+    ctaScroll: string;
+    stat1: string;
+    stat1l: string;
+    stat2: string;
+    stat2l: string;
+    stat3: string;
+    stat3l: string;
+  };
+  vibe: {
+    kicker: string;
+    title: string;
+    body: string;
+  };
+  style: {
+    title: string;
+    subtitle: string;
+    cards: { title: string; body: string; icon: string }[];
+  };
+  screens: { title: string; subtitle: string; caps: string[] };
+  faq: { title: string; items: { q: string; a: string }[] };
+  footer: string;
 };
 
-function usePwaInstall() {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isIos, setIsIos] = useState(false);
+const COPY: Record<"pt" | "en" | "es", Copy> = {
+  pt: {
+    nav: { features: "Estilo", screens: "Imagens", faq: "FAQ", play: "Jogar" },
+    hero: {
+      badge: "◆ Pré-alpha · 2026",
+      title1: "Sobreviva.",
+      title2: "Construa seu arquipélago.",
+      subtitle:
+        "Um sandbox pixelado de sobrevivência forjado à mão, pixel por pixel. Cave cavernas, funda barras, plante palmeiras, enfrente aranhas gigantes e reconstrua a civilização — sozinho ou com quem chegar na sua ilha.",
+      ctaPlay: "▶ Jogar agora",
+      ctaScroll: "Descobrir o mundo",
+      stat1: "3+",
+      stat1l: "Biomas explorados",
+      stat2: "40+",
+      stat2l: "Itens & receitas",
+      stat3: "∞",
+      stat3l: "Ilhas geradas",
+    },
+    vibe: {
+      kicker: "· Feito com Vibecoding IA ·",
+      title: "Um dos primeiros jogos nascidos do vibecoding.",
+      body:
+        "Pixel Islands é um experimento honesto: cada tile, cada som, cada linha de mecânica foi orquestrada em parceria com uma IA generativa em tempo real. Não é um asset flip nem um wrapper — é design de verdade, iterando na velocidade do pensamento. Você está vendo uma nova forma de fazer jogos acontecer, ao vivo.",
+    },
+    style: {
+      title: "Estilo de jogo",
+      subtitle: "Sandbox de sobrevivência 2D, com uma alma old-school.",
+      cards: [
+        {
+          icon: "⛏",
+          title: "Mineração & Forja",
+          body:
+            "Do minério bruto ao machado de ferro: cave, funda, refine. Cada barra na sua mão te lembra que você é um ferreiro agora.",
+        },
+        {
+          icon: "🌴",
+          title: "Coleta & Cultivo",
+          body:
+            "Corte árvores adultas, plante mudas de palmeira, colha frutos. O tempo passa e a ilha responde ao que você planta.",
+        },
+        {
+          icon: "🕷",
+          title: "Combate por biomas",
+          body:
+            "Lacraias na praia, aranhas gigantes no teto da caverna. Cada bicho pede uma tática — e uma arma nova.",
+        },
+        {
+          icon: "🏗",
+          title: "Construção livre",
+          body:
+            "Blueprints coloridos mostram exatamente o que falta. Sua base cresce peça por peça, no seu ritmo.",
+        },
+        {
+          icon: "🎒",
+          title: "Habilidades",
+          body:
+            "Forja, Combate, Precisão. Cada golpe conta XP. Evolua o que você joga, não o que o menu decide.",
+        },
+        {
+          icon: "🌗",
+          title: "Ciclo dia/noite",
+          body:
+            "Sol nasce, vagalumes acendem, aranhas descem. A noite muda tudo — inclusive a trilha sonora.",
+        },
+      ],
+    },
+    screens: {
+      title: "Um mundo pintado à mão",
+      subtitle: "Cada bioma tem sua paleta. Cada tela é um cartão-postal pixelado.",
+      caps: [
+        "Praia ao amanhecer",
+        "Cavernas profundas",
+        "Salão de habilidades",
+        "Fornalha & forja",
+        "Configurações rústicas",
+      ],
+    },
+    faq: {
+      title: "Perguntas frequentes",
+      items: [
+        {
+          q: "O jogo é gratuito?",
+          a: "Sim. Durante o pré-alpha, Pixel Islands é totalmente gratuito. Basta criar uma conta com seu e-mail e senha para salvar seu progresso na nuvem.",
+        },
+        {
+          q: "O que é 'vibecoding com IA'?",
+          a: "É desenvolvimento colaborativo com uma IA generativa: você descreve a mecânica, a arte ou o bug, e a IA implementa em segundos. Pixel Islands é construído inteiro assim — desde o motor de física até os sprites dos itens.",
+        },
+        {
+          q: "Precisa baixar?",
+          a: "Não. Roda direto no navegador, tanto no PC quanto no celular. Se quiser, dá para instalar como app (PWA) e jogar offline entre sessões.",
+        },
+        {
+          q: "Meu progresso fica salvo?",
+          a: "Fica. Cada personagem é sincronizado com a nuvem por conta. Se você trocar de dispositivo, entra na sua conta e continua exatamente de onde parou.",
+        },
+        {
+          q: "Vai ter multiplayer?",
+          a: "Multiplayer cooperativo está no roadmap. Por enquanto o foco é polir a experiência solo e adicionar mais biomas, chefes e receitas.",
+        },
+        {
+          q: "Como reporto bugs ou dou ideias?",
+          a: "Entre no jogo e use o menu de feedback — ou fale direto com a comunidade. Cada relato ajusta o próximo update, que costuma sair no mesmo dia.",
+        },
+      ],
+    },
+    footer: "Pixel Islands · construído com vibecoding · pixelislands.site",
+  },
+  en: {
+    nav: { features: "Style", screens: "Screens", faq: "FAQ", play: "Play" },
+    hero: {
+      badge: "◆ Pre-alpha · 2026",
+      title1: "Survive.",
+      title2: "Build your archipelago.",
+      subtitle:
+        "A handcrafted pixel survival sandbox, tile by tile. Dig caves, smelt bars, plant palms, fight giant spiders, and rebuild civilization — alone or with whoever washes ashore.",
+      ctaPlay: "▶ Play now",
+      ctaScroll: "Explore the world",
+      stat1: "3+",
+      stat1l: "Biomes to explore",
+      stat2: "40+",
+      stat2l: "Items & recipes",
+      stat3: "∞",
+      stat3l: "Islands generated",
+    },
+    vibe: {
+      kicker: "· Built with Vibecoding AI ·",
+      title: "One of the first games born from vibecoding.",
+      body:
+        "Pixel Islands is an honest experiment: every tile, every sound, every line of mechanics was orchestrated with a generative AI in real time. This is not an asset flip or a wrapper — it's real design, iterated at the speed of thought. You're watching a new way of making games happen, live.",
+    },
+    style: {
+      title: "Game style",
+      subtitle: "2D survival sandbox with an old-school soul.",
+      cards: [
+        {
+          icon: "⛏",
+          title: "Mine & Smelt",
+          body:
+            "From raw ore to iron axe: dig, smelt, refine. Every bar in your hand reminds you — you're the blacksmith now.",
+        },
+        {
+          icon: "🌴",
+          title: "Forage & Grow",
+          body:
+            "Chop adult trees, plant palm saplings, harvest fruit. Time passes and the island answers what you seed.",
+        },
+        {
+          icon: "🕷",
+          title: "Biome combat",
+          body:
+            "Centipedes on the beach, giant spiders in the cave ceiling. Each creature demands a new tactic — and a new weapon.",
+        },
+        {
+          icon: "🏗",
+          title: "Free-form building",
+          body:
+            "Color-coded blueprints show exactly what's missing. Your base grows piece by piece, at your pace.",
+        },
+        {
+          icon: "🎒",
+          title: "Skills",
+          body:
+            "Forge, Combat, Precision. Every swing earns XP. Level up what you actually play — not what a menu picks.",
+        },
+        {
+          icon: "🌗",
+          title: "Day/Night cycle",
+          body:
+            "Sun rises, fireflies glow, spiders descend. Night changes everything — including the soundtrack.",
+        },
+      ],
+    },
+    screens: {
+      title: "A hand-painted world",
+      subtitle: "Every biome has its palette. Every screen is a pixel postcard.",
+      caps: [
+        "Beach at dawn",
+        "Deep caves",
+        "Skill hall",
+        "Furnace & forge",
+        "Rustic settings",
+      ],
+    },
+    faq: {
+      title: "Frequently asked",
+      items: [
+        {
+          q: "Is the game free?",
+          a: "Yes. During pre-alpha, Pixel Islands is completely free. Just create an account with email and password to keep your progress in the cloud.",
+        },
+        {
+          q: "What does 'vibecoding with AI' mean?",
+          a: "It's collaborative development with a generative AI: you describe the mechanic, the art or the bug, and the AI ships it in seconds. Pixel Islands is built entirely that way — from the physics engine to the item sprites.",
+        },
+        {
+          q: "Do I have to download it?",
+          a: "No. It runs right in your browser on desktop and mobile. If you like, install it as an app (PWA) and play offline between sessions.",
+        },
+        {
+          q: "Is my progress saved?",
+          a: "Yes. Every character is synced to the cloud on your account. Switch devices, log in, and pick up exactly where you left off.",
+        },
+        {
+          q: "Will there be multiplayer?",
+          a: "Co-op multiplayer is on the roadmap. Right now the focus is polishing the solo experience and adding more biomes, bosses and recipes.",
+        },
+        {
+          q: "How do I report bugs or suggest ideas?",
+          a: "Use the in-game feedback menu — or reach out to the community. Every report shapes the next update, which usually ships the same day.",
+        },
+      ],
+    },
+    footer: "Pixel Islands · built with vibecoding · pixelislands.site",
+  },
+  es: {
+    nav: { features: "Estilo", screens: "Imágenes", faq: "FAQ", play: "Jugar" },
+    hero: {
+      badge: "◆ Pre-alpha · 2026",
+      title1: "Sobrevive.",
+      title2: "Construye tu archipiélago.",
+      subtitle:
+        "Un sandbox de supervivencia pixelado hecho a mano, píxel a píxel. Excava cuevas, funde barras, planta palmeras, enfrenta arañas gigantes y reconstruye la civilización.",
+      ctaPlay: "▶ Jugar ahora",
+      ctaScroll: "Explorar el mundo",
+      stat1: "3+",
+      stat1l: "Biomas por explorar",
+      stat2: "40+",
+      stat2l: "Objetos & recetas",
+      stat3: "∞",
+      stat3l: "Islas generadas",
+    },
+    vibe: {
+      kicker: "· Hecho con Vibecoding IA ·",
+      title: "Uno de los primeros juegos nacidos del vibecoding.",
+      body:
+        "Pixel Islands es un experimento honesto: cada tile, cada sonido, cada línea de mecánica fue orquestada junto a una IA generativa en tiempo real. No es un asset flip — es diseño real a la velocidad del pensamiento.",
+    },
+    style: {
+      title: "Estilo de juego",
+      subtitle: "Sandbox de supervivencia 2D con alma old-school.",
+      cards: [
+        { icon: "⛏", title: "Minería & Fundición", body: "Del mineral al hacha de hierro: excava, funde, refina." },
+        { icon: "🌴", title: "Recolección & Cultivo", body: "Tala árboles, planta palmeras, cosecha frutos." },
+        { icon: "🕷", title: "Combate por bioma", body: "Cada criatura pide una táctica y un arma nueva." },
+        { icon: "🏗", title: "Construcción libre", body: "Planos que muestran justo lo que falta." },
+        { icon: "🎒", title: "Habilidades", body: "Forja, Combate, Precisión. Cada golpe cuenta XP." },
+        { icon: "🌗", title: "Ciclo día/noche", body: "El sol sale, las luciérnagas brillan, las arañas bajan." },
+      ],
+    },
+    screens: {
+      title: "Un mundo pintado a mano",
+      subtitle: "Cada bioma tiene su paleta. Cada pantalla es una postal pixelada.",
+      caps: ["Playa al amanecer", "Cuevas profundas", "Sala de habilidades", "Horno & fragua", "Configuración rústica"],
+    },
+    faq: {
+      title: "Preguntas frecuentes",
+      items: [
+        { q: "¿El juego es gratis?", a: "Sí. Durante el pre-alpha es totalmente gratuito." },
+        { q: "¿Qué es 'vibecoding con IA'?", a: "Desarrollo colaborativo con IA generativa: describes y la IA lo implementa en segundos." },
+        { q: "¿Hay que descargarlo?", a: "No. Corre en el navegador, en PC y móvil. También como PWA." },
+        { q: "¿Se guarda mi progreso?", a: "Sí, sincronizado en la nube por cuenta." },
+        { q: "¿Habrá multijugador?", a: "Cooperativo está en el roadmap." },
+        { q: "¿Cómo reporto bugs?", a: "Menú de feedback in-game o comunidad." },
+      ],
+    },
+    footer: "Pixel Islands · hecho con vibecoding · pixelislands.site",
+  },
+};
 
-  useEffect(() => {
-    const standalone =
-      window.matchMedia?.("(display-mode: standalone)").matches ||
-      // iOS Safari
-      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-    setIsInstalled(!!standalone);
+function Landing() {
+  const { lang, setLang } = useI18n();
+  const key = (lang === "pt" || lang === "en" || lang === "es" ? lang : "en") as "pt" | "en" | "es";
+  const c = COPY[key];
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [langOpen, setLangOpen] = useState(false);
 
-    const ua = window.navigator.userAgent || "";
-    const iOS = /iPhone|iPad|iPod/i.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
-    setIsIos(iOS);
+  const shots = [
+    { url: menuBg as unknown as string, cap: c.screens.caps[0] },
+    { url: caveEntrance.url, cap: c.screens.caps[1] },
+    { url: skillsBg.url, cap: c.screens.caps[2] },
+    { url: stoneBg.url, cap: c.screens.caps[3] },
+    { url: settingsBg.url, cap: c.screens.caps[4] },
+    { url: beachBg.url, cap: c.screens.caps[0] },
+  ];
 
-    const onPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferred(e as BeforeInstallPromptEvent);
-    };
-    const onInstalled = () => {
-      setIsInstalled(true);
-      setDeferred(null);
-    };
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    window.addEventListener("appinstalled", onInstalled);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onPrompt);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
+  return (
+    <div className="min-h-screen bg-[#0a141f] text-[#f4e9c1] font-pixel selection:bg-[#ffd166] selection:text-[#0a141f]">
+      {/* NAV */}
+      <header className="sticky top-0 z-40 border-b-4 border-[#ffd166]/30 bg-[#0a141f]/85 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <a href="#top" className="flex items-center gap-3">
+            <img
+              src={pixelIslandsLogo}
+              alt="Pixel Islands"
+              className="h-8 w-auto"
+              style={{ imageRendering: "pixelated" }}
+            />
+            <span className="hidden text-[10px] tracking-[0.3em] text-[#ffd166] sm:inline">
+              PIXEL ISLANDS
+            </span>
+          </a>
+          <nav className="flex items-center gap-1 text-[10px] tracking-widest sm:gap-4 sm:text-xs">
+            <a href="#style" className="hidden text-[#f4e9c1]/80 hover:text-[#ffd166] sm:inline">
+              {c.nav.features}
+            </a>
+            <a href="#screens" className="hidden text-[#f4e9c1]/80 hover:text-[#ffd166] sm:inline">
+              {c.nav.screens}
+            </a>
+            <a href="#faq" className="hidden text-[#f4e9c1]/80 hover:text-[#ffd166] sm:inline">
+              {c.nav.faq}
+            </a>
 
-  async function promptInstall() {
-    if (deferred) {
-      await deferred.prompt();
-      const { outcome } = await deferred.userChoice;
-      if (outcome === "accepted") setIsInstalled(true);
-      setDeferred(null);
-      return;
-    }
-    if (isIos) {
-      alert(
-        "Para instalar no iPhone/iPad:\n\n1. Toque no botão Compartilhar (□↑)\n2. Escolha 'Adicionar à Tela de Início'",
-      );
-    } else {
-      alert(
-        "Para instalar: abra o menu do navegador e escolha 'Instalar app' ou 'Adicionar à tela inicial'.",
-      );
-    }
-  }
+            <div className="relative">
+              <button
+                onClick={() => setLangOpen((v) => !v)}
+                className="border-2 border-[#f4e9c1]/40 px-2 py-1 text-[10px] uppercase tracking-widest text-[#f4e9c1] hover:border-[#ffd166]"
+              >
+                {LANGUAGES.find((l) => l.code === lang)?.flag ?? "🌐"} {lang.toUpperCase()}
+              </button>
+              {langOpen && (
+                <div className="absolute right-0 top-full mt-2 flex flex-col border-4 border-[#ffd166] bg-[#1b2a3a] p-1">
+                  {LANGUAGES.map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => {
+                        setLang(l.code as Lang);
+                        setLangOpen(false);
+                      }}
+                      className={`whitespace-nowrap px-3 py-2 text-left text-[10px] tracking-widest hover:bg-[#ffd166]/15 ${
+                        lang === l.code ? "text-[#ffd166]" : "text-[#f4e9c1]"
+                      }`}
+                    >
+                      {l.flag} {l.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-  return {
-    canInstall: !!deferred || isIos,
-    isInstalled,
-    promptInstall,
-  };
+            <Link
+              to="/game"
+              className="ml-1 border-2 border-[#ffd166] bg-[#ffd166] px-3 py-1 text-[10px] uppercase tracking-widest text-[#0a141f] hover:bg-[#ffe08a]"
+            >
+              {c.nav.play}
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* HERO */}
+      <section id="top" className="relative overflow-hidden border-b-4 border-[#ffd166]/30">
+        <img
+          src={menuBg}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60"
+          style={{ imageRendering: "pixelated" }}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0a141f]/40 via-[#0a141f]/40 to-[#0a141f]" />
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-20 text-center sm:py-28">
+          <span className="border-2 border-[#ffd166]/70 bg-[#0a141f]/70 px-3 py-1 text-[10px] tracking-[0.35em] text-[#ffd166]">
+            {c.hero.badge}
+          </span>
+          <img
+            src={pixelIslandsLogo}
+            alt="Pixel Islands"
+            className="w-full max-w-[520px]"
+            style={{
+              imageRendering: "pixelated",
+              filter:
+                "drop-shadow(0 0 24px rgba(255,209,102,0.45)) drop-shadow(6px 6px 0 rgba(0,0,0,0.6))",
+            }}
+          />
+          <h1 className="max-w-3xl text-2xl leading-tight sm:text-4xl md:text-5xl">
+            <span className="text-[#ffd166]">{c.hero.title1}</span>{" "}
+            <span className="text-[#f4e9c1]">{c.hero.title2}</span>
+          </h1>
+          <p className="max-w-2xl text-xs leading-relaxed text-[#f4e9c1]/85 sm:text-sm">
+            {c.hero.subtitle}
+          </p>
+          <div className="flex flex-col items-center gap-3 sm:flex-row">
+            <Link
+              to="/game"
+              className="border-4 border-[#7a3e1d] bg-[#ffd166] px-8 py-4 text-sm uppercase tracking-widest text-[#0a141f] hover:translate-y-[-2px]"
+              style={{ boxShadow: "0 6px 0 #7a3e1d, 0 10px 0 rgba(0,0,0,0.55)" }}
+            >
+              {c.hero.ctaPlay}
+            </Link>
+            <a
+              href="#style"
+              className="border-4 border-[#f4e9c1] bg-[#1b2a3a] px-6 py-4 text-xs uppercase tracking-widest text-[#f4e9c1] hover:border-[#ffd166]"
+              style={{ boxShadow: "0 6px 0 #0a141f, 0 10px 0 rgba(0,0,0,0.55)" }}
+            >
+              {c.hero.ctaScroll}
+            </a>
+          </div>
+
+          <div className="mt-6 grid w-full max-w-2xl grid-cols-3 gap-3 sm:gap-6">
+            {[
+              [c.hero.stat1, c.hero.stat1l],
+              [c.hero.stat2, c.hero.stat2l],
+              [c.hero.stat3, c.hero.stat3l],
+            ].map(([n, l]) => (
+              <div
+                key={l}
+                className="border-2 border-[#ffd166]/40 bg-[#0a141f]/60 p-3 sm:p-4"
+              >
+                <div className="text-2xl text-[#ffd166] sm:text-3xl">{n}</div>
+                <div className="mt-1 text-[9px] tracking-widest text-[#f4e9c1]/70 sm:text-[10px]">
+                  {l}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* VIBECODING */}
+      <section className="border-b-4 border-[#ffd166]/20 bg-[#0d1b2a] py-16 sm:py-24">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <div className="mb-4 text-[10px] tracking-[0.4em] text-[#ffd166]">{c.vibe.kicker}</div>
+          <h2 className="text-2xl leading-tight sm:text-4xl">{c.vibe.title}</h2>
+          <p className="mx-auto mt-6 max-w-2xl text-xs leading-relaxed text-[#f4e9c1]/80 sm:text-sm">
+            {c.vibe.body}
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-[9px] tracking-widest text-[#ffd166]/80 sm:text-[10px]">
+            <span className="border border-[#ffd166]/40 px-2 py-1">AI-DESIGNED SPRITES</span>
+            <span className="border border-[#ffd166]/40 px-2 py-1">LIVE ITERATION</span>
+            <span className="border border-[#ffd166]/40 px-2 py-1">HANDCRAFTED FEEL</span>
+            <span className="border border-[#ffd166]/40 px-2 py-1">NO ASSET FLIP</span>
+          </div>
+        </div>
+      </section>
+
+      {/* STYLE / FEATURES */}
+      <section id="style" className="border-b-4 border-[#ffd166]/20 py-16 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-10 text-center">
+            <h2 className="text-2xl sm:text-4xl">{c.style.title}</h2>
+            <p className="mt-3 text-xs text-[#f4e9c1]/70 sm:text-sm">{c.style.subtitle}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {c.style.cards.map((card) => (
+              <div
+                key={card.title}
+                className="border-4 border-[#f4e9c1]/25 bg-[#1b2a3a] p-5 transition-transform hover:-translate-y-1 hover:border-[#ffd166]"
+                style={{ boxShadow: "0 6px 0 #0a141f, 0 8px 0 rgba(0,0,0,0.4)" }}
+              >
+                <div className="mb-3 text-3xl">{card.icon}</div>
+                <div className="mb-2 text-sm tracking-widest text-[#ffd166]">{card.title}</div>
+                <p className="text-[11px] leading-relaxed text-[#f4e9c1]/80 sm:text-xs">
+                  {card.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SCREENSHOTS */}
+      <section id="screens" className="border-b-4 border-[#ffd166]/20 bg-[#0d1b2a] py-16 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-10 text-center">
+            <h2 className="text-2xl sm:text-4xl">{c.screens.title}</h2>
+            <p className="mt-3 text-xs text-[#f4e9c1]/70 sm:text-sm">{c.screens.subtitle}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {shots.map((s, i) => (
+              <figure
+                key={i}
+                className="group relative overflow-hidden border-4 border-[#f4e9c1]/25 bg-[#0a141f] hover:border-[#ffd166]"
+                style={{ boxShadow: "0 6px 0 #0a141f" }}
+              >
+                <img
+                  src={s.url}
+                  alt={s.cap}
+                  className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  style={{ imageRendering: "pixelated" }}
+                  loading="lazy"
+                />
+                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a141f] to-transparent px-3 py-2 text-[10px] tracking-widest text-[#ffd166]">
+                  {s.cap}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-16 sm:py-24">
+        <div className="mx-auto max-w-3xl px-4">
+          <h2 className="mb-8 text-center text-2xl sm:text-4xl">{c.faq.title}</h2>
+          <div className="flex flex-col gap-3">
+            {c.faq.items.map((item, i) => {
+              const open = openFaq === i;
+              return (
+                <div
+                  key={i}
+                  className="border-4 border-[#f4e9c1]/25 bg-[#1b2a3a]"
+                  style={{ boxShadow: "0 4px 0 #0a141f" }}
+                >
+                  <button
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left text-xs uppercase tracking-widest text-[#f4e9c1] hover:text-[#ffd166] sm:text-sm"
+                  >
+                    <span>{item.q}</span>
+                    <span className="text-[#ffd166]">{open ? "−" : "+"}</span>
+                  </button>
+                  {open && (
+                    <div className="border-t-2 border-[#f4e9c1]/15 px-4 py-3 text-[11px] leading-relaxed text-[#f4e9c1]/80 sm:text-xs">
+                      {item.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-14 text-center">
+            <Link
+              to="/game"
+              className="inline-block border-4 border-[#7a3e1d] bg-[#ffd166] px-10 py-4 text-sm uppercase tracking-widest text-[#0a141f]"
+              style={{ boxShadow: "0 6px 0 #7a3e1d, 0 10px 0 rgba(0,0,0,0.55)" }}
+            >
+              {c.hero.ctaPlay}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t-4 border-[#ffd166]/20 bg-[#0a141f] px-4 py-6 text-center text-[10px] tracking-widest text-[#f4e9c1]/50">
+        {c.footer}
+      </footer>
+    </div>
+  );
 }
-

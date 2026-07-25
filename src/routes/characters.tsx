@@ -108,7 +108,7 @@ function CharactersPage() {
 
   const handleEnter = (index: number) => {
     setActiveSlot(index);
-    navigate({ to: "/game" });
+    navigate({ to: "/game/play" });
   };
 
   const handleCreate = async (
