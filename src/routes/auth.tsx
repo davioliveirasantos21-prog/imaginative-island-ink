@@ -23,6 +23,8 @@ const USERNAME_RE = /^[a-z0-9_.-]{3,32}$/i;
 
 function AuthPage() {
   const navigate = useNavigate();
+  const sendReset = useServerFn(sendPasswordResetEmail);
+
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
