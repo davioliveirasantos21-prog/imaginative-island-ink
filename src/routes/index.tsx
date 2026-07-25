@@ -459,9 +459,8 @@ function Landing() {
           <span className="text-[#7a3e1d]/40">·</span>
           <a href="https://davioliver.itch.io/pixel-islands" target="_blank" rel="noreferrer" className="text-[#c48a2e] hover:text-[#7a3e1d]">itch.io ↗</a>
         </nav>
-
-        </div>
       </header>
+
 
       {/* HERO */}
       <section id="top" className="relative overflow-hidden border-b-4 border-[#7a3e1d]/50">
