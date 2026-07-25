@@ -27,7 +27,7 @@ function AdmPage() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
-  const [tab, setTab] = useState<"overview" | "contacts" | "errors" | "users" | "webmail">("overview");
+  const [tab, setTab] = useState<"overview" | "contacts" | "errors" | "users" | "webmail" | "itch">("overview");
 
   useEffect(() => {
     void check().then((r) => setUnlocked(r.unlocked));
