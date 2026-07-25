@@ -504,7 +504,7 @@ function Landing() {
                     style={{ imageRendering: "pixelated" }}
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a141f] via-[#0a141f]/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2a1a0a]/85 via-[#2a1a0a]/25 to-transparent" />
                 </div>
                 <figcaption className="border-t-2 border-[#7a3e1d]/50 bg-[#f4e9c1] px-4 py-3">
                   <div className="text-[10px] tracking-[0.35em] text-[#7a3e1d]">{s.cap}</div>
