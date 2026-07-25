@@ -323,7 +323,7 @@ function Landing() {
 
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <a href="#top" className="flex items-center gap-3">
-            <img src={pixelIslandsLogo} alt="Pixel Islands" className="h-8 w-auto" style={{ imageRendering: "pixelated" }} />
+            <img src={pixelIslandsLogo} alt="Pixel Islands" className="h-14 w-auto sm:h-16" style={{ imageRendering: "pixelated", filter: "drop-shadow(3px 3px 0 rgba(0,0,0,0.4))" }} />
             <span className="hidden text-[10px] tracking-[0.3em] text-[#7a3e1d] sm:inline">PIXEL ISLANDS</span>
           </a>
           <nav className="flex items-center gap-1 text-[10px] tracking-widest sm:gap-4 sm:text-xs">
