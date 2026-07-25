@@ -7,7 +7,7 @@ import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
 import forgeScene from "@/assets/lp-scene-forge.jpg";
 
 const PIX_KEY = "65550537000170"; // CNPJ (Pix key)
-const PIX_MERCHANT_NAME = "Fabio de Oliveira Santos";
+const PIX_MERCHANT_NAME = "Davi Oliveira";
 const PIX_MERCHANT_CITY = "SAO PAULO";
 const PIX_CNPJ_DISPLAY = "65.550.537/0001-70";
 
@@ -106,7 +106,7 @@ const COPY: Record<"pt" | "en", Copy> = {
       copied: "Código copiado!",
       keyLabel: "Chave Pix (CNPJ)",
       keyType: "CNPJ",
-      receiver: `Recebedor: Fabio de Oliveira Santos · CNPJ ${PIX_CNPJ_DISPLAY}`,
+      receiver: `Recebedor: Davi Oliveira · CNPJ ${PIX_CNPJ_DISPLAY}`,
       legal:
         "Ao doar via Pix, você concorda que a contribuição é voluntária e não configura compra de produto.",
     },
@@ -152,7 +152,7 @@ const COPY: Record<"pt" | "en", Copy> = {
         cta: "Entrar no jogo",
       },
     },
-    footer: `Pixel Islands · Feito com vibecoding · Fabio de Oliveira Santos · CNPJ ${PIX_CNPJ_DISPLAY}`,
+    footer: `Pixel Islands · Feito com vibecoding · Davi Oliveira · CNPJ ${PIX_CNPJ_DISPLAY}`,
   },
   en: {
     nav: { home: "Home", play: "Play" },
@@ -185,7 +185,7 @@ const COPY: Record<"pt" | "en", Copy> = {
       copied: "Code copied!",
       keyLabel: "Pix key (CNPJ)",
       keyType: "CNPJ",
-      receiver: `Receiver: Fabio de Oliveira Santos · CNPJ ${PIX_CNPJ_DISPLAY}`,
+      receiver: `Receiver: Davi Oliveira · CNPJ ${PIX_CNPJ_DISPLAY}`,
       legal:
         "By donating via Pix you agree the contribution is voluntary and is not a product purchase.",
     },
@@ -231,7 +231,7 @@ const COPY: Record<"pt" | "en", Copy> = {
         cta: "Enter the game",
       },
     },
-    footer: `Pixel Islands · Built with vibecoding · Fabio de Oliveira Santos · CNPJ ${PIX_CNPJ_DISPLAY}`,
+    footer: `Pixel Islands · Built with vibecoding · Davi Oliveira · CNPJ ${PIX_CNPJ_DISPLAY}`,
   },
 };
 
