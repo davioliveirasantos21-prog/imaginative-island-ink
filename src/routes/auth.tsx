@@ -51,16 +51,20 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        if (error) {
-          setErr(error.message);
-          return;
+        try {
+          await sendReset({
+            data: {
+              email: cleanEmail,
+              redirectTo: `${window.location.origin}/reset-password`,
+            },
+          });
+        } catch (e) {
+          console.error(e);
         }
         setOk("Se o e-mail existir, enviamos um link para redefinir a senha.");
         return;
       }
+
 
       if (password.length < 6) {
         setErr("Senha deve ter pelo menos 6 caracteres.");
