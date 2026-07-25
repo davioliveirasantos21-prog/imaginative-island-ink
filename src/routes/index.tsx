@@ -197,7 +197,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       title: "Frequently asked",
       items: [
         { q: "Is the game free?", a: "Yes. During pre-alpha, Pixel Islands is completely free. Just create an account with email and password to keep your progress in the cloud." },
-        { q: "What does 'vibecoding with AI' mean?", a: "Collaborative development with a generative AI: you describe the mechanic, the art or the bug and it ships in seconds. Pixel Islands is built entirely that way." },
+        { q: "What does 'vibecoding' mean?", a: "Vibecoding is programming in flow — describing mechanics, art and fixes in natural language and shipping live. Pixel Islands is built entirely that way, on a modern web stack (React, TypeScript, Canvas 2D, PWA)." },
         { q: "Do I have to download it?", a: "No. It runs in your browser on desktop and mobile. You can also install it as a PWA and play offline between sessions." },
         { q: "Is my progress saved?", a: "Yes. Every character is synced to the cloud on your account. Switch devices, log in, and pick up exactly where you left off." },
         { q: "Will there be multiplayer?", a: "Co-op multiplayer is on the roadmap. Right now the focus is polishing solo and adding more biomes, bosses and recipes." },
