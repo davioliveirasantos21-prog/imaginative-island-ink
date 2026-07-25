@@ -368,6 +368,10 @@ function Landing() {
 
       {/* HERO */}
       <section id="top" className="relative overflow-hidden border-b-4 border-[#7a3e1d]/50">
+        <style>{`
+          @keyframes lpCloudDrift { 0%{transform:translate3d(0,0,0)} 50%{transform:translate3d(14px,-3px,0)} 100%{transform:translate3d(0,0,0)} }
+          @keyframes lpSeaSway   { 0%{transform:translate3d(0,0,0)} 50%{transform:translate3d(-10px,2px,0)} 100%{transform:translate3d(0,0,0)} }
+        `}</style>
         <img
           src={heroScene}
           alt=""
@@ -375,7 +379,34 @@ function Landing() {
           className="pointer-events-none absolute inset-0 h-full w-full object-cover"
           style={{ imageRendering: "pixelated" }}
         />
+        {/* Clouds layer (top) — slow horizontal drift */}
+        <img
+          src={heroScene}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          style={{
+            imageRendering: "pixelated",
+            clipPath: "inset(0 0 55% 0)",
+            animation: "lpCloudDrift 18s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        />
+        {/* Sea layer (bottom) — gentle sway */}
+        <img
+          src={heroScene}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          style={{
+            imageRendering: "pixelated",
+            clipPath: "inset(62% 0 0 0)",
+            animation: "lpSeaSway 7s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#87ceeb]/10 via-transparent to-[#f4e9c1]/70" />
+
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-20 text-center sm:py-28">
           <span className="border-2 border-[#7a3e1d] bg-[#ffd166] px-3 py-1 text-[10px] tracking-[0.35em] text-[#2a1a0a]" style={{ boxShadow: "0 3px 0 #7a3e1d" }}>
             {c.hero.badge}
