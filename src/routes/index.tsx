@@ -523,30 +523,31 @@ function Landing() {
             </div>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
             {shots.slice(1).map((s, i) => (
               <figure
                 key={i}
-                className="group overflow-hidden border-4 border-[#7a3e1d]/40 bg-[#f4e9c1] hover:border-[#c48a2e]"
+                className="group min-w-0 overflow-hidden border-4 border-[#7a3e1d]/40 bg-[#f4e9c1] hover:border-[#c48a2e]"
                 style={{ boxShadow: "0 6px 0 #0a141f" }}
               >
                 <div className="relative">
                   <img
                     src={s.url}
                     alt={s.cap}
-                    className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:h-60"
+                    className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:h-60"
                     style={{ imageRendering: "pixelated" }}
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#2a1a0a]/85 via-[#2a1a0a]/25 to-transparent" />
                 </div>
-                <figcaption className="border-t-2 border-[#7a3e1d]/50 bg-[#f4e9c1] px-4 py-3">
-                  <div className="text-[10px] tracking-[0.35em] text-[#7a3e1d]">{s.cap}</div>
-                  <div className="mt-1 text-[11px] leading-relaxed text-[#3a2410]/85">{s.desc}</div>
+                <figcaption className="border-t-2 border-[#7a3e1d]/50 bg-[#f4e9c1] px-2 py-2 sm:px-4 sm:py-3">
+                  <div className="break-words text-[9px] tracking-[0.25em] text-[#7a3e1d] sm:text-[10px] sm:tracking-[0.35em]">{s.cap}</div>
+                  <div className="mt-1 break-words text-[10px] leading-relaxed text-[#3a2410]/85 sm:text-[11px]">{s.desc}</div>
                 </figcaption>
               </figure>
             ))}
           </div>
+
         </div>
       </section>
 
