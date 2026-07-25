@@ -162,7 +162,7 @@ if (typeof window !== "undefined") {
 }
 
 
-export const Route = createFileRoute("/game")({
+export const Route = createFileRoute("/game/play")({
   head: () => ({
     meta: [
       { title: "In-game — Pixel Realms" },
