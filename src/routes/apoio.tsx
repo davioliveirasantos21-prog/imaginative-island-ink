@@ -231,7 +231,7 @@ const COPY: Record<"pt" | "en", Copy> = {
         cta: "Enter the game",
       },
     },
-    footer: "Pixel Islands · Built with vibecoding · Thanks for supporting",
+    footer: `Pixel Islands · Built with vibecoding · Fabio de Oliveira Santos · CNPJ ${PIX_CNPJ_DISPLAY}`,
   },
 };
 
