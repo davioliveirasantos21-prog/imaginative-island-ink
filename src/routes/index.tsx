@@ -146,7 +146,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       or: "ou escreva direto para",
       directEmail: "contact@pixelislands.site",
     },
-    footer: "Pixel Islands · construído com vibecoding · Fabio de Oliveira Santos · CNPJ 65.550.537/0001-70 · pixelislands.site",
+    footer: "Pixel Islands · construído com vibecoding · Davi Oliveira · CNPJ 65.550.537/0001-70 · pixelislands.site",
   },
   en: {
     nav: { features: "Style", screens: "Screens", faq: "FAQ", contact: "Contact", play: "Play" },
@@ -219,7 +219,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       or: "or write directly to",
       directEmail: "contact@pixelislands.site",
     },
-    footer: "Pixel Islands · built with vibecoding · Fabio de Oliveira Santos · CNPJ 65.550.537/0001-70 · pixelislands.site",
+    footer: "Pixel Islands · built with vibecoding · Davi Oliveira · CNPJ 65.550.537/0001-70 · pixelislands.site",
   },
   es: {
     nav: { features: "Estilo", screens: "Imágenes", faq: "FAQ", contact: "Contacto", play: "Jugar" },
@@ -292,7 +292,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       or: "o escribe directamente a",
       directEmail: "contact@pixelislands.site",
     },
-    footer: "Pixel Islands · hecho con vibecoding · Fabio de Oliveira Santos · CNPJ 65.550.537/0001-70 · pixelislands.site",
+    footer: "Pixel Islands · hecho con vibecoding · Davi Oliveira · CNPJ 65.550.537/0001-70 · pixelislands.site",
   },
 };
 
@@ -323,7 +323,7 @@ function Landing() {
 
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <a href="#top" className="flex items-center gap-3">
-            <img src={pixelIslandsLogo} alt="Pixel Islands" className="h-8 w-auto" style={{ imageRendering: "pixelated" }} />
+            <img src={pixelIslandsLogo} alt="Pixel Islands" className="h-14 w-auto sm:h-16" style={{ imageRendering: "pixelated", filter: "drop-shadow(3px 3px 0 rgba(0,0,0,0.4))" }} />
             <span className="hidden text-[10px] tracking-[0.3em] text-[#7a3e1d] sm:inline">PIXEL ISLANDS</span>
           </a>
           <nav className="flex items-center gap-1 text-[10px] tracking-widest sm:gap-4 sm:text-xs">
