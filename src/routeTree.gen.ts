@@ -17,6 +17,7 @@ import { Route as AdmRouteImport } from './routes/adm'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamePlayRouteImport } from './routes/game.play'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
+import { Route as ApiPublicItchWebhookRouteImport } from './routes/api/public/itch-webhook'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -58,6 +59,11 @@ const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   path: '/api/public/stripe-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicItchWebhookRoute = ApiPublicItchWebhookRouteImport.update({
+  id: '/api/public/itch-webhook',
+  path: '/api/public/itch-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/game': typeof GameRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/game/play': typeof GamePlayRoute
+  '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/game': typeof GameRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/game/play': typeof GamePlayRoute
+  '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/game': typeof GameRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/game/play': typeof GamePlayRoute
+  '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/game'
     | '/reset-password'
     | '/game/play'
+    | '/api/public/itch-webhook'
     | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/game'
     | '/reset-password'
     | '/game/play'
+    | '/api/public/itch-webhook'
     | '/api/public/stripe-webhook'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/game'
     | '/reset-password'
     | '/game/play'
+    | '/api/public/itch-webhook'
     | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
 }
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   CharactersRoute: typeof CharactersRoute
   GameRoute: typeof GameRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicItchWebhookRoute: typeof ApiPublicItchWebhookRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/itch-webhook': {
+      id: '/api/public/itch-webhook'
+      path: '/api/public/itch-webhook'
+      fullPath: '/api/public/itch-webhook'
+      preLoaderRoute: typeof ApiPublicItchWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -211,6 +231,7 @@ const rootRouteChildren: RootRouteChildren = {
   CharactersRoute: CharactersRoute,
   GameRoute: GameRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicItchWebhookRoute: ApiPublicItchWebhookRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
