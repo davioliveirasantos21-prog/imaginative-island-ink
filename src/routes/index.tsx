@@ -222,7 +222,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
     footer: "Pixel Islands · built with vibecoding · Davi Oliveira · CNPJ 65.550.537/0001-70 · pixelislands.site",
   },
   es: {
-    nav: { features: "Estilo", screens: "Imágenes", faq: "FAQ", contact: "Contacto", play: "Jugar" },
+    nav: { features: "Estilo", screens: "Imágenes", faq: "FAQ", contact: "Contacto", about: "Quiénes somos", support: "Apoyar", play: "Jugar" },
     hero: {
       badge: "◆ Pre-alpha · 2026",
       title1: "Sobrevive.",
