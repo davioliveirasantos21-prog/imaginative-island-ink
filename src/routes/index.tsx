@@ -5,31 +5,33 @@ import { useI18n, LANGUAGES, type Lang } from "@/lib/i18n";
 import { submitContact } from "@/lib/contact.functions";
 
 import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
-import menuBg from "@/assets/menu-bg.png";
-import beachBg from "@/assets/beach-bg.png.asset.json";
-import caveEntrance from "@/assets/cave-entrance.png.asset.json";
-import stoneBg from "@/assets/stone-bg.png.asset.json";
-import skillsBg from "@/assets/skills-bg.png.asset.json";
-import settingsBg from "@/assets/settings-bg.png.asset.json";
+import heroScene from "@/assets/lp-scene-hero.jpg";
+import beachScene from "@/assets/lp-scene-beach.jpg";
+import caveScene from "@/assets/lp-scene-cave.jpg";
+import nightScene from "@/assets/lp-scene-night.jpg";
+import forgeScene from "@/assets/lp-scene-forge.jpg";
+import combatScene from "@/assets/lp-scene-combat.jpg";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Pixel Islands — Survival Pixel Sandbox Built with Vibecoding AI" },
+      { title: "Pixel Islands — Sandbox de Sobrevivência Pixel Programado com Vibecoding" },
       {
         name: "description",
         content:
-          "Pixel Islands is a handcrafted 2D survival sandbox — one of the first games built end-to-end with vibecoding AI. Explore islands, mine, craft, fight and shape your world.",
+          "Pixel Islands é um sandbox 2D de sobrevivência artesanal — um dos primeiros jogos programados com vibecoding e tecnologias web modernas. Explore ilhas, mine, forje, lute e construa seu mundo.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Pixel Islands — Pixel Survival Sandbox" },
+      { property: "og:title", content: "Pixel Islands — Sandbox Pixel de Sobrevivência" },
       {
         property: "og:description",
         content:
-          "Explore, mine, craft and fight in Pixel Islands — a pixel-art survival sandbox forged with vibecoding AI.",
+          "Explore, mine, forje e lute em Pixel Islands — um sandbox pixel-art programado com vibecoding e tecnologias web modernas.",
       },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+
   }),
   component: Landing,
 });
@@ -88,10 +90,10 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       stat3: "∞", stat3l: "Ilhas geradas",
     },
     vibe: {
-      kicker: "· Feito com Vibecoding IA ·",
+      kicker: "· Programado com Vibecoding & Tecnologias ·",
       title: "Um dos primeiros jogos nascidos do vibecoding.",
       body:
-        "Pixel Islands é um experimento honesto: cada tile, cada som, cada linha de mecânica foi orquestrada em parceria com uma IA generativa em tempo real. Não é um asset flip nem um wrapper — é design de verdade, iterando na velocidade do pensamento.",
+        "Pixel Islands é um experimento honesto: cada tile, cada som e cada mecânica foi orquestrada com vibecoding e um stack moderno de tecnologias web — React, TypeScript, Canvas 2D, PWA e uma nuvem própria de save. Design de verdade, iterando na velocidade do pensamento.",
     },
     style: {
       title: "Estilo de jogo",
@@ -122,7 +124,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       title: "Perguntas frequentes",
       items: [
         { q: "O jogo é gratuito?", a: "Sim. Durante o pré-alpha, Pixel Islands é totalmente gratuito. Basta criar uma conta com seu e-mail e senha para salvar seu progresso na nuvem." },
-        { q: "O que é 'vibecoding com IA'?", a: "É desenvolvimento colaborativo com uma IA generativa: você descreve a mecânica, a arte ou o bug, e a IA implementa em segundos. Pixel Islands é construído inteiro assim." },
+        { q: "O que é 'vibecoding'?", a: "Vibecoding é um jeito de programar em fluxo, descrevendo mecânicas, arte e correções em linguagem natural e vendo o resultado ao vivo. Pixel Islands é construído inteiro assim, sobre um stack moderno de tecnologias web (React, TypeScript, Canvas 2D, PWA)." },
         { q: "Precisa baixar?", a: "Não. Roda direto no navegador, tanto no PC quanto no celular. Se quiser, dá para instalar como app (PWA) e jogar offline entre sessões." },
         { q: "Meu progresso fica salvo?", a: "Fica. Cada personagem é sincronizado com a nuvem por conta. Se você trocar de dispositivo, entra na sua conta e continua exatamente de onde parou." },
         { q: "Vai ter multiplayer?", a: "Multiplayer cooperativo está no roadmap. Por enquanto o foco é polir a experiência solo e adicionar mais biomas, chefes e receitas." },
@@ -161,10 +163,10 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       stat3: "∞", stat3l: "Islands generated",
     },
     vibe: {
-      kicker: "· Built with Vibecoding AI ·",
+      kicker: "· Programmed with Vibecoding & Modern Tech ·",
       title: "One of the first games born from vibecoding.",
       body:
-        "Pixel Islands is an honest experiment: every tile, every sound, every line of mechanics was orchestrated with a generative AI in real time. Not an asset flip — real design, iterated at the speed of thought.",
+        "Pixel Islands is an honest experiment: every tile, every sound and every mechanic was orchestrated through vibecoding on a modern web stack — React, TypeScript, Canvas 2D, PWA and a custom cloud save layer. Real design, iterated at the speed of thought.",
     },
     style: {
       title: "Game style",
@@ -195,7 +197,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       title: "Frequently asked",
       items: [
         { q: "Is the game free?", a: "Yes. During pre-alpha, Pixel Islands is completely free. Just create an account with email and password to keep your progress in the cloud." },
-        { q: "What does 'vibecoding with AI' mean?", a: "Collaborative development with a generative AI: you describe the mechanic, the art or the bug and it ships in seconds. Pixel Islands is built entirely that way." },
+        { q: "What does 'vibecoding' mean?", a: "Vibecoding is programming in flow — describing mechanics, art and fixes in natural language and shipping live. Pixel Islands is built entirely that way, on a modern web stack (React, TypeScript, Canvas 2D, PWA)." },
         { q: "Do I have to download it?", a: "No. It runs in your browser on desktop and mobile. You can also install it as a PWA and play offline between sessions." },
         { q: "Is my progress saved?", a: "Yes. Every character is synced to the cloud on your account. Switch devices, log in, and pick up exactly where you left off." },
         { q: "Will there be multiplayer?", a: "Co-op multiplayer is on the roadmap. Right now the focus is polishing solo and adding more biomes, bosses and recipes." },
@@ -234,10 +236,10 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       stat3: "∞", stat3l: "Islas generadas",
     },
     vibe: {
-      kicker: "· Hecho con Vibecoding IA ·",
+      kicker: "· Programado con Vibecoding & Tecnologías ·",
       title: "Uno de los primeros juegos nacidos del vibecoding.",
       body:
-        "Pixel Islands es un experimento honesto: cada tile, cada sonido y cada mecánica fue orquestada junto a una IA generativa en tiempo real. Diseño real a la velocidad del pensamiento.",
+        "Pixel Islands es un experimento honesto: cada tile, cada sonido y cada mecánica fue orquestada con vibecoding sobre un stack moderno — React, TypeScript, Canvas 2D, PWA y una nube propia de guardado. Diseño real a la velocidad del pensamiento.",
     },
     style: {
       title: "Estilo de juego",
@@ -268,7 +270,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       title: "Preguntas frecuentes",
       items: [
         { q: "¿El juego es gratis?", a: "Sí. Durante el pre-alpha es totalmente gratuito." },
-        { q: "¿Qué es 'vibecoding con IA'?", a: "Desarrollo colaborativo con IA generativa: describes y la IA lo implementa en segundos." },
+        { q: "¿Qué es 'vibecoding'?", a: "Vibecoding es programar en flujo — describes mecánicas, arte y correcciones en lenguaje natural y ves el resultado al vivo. Pixel Islands está construido así, sobre un stack web moderno (React, TypeScript, Canvas 2D, PWA)." },
         { q: "¿Hay que descargarlo?", a: "No. Corre en el navegador, en PC y móvil. También como PWA." },
         { q: "¿Se guarda mi progreso?", a: "Sí, sincronizado en la nube por cuenta." },
         { q: "¿Habrá multijugador?", a: "Cooperativo está en el roadmap." },
@@ -305,13 +307,14 @@ function Landing() {
 
 
   const shots = [
-    { url: menuBg as unknown as string, cap: c.screens.caps[0], desc: c.screens.captions[0] },
-    { url: caveEntrance.url, cap: c.screens.caps[1], desc: c.screens.captions[1] },
-    { url: skillsBg.url, cap: c.screens.caps[2], desc: c.screens.captions[2] },
-    { url: stoneBg.url, cap: c.screens.caps[3], desc: c.screens.captions[3] },
-    { url: settingsBg.url, cap: c.screens.caps[4], desc: c.screens.captions[4] },
-    { url: beachBg.url, cap: c.screens.caps[5], desc: c.screens.captions[5] },
+    { url: heroScene, cap: c.screens.caps[0], desc: c.screens.captions[0] },
+    { url: caveScene, cap: c.screens.caps[1], desc: c.screens.captions[1] },
+    { url: combatScene, cap: c.screens.caps[2], desc: c.screens.captions[2] },
+    { url: forgeScene, cap: c.screens.caps[3], desc: c.screens.captions[3] },
+    { url: nightScene, cap: c.screens.caps[4], desc: c.screens.captions[4] },
+    { url: beachScene, cap: c.screens.caps[5], desc: c.screens.captions[5] },
   ];
+
 
   return (
     <div className="min-h-screen bg-[#0a141f] text-[#f4e9c1] font-pixel selection:bg-[#ffd166] selection:text-[#0a141f]">
@@ -365,7 +368,7 @@ function Landing() {
       {/* HERO */}
       <section id="top" className="relative overflow-hidden border-b-4 border-[#ffd166]/30">
         <img
-          src={menuBg}
+          src={heroScene}
           alt=""
           aria-hidden
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
@@ -427,10 +430,10 @@ function Landing() {
           <h2 className="text-2xl leading-tight sm:text-4xl">{c.vibe.title}</h2>
           <p className="mx-auto mt-6 max-w-2xl text-xs leading-relaxed text-[#f4e9c1] sm:text-sm">{c.vibe.body}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-[9px] tracking-widest text-[#ffd166] sm:text-[10px]">
-            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">AI-DESIGNED SPRITES</span>
-            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">LIVE ITERATION</span>
-            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">HANDCRAFTED FEEL</span>
-            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">NO ASSET FLIP</span>
+            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">REACT + TYPESCRIPT</span>
+            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">CANVAS 2D ENGINE</span>
+            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">PWA · OFFLINE READY</span>
+            <span className="border border-[#ffd166]/50 bg-[#0a141f]/60 px-2 py-1">CLOUD SAVE</span>
           </div>
         </div>
       </section>
