@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as QuemSomosRouteImport } from './routes/quem-somos'
 import { Route as GameRouteImport } from './routes/game'
 import { Route as CharactersRouteImport } from './routes/characters'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -24,6 +25,11 @@ import { Route as ApiPublicItchBuildRouteImport } from './routes/api/public/itch
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuemSomosRoute = QuemSomosRouteImport.update({
+  id: '/quem-somos',
+  path: '/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GameRoute = GameRouteImport.update({
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
+  '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/game/play': typeof GamePlayRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
+  '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/game/play': typeof GamePlayRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
+  '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/game/play': typeof GamePlayRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/characters'
     | '/game'
+    | '/quem-somos'
     | '/reset-password'
     | '/game/play'
     | '/api/public/itch-build'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/characters'
     | '/game'
+    | '/quem-somos'
     | '/reset-password'
     | '/game/play'
     | '/api/public/itch-build'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/characters'
     | '/game'
+    | '/quem-somos'
     | '/reset-password'
     | '/game/play'
     | '/api/public/itch-build'
@@ -166,6 +178,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CharactersRoute: typeof CharactersRoute
   GameRoute: typeof GameRouteWithChildren
+  QuemSomosRoute: typeof QuemSomosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicItchBuildRoute: typeof ApiPublicItchBuildRoute
   ApiPublicItchWebhookRoute: typeof ApiPublicItchWebhookRoute
@@ -179,6 +192,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quem-somos': {
+      id: '/quem-somos'
+      path: '/quem-somos'
+      fullPath: '/quem-somos'
+      preLoaderRoute: typeof QuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/game': {
@@ -271,6 +291,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CharactersRoute: CharactersRoute,
   GameRoute: GameRouteWithChildren,
+  QuemSomosRoute: QuemSomosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicItchBuildRoute: ApiPublicItchBuildRoute,
   ApiPublicItchWebhookRoute: ApiPublicItchWebhookRoute,
@@ -279,3 +300,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
