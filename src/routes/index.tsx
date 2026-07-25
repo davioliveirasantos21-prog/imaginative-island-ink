@@ -320,6 +320,7 @@ function Landing() {
     <div className="min-h-screen bg-gradient-to-b from-[#87ceeb] via-[#a8dcf0] to-[#f4e9c1] text-[#2a1a0a] font-pixel selection:bg-[#ffd166] selection:text-[#0a141f]">
       {/* NAV */}
       <header className="sticky top-0 z-40 border-b-4 border-[#7a3e1d]/50 bg-[#87ceeb]/95 backdrop-blur">
+
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <a href="#top" className="flex items-center gap-3">
             <img src={pixelIslandsLogo} alt="Pixel Islands" className="h-8 w-auto" style={{ imageRendering: "pixelated" }} />
