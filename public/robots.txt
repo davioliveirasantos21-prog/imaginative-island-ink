@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+Disallow: /adm
+Disallow: /reset-password
+Disallow: /api/
+
+# Allow AI/GEO crawlers explicitly
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://pixelislandsultimate.lovable.app/sitemap.xml

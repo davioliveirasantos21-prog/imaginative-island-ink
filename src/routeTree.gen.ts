@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuemSomosRouteImport } from './routes/quem-somos'
 import { Route as GameRouteImport } from './routes/game'
@@ -22,6 +23,11 @@ import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/
 import { Route as ApiPublicItchWebhookRouteImport } from './routes/api/public/itch-webhook'
 import { Route as ApiPublicItchBuildRouteImport } from './routes/api/public/itch-build'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/game': typeof GameRouteWithChildren
   '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/game/play': typeof GamePlayRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
   '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/game': typeof GameRouteWithChildren
   '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/game/play': typeof GamePlayRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
   '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/game': typeof GameRouteWithChildren
   '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/game/play': typeof GamePlayRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
   '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/game'
     | '/quem-somos'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/game/play'
     | '/api/public/itch-build'
     | '/api/public/itch-webhook'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/game'
     | '/quem-somos'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/game/play'
     | '/api/public/itch-build'
     | '/api/public/itch-webhook'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/game'
     | '/quem-somos'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/game/play'
     | '/api/public/itch-build'
     | '/api/public/itch-webhook'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   GameRoute: typeof GameRouteWithChildren
   QuemSomosRoute: typeof QuemSomosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicItchBuildRoute: typeof ApiPublicItchBuildRoute
   ApiPublicItchWebhookRoute: typeof ApiPublicItchWebhookRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
@@ -187,6 +200,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -293,6 +313,7 @@ const rootRouteChildren: RootRouteChildren = {
   GameRoute: GameRouteWithChildren,
   QuemSomosRoute: QuemSomosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicItchBuildRoute: ApiPublicItchBuildRoute,
   ApiPublicItchWebhookRoute: ApiPublicItchWebhookRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,

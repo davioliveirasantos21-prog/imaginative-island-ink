@@ -22,19 +22,82 @@ export const Route = createFileRoute("/")({
         content:
           "Pixel Islands é um sandbox 2D de sobrevivência artesanal — um dos primeiros jogos programados com vibecoding e tecnologias web modernas. Explore ilhas, mine, forje, lute e construa seu mundo.",
       },
+      { name: "keywords", content: "pixel islands, sandbox, sobrevivência, jogo indie, vibecoding, jogo web, pixel art, jogo brasileiro, davi oliveira" },
+      { name: "author", content: "Davi Oliveira" },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Pixel Islands" },
+      { property: "og:url", content: "https://pixelislandsultimate.lovable.app/" },
       { property: "og:title", content: "Pixel Islands — Sandbox Pixel de Sobrevivência" },
       {
         property: "og:description",
         content:
           "Explore, mine, forje e lute em Pixel Islands — um sandbox pixel-art programado com vibecoding e tecnologias web modernas.",
       },
+      { property: "og:image", content: "https://pixelislandsultimate.lovable.app/pwa-512.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Pixel Islands — Sandbox Pixel de Sobrevivência" },
+      { name: "twitter:description", content: "Um dos primeiros jogos criados com vibecoding. Explore, minere, forje e sobreviva." },
+      { name: "twitter:image", content: "https://pixelislandsultimate.lovable.app/pwa-512.png" },
     ],
-
+    links: [{ rel: "canonical", href: "https://pixelislandsultimate.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "VideoGame",
+              name: "Pixel Islands",
+              url: "https://pixelislandsultimate.lovable.app/",
+              image: "https://pixelislandsultimate.lovable.app/pwa-512.png",
+              description:
+                "Sandbox 2D de sobrevivência pixel-art programado com vibecoding. Explore ilhas, mine, forje, lute e construa.",
+              genre: ["Sandbox", "Survival", "Indie", "Pixel Art"],
+              gamePlatform: ["Web browser", "PWA", "itch.io"],
+              applicationCategory: "Game",
+              operatingSystem: "Any (Web)",
+              inLanguage: ["pt-BR", "en", "es"],
+              playMode: "SinglePlayer",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "BRL", availability: "https://schema.org/InStock" },
+              author: { "@type": "Person", name: "Davi Oliveira", url: "https://pixelislandsultimate.lovable.app/quem-somos" },
+              publisher: { "@type": "Person", name: "Davi Oliveira" },
+              sameAs: ["https://davioliver.itch.io/pixel-islands"],
+            },
+            {
+              "@type": "Organization",
+              name: "Pixel Islands",
+              url: "https://pixelislandsultimate.lovable.app/",
+              logo: "https://pixelislandsultimate.lovable.app/pwa-512.png",
+              founder: { "@type": "Person", name: "Davi Oliveira" },
+            },
+            {
+              "@type": "WebSite",
+              url: "https://pixelislandsultimate.lovable.app/",
+              name: "Pixel Islands",
+              inLanguage: ["pt-BR", "en", "es"],
+              potentialAction: {
+                "@type": "PlayAction",
+                target: "https://pixelislandsultimate.lovable.app/game",
+              },
+            },
+            {
+              "@type": "FAQPage",
+              mainEntity: [
+                { "@type": "Question", name: "O jogo é gratuito?", acceptedAnswer: { "@type": "Answer", text: "Sim. Durante o pré-alpha, Pixel Islands é totalmente gratuito." } },
+                { "@type": "Question", name: "Meu progresso fica salvo?", acceptedAnswer: { "@type": "Answer", text: "Sim. Cada personagem é sincronizado com a nuvem por conta." } },
+                { "@type": "Question", name: "Precisa instalar?", acceptedAnswer: { "@type": "Answer", text: "Não. Pixel Islands roda direto no navegador como PWA." } },
+              ],
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: Landing,
 });
+
 
 type Copy = {
   nav: { features: string; screens: string; faq: string; contact: string; about: string; support: string; play: string };
@@ -414,12 +477,13 @@ function Landing() {
           <img
             src={pixelIslandsLogo}
             alt="Pixel Islands"
-            className="w-full max-w-[520px]"
+            className="w-full max-w-[520px] md:max-w-[760px] lg:max-w-[880px]"
             style={{
               imageRendering: "pixelated",
               filter: "drop-shadow(0 0 24px rgba(255,209,102,0.6)) drop-shadow(6px 6px 0 rgba(0,0,0,0.45))",
             }}
           />
+
           <h1 className="max-w-3xl text-2xl leading-tight sm:text-4xl md:text-5xl" style={{ textShadow: "3px 3px 0 #fff8dc, 0 0 18px rgba(255,255,255,0.55)" }}>
             <span className="text-[#7a3e1d]">{c.hero.title1}</span>{" "}
             <span className="text-[#2a1a0a]">{c.hero.title2}</span>
@@ -477,19 +541,20 @@ function Landing() {
             <h2 className="text-2xl sm:text-4xl">{c.style.title}</h2>
             <p className="mt-3 text-xs text-[#3a2410]/80 sm:text-sm">{c.style.subtitle}</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             {c.style.cards.map((card) => (
               <div
                 key={card.title}
-                className="border-4 border-[#7a3e1d]/40 bg-[#fdf6dc] p-5 transition-transform hover:-translate-y-1 hover:border-[#c48a2e]"
+                className="min-w-0 border-4 border-[#7a3e1d]/40 bg-[#fdf6dc] p-3 transition-transform hover:-translate-y-1 hover:border-[#c48a2e] sm:p-5"
                 style={{ boxShadow: "0 6px 0 #0a141f, 0 8px 0 rgba(0,0,0,0.4)" }}
               >
-                <div className="mb-3 text-3xl">{card.icon}</div>
-                <div className="mb-2 text-sm tracking-widest text-[#7a3e1d]">{card.title}</div>
-                <p className="text-[11px] leading-relaxed text-[#3a2410]/85 sm:text-xs">{card.body}</p>
+                <div className="mb-2 text-2xl sm:mb-3 sm:text-3xl">{card.icon}</div>
+                <div className="mb-1 break-words text-[11px] tracking-widest text-[#7a3e1d] sm:mb-2 sm:text-sm">{card.title}</div>
+                <p className="break-words text-[10px] leading-relaxed text-[#3a2410]/85 sm:text-xs">{card.body}</p>
               </div>
             ))}
           </div>
+
         </div>
       </section>
 
@@ -521,30 +586,31 @@ function Landing() {
             </div>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
             {shots.slice(1).map((s, i) => (
               <figure
                 key={i}
-                className="group overflow-hidden border-4 border-[#7a3e1d]/40 bg-[#f4e9c1] hover:border-[#c48a2e]"
+                className="group min-w-0 overflow-hidden border-4 border-[#7a3e1d]/40 bg-[#f4e9c1] hover:border-[#c48a2e]"
                 style={{ boxShadow: "0 6px 0 #0a141f" }}
               >
                 <div className="relative">
                   <img
                     src={s.url}
                     alt={s.cap}
-                    className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:h-60"
+                    className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:h-60"
                     style={{ imageRendering: "pixelated" }}
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#2a1a0a]/85 via-[#2a1a0a]/25 to-transparent" />
                 </div>
-                <figcaption className="border-t-2 border-[#7a3e1d]/50 bg-[#f4e9c1] px-4 py-3">
-                  <div className="text-[10px] tracking-[0.35em] text-[#7a3e1d]">{s.cap}</div>
-                  <div className="mt-1 text-[11px] leading-relaxed text-[#3a2410]/85">{s.desc}</div>
+                <figcaption className="border-t-2 border-[#7a3e1d]/50 bg-[#f4e9c1] px-2 py-2 sm:px-4 sm:py-3">
+                  <div className="break-words text-[9px] tracking-[0.25em] text-[#7a3e1d] sm:text-[10px] sm:tracking-[0.35em]">{s.cap}</div>
+                  <div className="mt-1 break-words text-[10px] leading-relaxed text-[#3a2410]/85 sm:text-[11px]">{s.desc}</div>
                 </figcaption>
               </figure>
             ))}
           </div>
+
         </div>
       </section>
 
