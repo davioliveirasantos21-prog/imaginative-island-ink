@@ -16,21 +16,22 @@ import combatScene from "@/assets/lp-scene-combat.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Pixel Islands — Survival Pixel Sandbox Built with Vibecoding AI" },
+      { title: "Pixel Islands — Sandbox de Sobrevivência Pixel Programado com Vibecoding" },
       {
         name: "description",
         content:
-          "Pixel Islands is a handcrafted 2D survival sandbox — one of the first games built end-to-end with vibecoding AI. Explore islands, mine, craft, fight and shape your world.",
+          "Pixel Islands é um sandbox 2D de sobrevivência artesanal — um dos primeiros jogos programados com vibecoding e tecnologias web modernas. Explore ilhas, mine, forje, lute e construa seu mundo.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Pixel Islands — Pixel Survival Sandbox" },
+      { property: "og:title", content: "Pixel Islands — Sandbox Pixel de Sobrevivência" },
       {
         property: "og:description",
         content:
-          "Explore, mine, craft and fight in Pixel Islands — a pixel-art survival sandbox forged with vibecoding AI.",
+          "Explore, mine, forje e lute em Pixel Islands — um sandbox pixel-art programado com vibecoding e tecnologias web modernas.",
       },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+
   }),
   component: Landing,
 });
