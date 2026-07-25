@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
 });
 
 type Copy = {
-  nav: { features: string; screens: string; faq: string; contact: string; play: string };
+  nav: { features: string; screens: string; faq: string; contact: string; about: string; support: string; play: string };
   hero: {
     badge: string;
     title1: string;
@@ -76,7 +76,7 @@ type Copy = {
 
 const COPY: Record<"pt" | "en" | "es", Copy> = {
   pt: {
-    nav: { features: "Estilo", screens: "Imagens", faq: "FAQ", contact: "Contato", play: "Jogar" },
+    nav: { features: "Estilo", screens: "Imagens", faq: "FAQ", contact: "Contato", about: "Quem somos", support: "Apoiar", play: "Jogar" },
     hero: {
       badge: "◆ Pré-alpha · 2026",
       title1: "Sobreviva.",
@@ -149,7 +149,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
     footer: "Pixel Islands · construído com vibecoding · Davi Oliveira · CNPJ 65.550.537/0001-70 · pixelislands.site",
   },
   en: {
-    nav: { features: "Style", screens: "Screens", faq: "FAQ", contact: "Contact", play: "Play" },
+    nav: { features: "Style", screens: "Screens", faq: "FAQ", contact: "Contact", about: "About", support: "Support", play: "Play" },
     hero: {
       badge: "◆ Pre-alpha · 2026",
       title1: "Survive.",
@@ -222,7 +222,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
     footer: "Pixel Islands · built with vibecoding · Davi Oliveira · CNPJ 65.550.537/0001-70 · pixelislands.site",
   },
   es: {
-    nav: { features: "Estilo", screens: "Imágenes", faq: "FAQ", contact: "Contacto", play: "Jugar" },
+    nav: { features: "Estilo", screens: "Imágenes", faq: "FAQ", contact: "Contacto", about: "Quiénes somos", support: "Apoyar", play: "Jugar" },
     hero: {
       badge: "◆ Pre-alpha · 2026",
       title1: "Sobrevive.",
@@ -331,6 +331,9 @@ function Landing() {
             <a href="#screens" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.screens}</a>
             <a href="#faq" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.faq}</a>
             <a href="#contact" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.contact}</a>
+            <Link to="/quem-somos" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.about}</Link>
+            <Link to="/apoio" className="hidden text-[#3a2410]/85 hover:text-[#c48a2e] sm:inline">{c.nav.support}</Link>
+            <a href="https://davioliver.itch.io/pixel-islands" target="_blank" rel="noreferrer" className="hidden text-[#c48a2e] hover:text-[#7a3e1d] sm:inline">itch.io ↗</a>
 
             <div className="relative">
               <button
