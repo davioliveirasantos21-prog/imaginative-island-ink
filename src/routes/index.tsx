@@ -301,16 +301,8 @@ function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [langOpen, setLangOpen] = useState(false);
 
-  const track = useServerFn(logPageView);
-  useEffect(() => {
-    void track({
-      data: {
-        path: "/",
-        referrer: typeof document !== "undefined" ? document.referrer : "",
-        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
-      },
-    }).catch(() => {});
-  }, [track]);
+
+
 
   const shots = [
     { url: menuBg as unknown as string, cap: c.screens.caps[0], desc: c.screens.captions[0] },
