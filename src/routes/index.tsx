@@ -270,7 +270,7 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       title: "Preguntas frecuentes",
       items: [
         { q: "¿El juego es gratis?", a: "Sí. Durante el pre-alpha es totalmente gratuito." },
-        { q: "¿Qué es 'vibecoding'?", a: "Vibecoding es programar en flujo — describes mecánicas, arte y correcciones en lenguaje natural y ves el resultado al vivo. Pixel Islands está construido así, sobre un stack web moderno (React, TypeScript, Canvas 2D, PWA)." },
+        { q: "¿Qué es 'vibecoding'?", a: "Vibecoding es una forma de usar programación junto con herramientas de IA para ayudar a construir el juego — describes mecánicas, arte y correcciones en lenguaje natural y ves el resultado al vivo. Pixel Islands está construido así, sobre un stack web moderno (React, TypeScript, Canvas 2D, PWA)." },
         { q: "¿Hay que descargarlo?", a: "No. Corre en el navegador, en PC y móvil. También como PWA." },
         { q: "¿Se guarda mi progreso?", a: "Sí, sincronizado en la nube por cuenta." },
         { q: "¿Habrá multijugador?", a: "Cooperativo está en el roadmap." },
