@@ -277,13 +277,20 @@ function Users({ stats }: { stats: Stats }) {
   );
 }
 
-function Webmail() {
+function CredBlock({
+  title,
+  subtitle,
+  creds,
+  openUrl,
+  openLabel,
+}: {
+  title: string;
+  subtitle: string;
+  creds: { label: string; value: string }[];
+  openUrl: string;
+  openLabel: string;
+}) {
   const [copied, setCopied] = useState<string | null>(null);
-  const creds = [
-    { label: "URL", value: "https://mail.hostinger.com/mailboxes/INBOX" },
-    { label: "E-mail", value: "contact@pixelislands.site" },
-    { label: "Senha", value: "Pixelislands#2026*" },
-  ];
   async function copy(v: string, label: string) {
     try {
       await navigator.clipboard.writeText(v);
@@ -292,38 +299,63 @@ function Webmail() {
     } catch {}
   }
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-amber-500/30 bg-slate-900/60 p-6">
-        <div className="mb-1 text-[10px] uppercase tracking-[0.35em] text-amber-400">Hostinger Webmail</div>
-        <h2 className="text-lg font-semibold text-slate-100">Acesso à caixa de entrada</h2>
-        <p className="mt-1 text-xs text-slate-400">
-          Credenciais internas. Não compartilhe fora da equipe.
-        </p>
+    <div className="rounded-xl border border-amber-500/30 bg-slate-900/60 p-6">
+      <div className="mb-1 text-[10px] uppercase tracking-[0.35em] text-amber-400">{title}</div>
+      <h2 className="text-lg font-semibold text-slate-100">{subtitle}</h2>
+      <p className="mt-1 text-xs text-slate-400">Credenciais internas. Não compartilhe fora da equipe.</p>
 
-        <div className="mt-5 divide-y divide-slate-800 rounded-lg border border-slate-800 bg-slate-950/60">
-          {creds.map((c) => (
-            <div key={c.label} className="flex items-center gap-3 px-4 py-3">
-              <div className="w-20 text-[10px] uppercase tracking-widest text-slate-500">{c.label}</div>
-              <code className="flex-1 truncate font-mono text-sm text-slate-200">{c.value}</code>
-              <button
-                onClick={() => copy(c.value, c.label)}
-                className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[10px] uppercase tracking-widest text-slate-300 hover:border-amber-400 hover:text-amber-300"
-              >
-                {copied === c.label ? "Copiado" : "Copiar"}
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <a
-          href="https://mail.hostinger.com/mailboxes/INBOX"
-          target="_blank"
-          rel="noreferrer noopener"
-          className="mt-5 inline-flex items-center gap-2 rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400"
-        >
-          Abrir webmail ↗
-        </a>
+      <div className="mt-5 divide-y divide-slate-800 rounded-lg border border-slate-800 bg-slate-950/60">
+        {creds.map((c) => (
+          <div key={c.label} className="flex items-center gap-3 px-4 py-3">
+            <div className="w-20 text-[10px] uppercase tracking-widest text-slate-500">{c.label}</div>
+            <code className="flex-1 truncate font-mono text-sm text-slate-200">{c.value}</code>
+            <button
+              onClick={() => copy(c.value, `${title}:${c.label}`)}
+              className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[10px] uppercase tracking-widest text-slate-300 hover:border-amber-400 hover:text-amber-300"
+            >
+              {copied === `${title}:${c.label}` ? "Copiado" : "Copiar"}
+            </button>
+          </div>
+        ))}
       </div>
+
+      <a
+        href={openUrl}
+        target="_blank"
+        rel="noreferrer noopener"
+        className="mt-5 inline-flex items-center gap-2 rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400"
+      >
+        {openLabel} ↗
+      </a>
+    </div>
+  );
+}
+
+function Webmail() {
+  return (
+    <div className="space-y-6">
+      <CredBlock
+        title="Hostinger Webmail"
+        subtitle="Acesso à caixa de entrada"
+        openUrl="https://mail.hostinger.com/mailboxes/INBOX"
+        openLabel="Abrir webmail"
+        creds={[
+          { label: "URL", value: "https://mail.hostinger.com/mailboxes/INBOX" },
+          { label: "E-mail", value: "contact@pixelislands.site" },
+          { label: "Senha", value: "Pixelislands#2026*" },
+        ]}
+      />
+      <CredBlock
+        title="itch.io"
+        subtitle="Conta do publisher"
+        openUrl="https://itch.io/login"
+        openLabel="Abrir itch.io"
+        creds={[
+          { label: "URL", value: "https://itch.io/login" },
+          { label: "E-mail", value: "contact@pixelislands.site" },
+          { label: "Senha", value: "Pixelislands#2026*" },
+        ]}
+      />
     </div>
   );
 }
