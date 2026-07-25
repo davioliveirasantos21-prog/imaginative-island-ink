@@ -317,44 +317,8 @@ function SupportPage() {
       <DonationSection copy={c.donate} />
 
 
-      {/* Tiers */}
-      <section className="border-b-4 border-[#7a3e1d]/40 bg-[#b7e4f3] py-14">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-8 text-center">
-            <h2 className="text-xl sm:text-2xl">{c.tiers.title}</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-[10px] leading-loose text-[#3a2410]/80 sm:text-xs">
-              {c.tiers.subtitle}
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            <TierCard
-              title={c.tiers.supporter.title}
-              body={c.tiers.supporter.body}
-              perks={c.tiers.supporter.perks}
-              sku="supporter_pack"
-              cta={c.tiers.supporter.cta}
-              accent="#ffd166"
-            />
-            <TierCard
-              title={c.tiers.cosmetic.title}
-              body={c.tiers.cosmetic.body}
-              perks={c.tiers.cosmetic.perks}
-              sku="cosmetic_bundle"
-              cta={c.tiers.cosmetic.cta}
-              accent="#7ee787"
-              highlight
-            />
-            <TierCard
-              title={c.tiers.premium.title}
-              body={c.tiers.premium.body}
-              perks={c.tiers.premium.perks}
-              sku="premium_monthly"
-              cta={c.tiers.premium.cta}
-              accent="#e94560"
-            />
-          </div>
-        </div>
-      </section>
+
+
 
       {/* Other ways */}
       <section className="border-b-4 border-[#7a3e1d]/40 bg-[#fdf6dc] py-14">
