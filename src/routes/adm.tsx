@@ -27,7 +27,7 @@ function AdmPage() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
-  const [tab, setTab] = useState<"overview" | "contacts" | "errors" | "users">("overview");
+  const [tab, setTab] = useState<"overview" | "contacts" | "errors" | "users" | "webmail">("overview");
 
   useEffect(() => {
     void check().then((r) => setUnlocked(r.unlocked));
@@ -128,7 +128,7 @@ function AdmPage() {
           </div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 px-4">
-          {(["overview", "contacts", "errors", "users"] as const).map((t) => (
+          {(["overview", "contacts", "errors", "users", "webmail"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -138,7 +138,7 @@ function AdmPage() {
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
-              {t === "overview" ? "Visão geral" : t === "contacts" ? "Contatos" : t === "errors" ? "Erros" : "Usuários"}
+              {t === "overview" ? "Visão geral" : t === "contacts" ? "Contatos" : t === "errors" ? "Erros" : t === "users" ? "Usuários" : "Webmail"}
             </button>
           ))}
         </nav>
@@ -150,6 +150,7 @@ function AdmPage() {
         {stats && tab === "contacts" && <Contacts stats={stats} />}
         {stats && tab === "errors" && <Errors stats={stats} />}
         {stats && tab === "users" && <Users stats={stats} />}
+        {tab === "webmail" && <Webmail />}
       </main>
     </div>
   );
@@ -272,6 +273,57 @@ function Users({ stats }: { stats: Stats }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function Webmail() {
+  const [copied, setCopied] = useState<string | null>(null);
+  const creds = [
+    { label: "URL", value: "https://mail.hostinger.com/mailboxes/INBOX" },
+    { label: "E-mail", value: "contact@pixelislands.site" },
+    { label: "Senha", value: "Pixelislands#2026*" },
+  ];
+  async function copy(v: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(v);
+      setCopied(label);
+      setTimeout(() => setCopied(null), 1500);
+    } catch {}
+  }
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl border border-amber-500/30 bg-slate-900/60 p-6">
+        <div className="mb-1 text-[10px] uppercase tracking-[0.35em] text-amber-400">Hostinger Webmail</div>
+        <h2 className="text-lg font-semibold text-slate-100">Acesso à caixa de entrada</h2>
+        <p className="mt-1 text-xs text-slate-400">
+          Credenciais internas. Não compartilhe fora da equipe.
+        </p>
+
+        <div className="mt-5 divide-y divide-slate-800 rounded-lg border border-slate-800 bg-slate-950/60">
+          {creds.map((c) => (
+            <div key={c.label} className="flex items-center gap-3 px-4 py-3">
+              <div className="w-20 text-[10px] uppercase tracking-widest text-slate-500">{c.label}</div>
+              <code className="flex-1 truncate font-mono text-sm text-slate-200">{c.value}</code>
+              <button
+                onClick={() => copy(c.value, c.label)}
+                className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[10px] uppercase tracking-widest text-slate-300 hover:border-amber-400 hover:text-amber-300"
+              >
+                {copied === c.label ? "Copiado" : "Copiar"}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <a
+          href="https://mail.hostinger.com/mailboxes/INBOX"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="mt-5 inline-flex items-center gap-2 rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400"
+        >
+          Abrir webmail ↗
+        </a>
+      </div>
     </div>
   );
 }
