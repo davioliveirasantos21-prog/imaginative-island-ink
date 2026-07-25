@@ -128,7 +128,7 @@ function AdmPage() {
           </div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 px-4">
-          {(["overview", "contacts", "errors", "users", "webmail"] as const).map((t) => (
+          {(["overview", "contacts", "errors", "users", "webmail", "itch"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -138,7 +138,17 @@ function AdmPage() {
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
-              {t === "overview" ? "Visão geral" : t === "contacts" ? "Contatos" : t === "errors" ? "Erros" : t === "users" ? "Usuários" : "Webmail"}
+              {t === "overview"
+                ? "Visão geral"
+                : t === "contacts"
+                ? "Contatos"
+                : t === "errors"
+                ? "Erros"
+                : t === "users"
+                ? "Usuários"
+                : t === "webmail"
+                ? "Webmail"
+                : "Build itch.io"}
             </button>
           ))}
         </nav>
