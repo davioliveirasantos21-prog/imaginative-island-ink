@@ -478,19 +478,20 @@ function Landing() {
             <h2 className="text-2xl sm:text-4xl">{c.style.title}</h2>
             <p className="mt-3 text-xs text-[#3a2410]/80 sm:text-sm">{c.style.subtitle}</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             {c.style.cards.map((card) => (
               <div
                 key={card.title}
-                className="border-4 border-[#7a3e1d]/40 bg-[#fdf6dc] p-5 transition-transform hover:-translate-y-1 hover:border-[#c48a2e]"
+                className="min-w-0 border-4 border-[#7a3e1d]/40 bg-[#fdf6dc] p-3 transition-transform hover:-translate-y-1 hover:border-[#c48a2e] sm:p-5"
                 style={{ boxShadow: "0 6px 0 #0a141f, 0 8px 0 rgba(0,0,0,0.4)" }}
               >
-                <div className="mb-3 text-3xl">{card.icon}</div>
-                <div className="mb-2 text-sm tracking-widest text-[#7a3e1d]">{card.title}</div>
-                <p className="text-[11px] leading-relaxed text-[#3a2410]/85 sm:text-xs">{card.body}</p>
+                <div className="mb-2 text-2xl sm:mb-3 sm:text-3xl">{card.icon}</div>
+                <div className="mb-1 break-words text-[11px] tracking-widest text-[#7a3e1d] sm:mb-2 sm:text-sm">{card.title}</div>
+                <p className="break-words text-[10px] leading-relaxed text-[#3a2410]/85 sm:text-xs">{card.body}</p>
               </div>
             ))}
           </div>
+
         </div>
       </section>
 
