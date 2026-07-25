@@ -236,10 +236,10 @@ const COPY: Record<"pt" | "en" | "es", Copy> = {
       stat3: "∞", stat3l: "Islas generadas",
     },
     vibe: {
-      kicker: "· Hecho con Vibecoding IA ·",
+      kicker: "· Programado con Vibecoding & Tecnologías ·",
       title: "Uno de los primeros juegos nacidos del vibecoding.",
       body:
-        "Pixel Islands es un experimento honesto: cada tile, cada sonido y cada mecánica fue orquestada junto a una IA generativa en tiempo real. Diseño real a la velocidad del pensamiento.",
+        "Pixel Islands es un experimento honesto: cada tile, cada sonido y cada mecánica fue orquestada con vibecoding sobre un stack moderno — React, TypeScript, Canvas 2D, PWA y una nube propia de guardado. Diseño real a la velocidad del pensamiento.",
     },
     style: {
       title: "Estilo de juego",
