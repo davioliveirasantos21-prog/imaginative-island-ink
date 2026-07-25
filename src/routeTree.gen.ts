@@ -13,6 +13,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as GameRouteImport } from './routes/game'
 import { Route as CharactersRouteImport } from './routes/characters'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ApoioRouteImport } from './routes/apoio'
 import { Route as AdmRouteImport } from './routes/adm'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamePlayRouteImport } from './routes/game.play'
@@ -38,6 +39,11 @@ const CharactersRoute = CharactersRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApoioRoute = ApoioRouteImport.update({
+  id: '/apoio',
+  path: '/apoio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdmRoute = AdmRouteImport.update({
@@ -74,6 +80,7 @@ const ApiPublicItchBuildRoute = ApiPublicItchBuildRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adm': typeof AdmRoute
+  '/apoio': typeof ApoioRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adm': typeof AdmRoute
+  '/apoio': typeof ApoioRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/adm': typeof AdmRoute
+  '/apoio': typeof ApoioRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
   '/game': typeof GameRouteWithChildren
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/adm'
+    | '/apoio'
     | '/auth'
     | '/characters'
     | '/game'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/adm'
+    | '/apoio'
     | '/auth'
     | '/characters'
     | '/game'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/adm'
+    | '/apoio'
     | '/auth'
     | '/characters'
     | '/game'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdmRoute: typeof AdmRoute
+  ApoioRoute: typeof ApoioRoute
   AuthRoute: typeof AuthRoute
   CharactersRoute: typeof CharactersRoute
   GameRoute: typeof GameRouteWithChildren
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apoio': {
+      id: '/apoio'
+      path: '/apoio'
+      fullPath: '/apoio'
+      preLoaderRoute: typeof ApoioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/adm': {
@@ -247,6 +267,7 @@ const GameRouteWithChildren = GameRoute._addFileChildren(GameRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdmRoute: AdmRoute,
+  ApoioRoute: ApoioRoute,
   AuthRoute: AuthRoute,
   CharactersRoute: CharactersRoute,
   GameRoute: GameRouteWithChildren,
@@ -258,13 +279,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
