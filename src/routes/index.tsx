@@ -76,7 +76,7 @@ type Copy = {
 
 const COPY: Record<"pt" | "en" | "es", Copy> = {
   pt: {
-    nav: { features: "Estilo", screens: "Imagens", faq: "FAQ", contact: "Contato", play: "Jogar" },
+    nav: { features: "Estilo", screens: "Imagens", faq: "FAQ", contact: "Contato", about: "Quem somos", support: "Apoiar", play: "Jogar" },
     hero: {
       badge: "◆ Pré-alpha · 2026",
       title1: "Sobreviva.",
