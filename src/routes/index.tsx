@@ -371,10 +371,10 @@ function Landing() {
           src={heroScene}
           alt=""
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
           style={{ imageRendering: "pixelated" }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0a141f]/85 via-[#0a141f]/75 to-[#0a141f]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#87ceeb]/10 via-transparent to-[#f4e9c1]/70" />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-20 text-center sm:py-28">
           <span className="border-2 border-[#7a3e1d]/70 bg-[#f4e9c1]/90 px-3 py-1 text-[10px] tracking-[0.35em] text-[#7a3e1d]">
             {c.hero.badge}
