@@ -14,7 +14,7 @@ import pixelIslandsLogo from "@/assets/pixel-islands-logo.png";
 import menuBg from "@/assets/menu-bg.png";
 
 
-export const Route = createFileRoute("/game")({
+export const Route = createFileRoute("/game/")({
   component: MainMenu,
 });
 

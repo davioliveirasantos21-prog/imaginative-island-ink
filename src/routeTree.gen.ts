@@ -12,12 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuemSomosRouteImport } from './routes/quem-somos'
-import { Route as GameRouteImport } from './routes/game'
 import { Route as CharactersRouteImport } from './routes/characters'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApoioRouteImport } from './routes/apoio'
 import { Route as AdmRouteImport } from './routes/adm'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GameIndexRouteImport } from './routes/game.index'
 import { Route as GamePlayRouteImport } from './routes/game.play'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as ApiPublicItchWebhookRouteImport } from './routes/api/public/itch-webhook'
@@ -36,11 +36,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const QuemSomosRoute = QuemSomosRouteImport.update({
   id: '/quem-somos',
   path: '/quem-somos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GameRoute = GameRouteImport.update({
-  id: '/game',
-  path: '/game',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CharactersRoute = CharactersRouteImport.update({
@@ -68,10 +63,15 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GameIndexRoute = GameIndexRouteImport.update({
+  id: '/game/',
+  path: '/game/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamePlayRoute = GamePlayRouteImport.update({
-  id: '/play',
-  path: '/play',
-  getParentRoute: () => GameRoute,
+  id: '/game/play',
+  path: '/game/play',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   id: '/api/public/stripe-webhook',
@@ -95,11 +95,11 @@ export interface FileRoutesByFullPath {
   '/apoio': typeof ApoioRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
-  '/game': typeof GameRouteWithChildren
   '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/game/play': typeof GamePlayRoute
+  '/game/': typeof GameIndexRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
   '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -110,11 +110,11 @@ export interface FileRoutesByTo {
   '/apoio': typeof ApoioRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
-  '/game': typeof GameRouteWithChildren
   '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/game/play': typeof GamePlayRoute
+  '/game': typeof GameIndexRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
   '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -126,11 +126,11 @@ export interface FileRoutesById {
   '/apoio': typeof ApoioRoute
   '/auth': typeof AuthRoute
   '/characters': typeof CharactersRoute
-  '/game': typeof GameRouteWithChildren
   '/quem-somos': typeof QuemSomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/game/play': typeof GamePlayRoute
+  '/game/': typeof GameIndexRoute
   '/api/public/itch-build': typeof ApiPublicItchBuildRoute
   '/api/public/itch-webhook': typeof ApiPublicItchWebhookRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -143,11 +143,11 @@ export interface FileRouteTypes {
     | '/apoio'
     | '/auth'
     | '/characters'
-    | '/game'
     | '/quem-somos'
     | '/reset-password'
     | '/sitemap.xml'
     | '/game/play'
+    | '/game/'
     | '/api/public/itch-build'
     | '/api/public/itch-webhook'
     | '/api/public/stripe-webhook'
@@ -158,11 +158,11 @@ export interface FileRouteTypes {
     | '/apoio'
     | '/auth'
     | '/characters'
-    | '/game'
     | '/quem-somos'
     | '/reset-password'
     | '/sitemap.xml'
     | '/game/play'
+    | '/game'
     | '/api/public/itch-build'
     | '/api/public/itch-webhook'
     | '/api/public/stripe-webhook'
@@ -173,11 +173,11 @@ export interface FileRouteTypes {
     | '/apoio'
     | '/auth'
     | '/characters'
-    | '/game'
     | '/quem-somos'
     | '/reset-password'
     | '/sitemap.xml'
     | '/game/play'
+    | '/game/'
     | '/api/public/itch-build'
     | '/api/public/itch-webhook'
     | '/api/public/stripe-webhook'
@@ -189,10 +189,11 @@ export interface RootRouteChildren {
   ApoioRoute: typeof ApoioRoute
   AuthRoute: typeof AuthRoute
   CharactersRoute: typeof CharactersRoute
-  GameRoute: typeof GameRouteWithChildren
   QuemSomosRoute: typeof QuemSomosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  GamePlayRoute: typeof GamePlayRoute
+  GameIndexRoute: typeof GameIndexRoute
   ApiPublicItchBuildRoute: typeof ApiPublicItchBuildRoute
   ApiPublicItchWebhookRoute: typeof ApiPublicItchWebhookRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
@@ -219,13 +220,6 @@ declare module '@tanstack/react-router' {
       path: '/quem-somos'
       fullPath: '/quem-somos'
       preLoaderRoute: typeof QuemSomosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/game': {
-      id: '/game'
-      path: '/game'
-      fullPath: '/game'
-      preLoaderRoute: typeof GameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/characters': {
@@ -263,12 +257,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/game/': {
+      id: '/game/'
+      path: '/game'
+      fullPath: '/game/'
+      preLoaderRoute: typeof GameIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/game/play': {
       id: '/game/play'
-      path: '/play'
+      path: '/game/play'
       fullPath: '/game/play'
       preLoaderRoute: typeof GamePlayRouteImport
-      parentRoute: typeof GameRoute
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/stripe-webhook': {
       id: '/api/public/stripe-webhook'
@@ -294,26 +295,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface GameRouteChildren {
-  GamePlayRoute: typeof GamePlayRoute
-}
-
-const GameRouteChildren: GameRouteChildren = {
-  GamePlayRoute: GamePlayRoute,
-}
-
-const GameRouteWithChildren = GameRoute._addFileChildren(GameRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdmRoute: AdmRoute,
   ApoioRoute: ApoioRoute,
   AuthRoute: AuthRoute,
   CharactersRoute: CharactersRoute,
-  GameRoute: GameRouteWithChildren,
   QuemSomosRoute: QuemSomosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  GamePlayRoute: GamePlayRoute,
+  GameIndexRoute: GameIndexRoute,
   ApiPublicItchBuildRoute: ApiPublicItchBuildRoute,
   ApiPublicItchWebhookRoute: ApiPublicItchWebhookRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
