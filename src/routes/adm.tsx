@@ -150,6 +150,7 @@ function AdmPage() {
         {stats && tab === "contacts" && <Contacts stats={stats} />}
         {stats && tab === "errors" && <Errors stats={stats} />}
         {stats && tab === "users" && <Users stats={stats} />}
+        {tab === "webmail" && <Webmail />}
       </main>
     </div>
   );
